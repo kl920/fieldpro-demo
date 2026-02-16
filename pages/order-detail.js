@@ -16,7 +16,8 @@ function renderOrderDetailPage(data) {
     const timeData = AppData.getTaskData(taskId, 'time', {
         startTime: task.scheduledStart,
         endTime: task.scheduledEnd,
-        pause: '00:00'
+        pauseStart: '',
+        pauseEnd: ''
     });
     
     const content = `
@@ -135,13 +136,29 @@ function renderOrderDetailPage(data) {
                             <label>Slut</label>
                             <input type="time" id="endTimeInput" value="${timeData.endTime}" onchange="updateTaskTime(${taskId})">
                         </div>
+                    </div>
+                    <div class="time-grid" style="margin-top: var(--spacing-md);">
                         <div class="time-input-group">
-                            <label>Pause</label>
-                            <input type="time" id="pauseTimeInput" value="${timeData.pause}" onchange="updateTaskTime(${taskId})">
+                            <label>Pause fra</label>
+                            <input type="time" id="pauseStartInput" value="${timeData.pauseStart}" onchange="updateTaskTime(${taskId})">
                         </div>
-                        <div class="time-total">
-                            <label>Total</label>
-                            <div class="time-total-value" id="totalTime">0:00</div>
+                        <div class="time-input-group">
+                            <label>Pause til</label>
+                            <input type="time" id="pauseEndInput" value="${timeData.pauseEnd}" onchange="updateTaskTime(${taskId})">
+                        </div>
+                    </div>
+                    <div class="time-summary">
+                        <div class="time-summary-row">
+                            <span>Arbejdstid:</span>
+                            <span id="workTimeDisplay">0:00</span>
+                        </div>
+                        <div class="time-summary-row">
+                            <span>Pause:</span>
+                            <span id="pauseTimeDisplay">0:00</span>
+                        </div>
+                        <div class="time-summary-row time-total-row">
+                            <span>Total:</span>
+                            <span id="totalTime">0:00</span>
                         </div>
                     </div>
                 </div>
@@ -337,16 +354,33 @@ function renderOrderDetailPage(data) {
 function calculateTotalTime(taskId) {
     const start = document.getElementById('startTimeInput').value;
     const end = document.getElementById('endTimeInput').value;
-    const pause = document.getElementById('pauseTimeInput').value;
+    const pauseStart = document.getElementById('pauseStartInput').value;
+    const pauseEnd = document.getElementById('pauseEndInput').value;
     
     if (start && end) {
         const startMin = timeToMinutes(start);
         const endMin = timeToMinutes(end);
-        const pauseMin = timeToMinutes(pause);
         
-        let total = endMin - startMin - pauseMin;
+        // Calculate work time
+        let workTime = endMin - startMin;
+        if (workTime < 0) workTime += 1440; // Handle overnight
+        
+        // Calculate pause time
+        let pauseMin = 0;
+        if (pauseStart && pauseEnd) {
+            const pauseStartMin = timeToMinutes(pauseStart);
+            const pauseEndMin = timeToMinutes(pauseEnd);
+            pauseMin = pauseEndMin - pauseStartMin;
+            if (pauseMin < 0) pauseMin += 1440; // Handle overnight
+        }
+        
+        // Calculate total (work time minus pause)
+        let total = workTime - pauseMin;
         if (total < 0) total = 0;
         
+        // Update displays
+        document.getElementById('workTimeDisplay').textContent = minutesToTime(workTime);
+        document.getElementById('pauseTimeDisplay').textContent = minutesToTime(pauseMin);
         document.getElementById('totalTime').textContent = minutesToTime(total);
     }
 }
@@ -355,7 +389,8 @@ function updateTaskTime(taskId) {
     const timeData = {
         startTime: document.getElementById('startTimeInput').value,
         endTime: document.getElementById('endTimeInput').value,
-        pause: document.getElementById('pauseTimeInput').value
+        pauseStart: document.getElementById('pauseStartInput').value,
+        pauseEnd: document.getElementById('pauseEndInput').value
     };
     
     AppData.saveTaskData(taskId, 'time', timeData);

@@ -895,6 +895,58 @@ a:hover {
     color: var(--primary);
 }
 
+/* Time Summary */
+.time-summary {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border);
+}
+
+.time-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.time-summary-row:last-child {
+    border-bottom: none;
+}
+
+.time-summary-row span:last-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+}
+
+.time-total-row {
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-lg) 0 var(--spacing-md) 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    margin: 0 calc(-1 * var(--spacing-lg));
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.time-total-row span {
+    color: white;
+}
+
+.time-total-row span:last-child {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
 /* Notes Textarea */
 .notes-textarea {
     width: 100%;
