@@ -2088,6 +2088,220 @@ a:hover {
     height: 14px;
 }
 
+/* ========================================
+   Calendar Component
+   ======================================== */
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg) 0;
+    margin-bottom: var(--spacing-md);
+}
+
+.calendar-nav h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-nav-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid var(--border);
+}
+
+.calendar-nav-btn:hover {
+    background: var(--gray-100);
+    border-color: var(--primary);
+}
+
+.calendar-nav-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.calendar-container {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.weekday {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: var(--spacing-sm);
+    text-transform: uppercase;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--bg-secondary);
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.calendar-day.empty {
+    cursor: default;
+    background: transparent;
+}
+
+.calendar-day:not(.empty):hover {
+    background: var(--gray-100);
+    border-color: var(--primary-light);
+    transform: scale(1.05);
+}
+
+.calendar-day.today {
+    background: var(--primary);
+    color: white;
+}
+
+.calendar-day.today .day-number {
+    color: white;
+    font-weight: 700;
+}
+
+.calendar-day.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.calendar-day.selected .day-number {
+    color: white;
+}
+
+.day-number {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.day-tasks {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.task-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    display: inline-block;
+}
+
+.task-count {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+.calendar-day.today .task-count,
+.calendar-day.selected .task-count {
+    color: white;
+}
+
+.selected-day-section {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border);
+}
+
+.month-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.month-stats .stat-item {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.month-stats .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.month-stats .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-full);
+    display: inline-block;
+}
+
 /* Print Styles */
 @media print {
     .bottom-nav,
