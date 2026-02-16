@@ -6,27 +6,23 @@ function showToast(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     
-    const icon = {
-        'success': '✓',
-        'error': '✕',
-        'warning': '⚠',
-        'info': 'ℹ'
-    }[type] || 'ℹ';
+    const icons = {
+        'success': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px;"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        'error': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+        'warning': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+        'info': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+    };
     
     toast.innerHTML = `
-        <div class="toast-icon">${icon}</div>
+        <div class="toast-icon">${icons[type] || icons.info}</div>
         <div class="toast-message">${message}</div>
     `;
     
     container.appendChild(toast);
     
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 10);
-    
-    // Remove after duration
+    // Auto-remove after duration
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
+        toast.remove();
     }, duration);
 }
 
@@ -198,6 +194,73 @@ function saveToStorage(key, value) {
         return true;
     } catch (e) {
         console.error('Error writing to localStorage:', e);
+        showToast('Kunne ikke gemme data', 'error');
         return false;
     }
+}
+
+// Debounce function for input optimization
+function debounce(func, wait = 300) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Scroll to element smoothly
+function scrollToElement(element, offset = 0) {
+    if (!element) return;
+    const top = element.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+}
+
+// Copy to clipboard with feedback
+function copyToClipboard(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Kopieret til udklipsholder', 'success', 2000);
+        }).catch(() => {
+            showToast('Kunne ikke kopiere', 'error');
+        });
+    } else {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast('Kopieret til udklipsholder', 'success', 2000);
+        } catch (err) {
+            showToast('Kunne ikke kopiere', 'error');
+        }
+        document.body.removeChild(textarea);
+    }
+}
+
+// Format phone number for display
+function formatPhoneNumber(phone) {
+    if (!phone) return '';
+    // Danish phone format: +45 12 34 56 78
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 8) {
+        return cleaned.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/, '+45 $1 $2 $3 $4');
+    }
+    return phone;
+}
+
+// Validate email
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// Generate unique ID
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
