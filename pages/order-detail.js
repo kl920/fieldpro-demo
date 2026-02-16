@@ -321,11 +321,16 @@ function renderOrderDetailPage(data) {
                 </div>
 
                 <!-- Complete Task Button -->
-                <button class="button-success button-large" onclick="completeTask(${taskId})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Afslut opgave
+                <button class="complete-task-button" onclick="completeTask(${taskId})">
+                    <div class="complete-task-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="complete-task-content">
+                        <div class="complete-task-title">Afslut opgave</div>
+                        <div class="complete-task-subtitle">Marker som færdig og send til kunde</div>
+                    </div>
                 </button>
             </div>
         </div>
