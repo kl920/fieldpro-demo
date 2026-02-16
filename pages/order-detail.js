@@ -126,39 +126,75 @@ function renderOrderDetailPage(data) {
 
                 <!-- Time Registration -->
                 <div class="section-card">
-                    <h3>Tidsregistrering</h3>
-                    <div class="time-grid">
-                        <div class="time-input-group">
+                    <div class="section-card-header">
+                        <h3>Tidsregistrering</h3>
+                        <button class="button-text" onclick="setTimeNow('start', ${taskId})">Nu</button>
+                    </div>
+                    
+                    <div class="time-inputs-modern">
+                        <div class="time-input-modern">
                             <label>Start</label>
-                            <input type="time" id="startTimeInput" value="${timeData.startTime}" onchange="updateTaskTime(${taskId})">
+                            <div class="time-picker">
+                                <input type="number" id="startHour" min="0" max="23" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                <span class="time-separator">:</span>
+                                <input type="number" id="startMinute" min="0" max="59" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                            </div>
                         </div>
-                        <div class="time-input-group">
+                        
+                        <div class="time-input-modern">
                             <label>Slut</label>
-                            <input type="time" id="endTimeInput" value="${timeData.endTime}" onchange="updateTaskTime(${taskId})">
+                            <div class="time-picker">
+                                <input type="number" id="endHour" min="0" max="23" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                <span class="time-separator">:</span>
+                                <input type="number" id="endMinute" min="0" max="59" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                <button class="time-now-btn" onclick="setTimeNow('end', ${taskId})" title="Sæt til nu">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="time-grid" style="margin-top: var(--spacing-md);">
-                        <div class="time-input-group">
-                            <label>Pause fra</label>
-                            <input type="time" id="pauseStartInput" value="${timeData.pauseStart}" onchange="updateTaskTime(${taskId})">
+
+                    <div class="pause-section">
+                        <div class="pause-header">
+                            <label>Pause</label>
+                            <button class="button-text-small" onclick="clearPause(${taskId})">Ryd</button>
                         </div>
-                        <div class="time-input-group">
-                            <label>Pause til</label>
-                            <input type="time" id="pauseEndInput" value="${timeData.pauseEnd}" onchange="updateTaskTime(${taskId})">
+                        <div class="time-inputs-modern">
+                            <div class="time-input-modern">
+                                <label class="label-small">Fra</label>
+                                <div class="time-picker">
+                                    <input type="number" id="pauseStartHour" min="0" max="23" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                    <span class="time-separator">:</span>
+                                    <input type="number" id="pauseStartMinute" min="0" max="59" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                </div>
+                            </div>
+                            
+                            <div class="time-input-modern">
+                                <label class="label-small">Til</label>
+                                <div class="time-picker">
+                                    <input type="number" id="pauseEndHour" min="0" max="23" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                    <span class="time-separator">:</span>
+                                    <input type="number" id="pauseEndMinute" min="0" max="59" placeholder="00" onchange="updateTaskTime(${taskId})" class="time-number">
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <div class="time-summary">
                         <div class="time-summary-row">
-                            <span>Arbejdstid:</span>
-                            <span id="workTimeDisplay">0:00</span>
+                            <span>Arbejdstid</span>
+                            <span id="workTimeDisplay" class="time-value">0:00</span>
                         </div>
                         <div class="time-summary-row">
-                            <span>Pause:</span>
-                            <span id="pauseTimeDisplay">0:00</span>
+                            <span>Pause</span>
+                            <span id="pauseTimeDisplay" class="time-value">0:00</span>
                         </div>
-                        <div class="time-summary-row time-total-row">
-                            <span>Total:</span>
-                            <span id="totalTime">0:00</span>
+                        <div class="time-total-row">
+                            <span>Total</span>
+                            <span id="totalTime" class="time-value-large">0:00</span>
                         </div>
                     </div>
                 </div>
@@ -343,6 +379,7 @@ function renderOrderDetailPage(data) {
     
     // Initialize components
     setTimeout(() => {
+        initializeTimeInputs(taskId, timeData);
         calculateTotalTime(taskId);
         renderChecklist(taskId);
         renderVoiceNotes(taskId);
@@ -350,47 +387,91 @@ function renderOrderDetailPage(data) {
     }, 100);
 }
 
-// Helper functions for order detail
-function calculateTotalTime(taskId) {
-    const start = document.getElementById('startTimeInput').value;
-    const end = document.getElementById('endTimeInput').value;
-    const pauseStart = document.getElementById('pauseStartInput').value;
-    const pauseEnd = document.getElementById('pauseEndInput').value;
+// Initialize time inputs with saved data
+function initializeTimeInputs(taskId, timeData) {
+    // Parse start time
+    if (timeData.startTime) {
+        const [sH, sM] = timeData.startTime.split(':');
+        document.getElementById('startHour').value = sH;
+        document.getElementById('startMinute').value = sM;
+    }
     
-    if (start && end) {
-        const startMin = timeToMinutes(start);
-        const endMin = timeToMinutes(end);
-        
-        // Calculate work time
-        let workTime = endMin - startMin;
-        if (workTime < 0) workTime += 1440; // Handle overnight
-        
-        // Calculate pause time
-        let pauseMin = 0;
-        if (pauseStart && pauseEnd) {
-            const pauseStartMin = timeToMinutes(pauseStart);
-            const pauseEndMin = timeToMinutes(pauseEnd);
-            pauseMin = pauseEndMin - pauseStartMin;
-            if (pauseMin < 0) pauseMin += 1440; // Handle overnight
-        }
-        
-        // Calculate total (work time minus pause)
-        let total = workTime - pauseMin;
-        if (total < 0) total = 0;
-        
-        // Update displays
-        document.getElementById('workTimeDisplay').textContent = minutesToTime(workTime);
-        document.getElementById('pauseTimeDisplay').textContent = minutesToTime(pauseMin);
-        document.getElementById('totalTime').textContent = minutesToTime(total);
+    // Parse end time
+    if (timeData.endTime) {
+        const [eH, eM] = timeData.endTime.split(':');
+        document.getElementById('endHour').value = eH;
+        document.getElementById('endMinute').value = eM;
+    }
+    
+    // Parse pause start
+    if (timeData.pauseStart) {
+        const [psH, psM] = timeData.pauseStart.split(':');
+        document.getElementById('pauseStartHour').value = psH;
+        document.getElementById('pauseStartMinute').value = psM;
+    }
+    
+    // Parse pause end
+    if (timeData.pauseEnd) {
+        const [peH, peM] = timeData.pauseEnd.split(':');
+        document.getElementById('pauseEndHour').value = peH;
+        document.getElementById('pauseEndMinute').value = peM;
     }
 }
 
+// Helper functions for order detail
+function calculateTotalTime(taskId) {
+    const startH = parseInt(document.getElementById('startHour').value) || 0;
+    const startM = parseInt(document.getElementById('startMinute').value) || 0;
+    const endH = parseInt(document.getElementById('endHour').value) || 0;
+    const endM = parseInt(document.getElementById('endMinute').value) || 0;
+    
+    const pauseStartH = parseInt(document.getElementById('pauseStartHour').value) || 0;
+    const pauseStartM = parseInt(document.getElementById('pauseStartMinute').value) || 0;
+    const pauseEndH = parseInt(document.getElementById('pauseEndHour').value) || 0;
+    const pauseEndM = parseInt(document.getElementById('pauseEndMinute').value) || 0;
+    
+    // Calculate work time
+    const startMin = startH * 60 + startM;
+    const endMin = endH * 60 + endM;
+    
+    let workTime = endMin - startMin;
+    if (workTime < 0) workTime += 1440; // Handle overnight
+    
+    // Calculate pause time
+    const pauseStartMin = pauseStartH * 60 + pauseStartM;
+    const pauseEndMin = pauseEndH * 60 + pauseEndM;
+    
+    let pauseMin = 0;
+    if (pauseStartH > 0 || pauseStartM > 0 || pauseEndH > 0 || pauseEndM > 0) {
+        pauseMin = pauseEndMin - pauseStartMin;
+        if (pauseMin < 0) pauseMin += 1440;
+    }
+    
+    // Calculate total (work time minus pause)
+    let total = workTime - pauseMin;
+    if (total < 0) total = 0;
+    
+    // Update displays
+    document.getElementById('workTimeDisplay').textContent = minutesToTime(workTime);
+    document.getElementById('pauseTimeDisplay').textContent = minutesToTime(pauseMin);
+    document.getElementById('totalTime').textContent = minutesToTime(total);
+}
+
 function updateTaskTime(taskId) {
+    const startH = document.getElementById('startHour').value.padStart(2, '0');
+    const startM = document.getElementById('startMinute').value.padStart(2, '0');
+    const endH = document.getElementById('endHour').value.padStart(2, '0');
+    const endM = document.getElementById('endMinute').value.padStart(2, '0');
+    const pauseStartH = document.getElementById('pauseStartHour').value.padStart(2, '0');
+    const pauseStartM = document.getElementById('pauseStartMinute').value.padStart(2, '0');
+    const pauseEndH = document.getElementById('pauseEndHour').value.padStart(2, '0');
+    const pauseEndM = document.getElementById('pauseEndMinute').value.padStart(2, '0');
+    
     const timeData = {
-        startTime: document.getElementById('startTimeInput').value,
-        endTime: document.getElementById('endTimeInput').value,
-        pauseStart: document.getElementById('pauseStartInput').value,
-        pauseEnd: document.getElementById('pauseEndInput').value
+        startTime: `${startH}:${startM}`,
+        endTime: `${endH}:${endM}`,
+        pauseStart: `${pauseStartH}:${pauseStartM}`,
+        pauseEnd: `${pauseEndH}:${pauseEndM}`
     };
     
     AppData.saveTaskData(taskId, 'time', timeData);
@@ -401,6 +482,31 @@ function updateTaskTime(taskId) {
 function saveTaskNotes(taskId) {
     const notes = document.getElementById('taskNotes').value;
     AppData.saveTaskData(taskId, 'notes', notes);
+}
+
+function setTimeNow(type, taskId) {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    if (type === 'start') {
+        document.getElementById('startHour').value = hours;
+        document.getElementById('startMinute').value = minutes;
+    } else if (type === 'end') {
+        document.getElementById('endHour').value = hours;
+        document.getElementById('endMinute').value = minutes;
+    }
+    
+    updateTaskTime(taskId);
+    vibrate(20);
+}
+
+function clearPause(taskId) {
+    document.getElementById('pauseStartHour').value = '';
+    document.getElementById('pauseStartMinute').value = '';
+    document.getElementById('pauseEndHour').value = '';
+    document.getElementById('pauseEndMinute').value = '';
+    updateTaskTime(taskId);
 }
 
 function openMaterialModal(taskId) {
@@ -486,8 +592,11 @@ function deletePhoto(taskId, photoId) {
 function startTask(taskId) {
     AppData.updateTask(taskId, { status: 'active' });
     const now = new Date();
-    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    document.getElementById('startTimeInput').value = timeStr;
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('startHour').value = hours;
+    document.getElementById('startMinute').value = minutes;
     updateTaskTime(taskId);
     
     const task = AppData.getTask(taskId);
