@@ -124,6 +124,48 @@ function renderOrderDetailPage(data) {
                     </button>
                 ` : ''}
 
+                <!-- Quick Timer Widget -->
+                ${task.status !== 'completed' ? `
+                    <div class="quick-timer-widget" id="quickTimerWidget${taskId}">
+                        <div class="timer-display">
+                            <div class="timer-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="timer-time" id="timerDisplay${taskId}">0:00</div>
+                        </div>
+                        <div class="timer-controls">
+                            <button class="timer-btn start" id="timerStartBtn${taskId}" onclick="startWorkTimer(${taskId})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Start
+                            </button>
+                            <button class="timer-btn pause" id="timerPauseBtn${taskId}" onclick="pauseWorkTimer(${taskId})" style="display: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect x="6" y="4" width="4" height="16"></rect>
+                                    <rect x="14" y="4" width="4" height="16"></rect>
+                                </svg>
+                                Pause
+                            </button>
+                            <button class="timer-btn resume" id="timerResumeBtn${taskId}" onclick="resumeWorkTimer(${taskId})" style="display: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Fortsæt
+                            </button>
+                            <button class="timer-btn stop" id="timerStopBtn${taskId}" onclick="stopWorkTimer(${taskId})" style="display: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect x="3" y="3" width="18" height="18"></rect>
+                                </svg>
+                                Stop
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
+
                 <!-- Time Registration -->
                 <div class="section-card">
                     <div class="section-card-header">
@@ -881,6 +923,142 @@ function startTask(taskId) {
     showToast('Opgave startet!', 'success');
     vibrate(50);
     router.navigate('/order-detail', { taskId });
+}
+
+// Quick Timer Functions
+let workTimer = {
+    startTime: null,
+    pauseTime: null,
+    totalPauseMs: 0,
+    intervalId: null,
+    taskId: null,
+    isPaused: false
+};
+
+function startWorkTimer(taskId) {
+    workTimer.taskId = taskId;
+    workTimer.startTime = Date.now();
+    workTimer.totalPauseMs = 0;
+    workTimer.isPaused = false;
+    
+    // Update UI
+    document.getElementById(`timerStartBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerPauseBtn${taskId}`).style.display = 'inline-flex';
+    document.getElementById(`timerStopBtn${taskId}`).style.display = 'inline-flex';
+    
+    // Auto-fill start time
+    const now = new Date();
+    document.getElementById('startHour').value = String(now.getHours()).padStart(2, '0');
+    document.getElementById('startMinute').value = String(now.getMinutes()).padStart(2, '0');
+    updateTaskTime(taskId);
+    
+    // Start ticker
+    workTimer.intervalId = setInterval(() => updateTimerDisplay(taskId), 1000);
+    updateTimerDisplay(taskId);
+    
+    showToast('⏱️ Timer startet', 'success');
+    vibrate(50);
+}
+
+function pauseWorkTimer(taskId) {
+    if (!workTimer.startTime) return;
+    
+    workTimer.isPaused = true;
+    workTimer.pauseTime = Date.now();
+    
+    // Update UI
+    document.getElementById(`timerPauseBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerResumeBtn${taskId}`).style.display = 'inline-flex';
+    
+    showToast('⏸️ Timer sat på pause', 'info');
+}
+
+function resumeWorkTimer(taskId) {
+    if (!workTimer.pauseTime) return;
+    
+    const pauseDuration = Date.now() - workTimer.pauseTime;
+    workTimer.totalPauseMs += pauseDuration;
+    workTimer.pauseTime = null;
+    workTimer.isPaused = false;
+    
+    // Update UI
+    document.getElementById(`timerResumeBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerPauseBtn${taskId}`).style.display = 'inline-flex';
+    
+    showToast('▶️ Timer genoptaget', 'success');
+}
+
+function stopWorkTimer(taskId) {
+    if (!workTimer.startTime) return;
+    
+    // Calculate final times
+    const endTime = Date.now();
+    const totalWorkMs = endTime - workTimer.startTime - workTimer.totalPauseMs;
+    
+    const startDate = new Date(workTimer.startTime);
+    const endDate = new Date(endTime);
+    
+    // Auto-fill end time
+    document.getElementById('endHour').value = String(endDate.getHours()).padStart(2, '0');
+    document.getElementById('endMinute').value = String(endDate.getMinutes()).padStart(2, '0');
+    
+    // If there was pause time, fill that too
+    if (workTimer.totalPauseMs > 5000) { // More than 5 seconds of pause
+        const pauseMinutes = Math.round(workTimer.totalPauseMs / 60000);
+        showToast(`⏱️ Timer stoppet. ${pauseMinutes} min pause registreret`, 'success', 4000);
+    } else {
+        showToast('⏱️ Timer stoppet', 'success');
+    }
+    
+    updateTaskTime(taskId);
+    
+    // Reset timer
+    clearInterval(workTimer.intervalId);
+    workTimer.startTime = null;
+    workTimer.pauseTime = null;
+    workTimer.totalPauseMs = 0;
+    workTimer.isPaused = false;
+    workTimer.intervalId = null;
+    
+    // Update UI
+    document.getElementById(`timerStartBtn${taskId}`).style.display = 'inline-flex';
+    document.getElementById(`timerPauseBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerResumeBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerStopBtn${taskId}`).style.display = 'none';
+    document.getElementById(`timerDisplay${taskId}`).textContent = '0:00';
+    
+    vibrate([50, 50, 50]);
+}
+
+function updateTimerDisplay(taskId) {
+    const displayEl = document.getElementById(`timerDisplay${taskId}`);
+    if (!displayEl || !workTimer.startTime) return;
+    
+    let elapsed = Date.now() - workTimer.startTime - workTimer.totalPauseMs;
+    
+    // If currently paused, don't count current pause period
+    if (workTimer.isPaused && workTimer.pauseTime) {
+        elapsed -= (Date.now() - workTimer.pauseTime);
+    }
+    
+    const seconds = Math.floor(elapsed / 1000);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+        displayEl.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    } else {
+        displayEl.textContent = `${minutes}:${String(secs).padStart(2, '0')}`;
+    }
+    
+    // Add pulsing effect when paused
+    const widget = document.getElementById(`quickTimerWidget${taskId}`);
+    if (workTimer.isPaused) {
+        widget?.classList.add('timer-paused');
+    } else {
+        widget?.classList.remove('timer-paused');
+    }
 }
 
 function completeTask(taskId) {
