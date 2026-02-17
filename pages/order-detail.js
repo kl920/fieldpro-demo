@@ -583,14 +583,6 @@ function addPhotos(taskId, event) {
     const fileArray = Array.from(files);
     let processed = 0;
     
-    // Try to get GPS location (non-blocking)
-    let locationPromise = null;
-    try {
-        locationPromise = LocationService.getCurrentPosition();
-    } catch (err) {
-        console.log('GPS ikke tilgængelig:', err);
-    }
-    
     // Process each file
     fileArray.forEach((file) => {
         const reader = new FileReader();
@@ -598,55 +590,31 @@ function addPhotos(taskId, event) {
         reader.onerror = function() {
             showToast('Fejl ved indlæsning af billede: ' + file.name, 'error', 5000);
             processed++;
-            checkComplete();
         };
         
         reader.onload = function(e) {
-            const photoData = {
+            photos.push({
                 id: generateId(),
                 data: e.target.result,
                 timestamp: new Date().toISOString()
-            };
+            });
             
-            // Try to add GPS if available
-            if (locationPromise) {
-                locationPromise.then(location => {
-                    if (location && location.lat && location.lng) {
-                        photoData.lat = location.lat;
-                        photoData.lng = location.lng;
-                        photoData.accuracy = location.accuracy;
-                        // Re-save with GPS data
-                        AppData.saveTaskData(taskId, 'photos', photos);
-                    }
-                }).catch(err => {
-                    console.log('GPS fejl:', err);
-                });
-            }
-            
-            photos.push(photoData);
             processed++;
-            checkComplete();
+            if (processed === fileArray.length) {
+                AppData.saveTaskData(taskId, 'photos', photos);
+                ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
+                showToast(`${fileArray.length} billede(r) tilføjet`, 'success');
+                vibrate(50);
+                
+                // Reset input
+                event.target.value = '';
+                
+                router.navigate('/order-detail', { taskId });
+            }
         };
         
         reader.readAsDataURL(file);
     });
-    
-    function checkComplete() {
-        if (processed === fileArray.length) {
-            AppData.saveTaskData(taskId, 'photos', photos);
-            ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
-            showToast(`${fileArray.length} billede(r) tilføjet`, 'success');
-            vibrate(50);
-            
-            // Reset input
-            event.target.value = '';
-            
-            // Small delay to ensure GPS is captured
-            setTimeout(() => {
-                router.navigate('/order-detail', { taskId });
-            }, 300);
-        }
-    }
 }
 
 function deletePhoto(taskId, photoId) {

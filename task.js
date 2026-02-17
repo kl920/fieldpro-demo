@@ -231,63 +231,30 @@ function addPhotos(event) {
     const fileArray = Array.from(files);
     let processed = 0;
     
-    // Try to get GPS location (non-blocking)
-    let locationPromise = null;
-    try {
-        if (typeof LocationService !== 'undefined') {
-            locationPromise = LocationService.getCurrentPosition();
-        }
-    } catch (err) {
-        console.log('GPS ikke tilgængelig:', err);
-    }
-    
     fileArray.forEach((file) => {
         const reader = new FileReader();
         
         reader.onerror = function() {
             console.error('Error reading file:', file.name);
             processed++;
-            checkComplete();
         };
         
         reader.onload = function(e) {
-            const photoData = {
+            photos.push({
                 id: Date.now() + Math.random(),
                 data: e.target.result,
                 timestamp: new Date().toISOString()
-            };
+            });
             
-            // Try to add GPS if available
-            if (locationPromise) {
-                locationPromise.then(location => {
-                    if (location && location.lat && location.lng) {
-                        photoData.lat = location.lat;
-                        photoData.lng = location.lng;
-                        photoData.accuracy = location.accuracy;
-                        saveData();
-                    }
-                }).catch(err => {
-                    console.log('GPS fejl:', err);
-                });
-            }
-            
-            photos.push(photoData);
             processed++;
-            checkComplete();
+            if (processed === fileArray.length) {
+                saveData();
+                renderPhotos();
+            }
         };
         
         reader.readAsDataURL(file);
     });
-    
-    function checkComplete() {
-        if (processed === fileArray.length) {
-            saveData();
-            // Small delay to ensure GPS is captured
-            setTimeout(() => {
-                renderPhotos();
-            }, 300);
-        }
-    }
     
     // Reset input
     event.target.value = '';
