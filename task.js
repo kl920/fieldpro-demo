@@ -221,25 +221,25 @@ function renderMaterials() {
 }
 
 // Photo functions
-async function addPhotos(event) {
+function addPhotos(event) {
     const files = event.target.files;
     
     if (!files || files.length === 0) {
         return;
     }
     
-    // Get GPS location once for all photos
-    let location = null;
+    const fileArray = Array.from(files);
+    let processed = 0;
+    
+    // Try to get GPS location (non-blocking)
+    let locationPromise = null;
     try {
         if (typeof LocationService !== 'undefined') {
-            location = await LocationService.getCurrentPosition();
+            locationPromise = LocationService.getCurrentPosition();
         }
     } catch (err) {
         console.log('GPS ikke tilgængelig:', err);
     }
-    
-    const fileArray = Array.from(files);
-    let processed = 0;
     
     fileArray.forEach((file) => {
         const reader = new FileReader();
@@ -247,6 +247,7 @@ async function addPhotos(event) {
         reader.onerror = function() {
             console.error('Error reading file:', file.name);
             processed++;
+            checkComplete();
         };
         
         reader.onload = function(e) {
@@ -256,24 +257,37 @@ async function addPhotos(event) {
                 timestamp: new Date().toISOString()
             };
             
-            // Add GPS if available
-            if (location) {
-                photoData.lat = location.lat;
-                photoData.lng = location.lng;
-                photoData.accuracy = location.accuracy;
+            // Try to add GPS if available
+            if (locationPromise) {
+                locationPromise.then(location => {
+                    if (location && location.lat && location.lng) {
+                        photoData.lat = location.lat;
+                        photoData.lng = location.lng;
+                        photoData.accuracy = location.accuracy;
+                        saveData();
+                    }
+                }).catch(err => {
+                    console.log('GPS fejl:', err);
+                });
             }
             
             photos.push(photoData);
-            
             processed++;
-            if (processed === fileArray.length) {
-                saveData();
-                renderPhotos();
-            }
+            checkComplete();
         };
         
         reader.readAsDataURL(file);
     });
+    
+    function checkComplete() {
+        if (processed === fileArray.length) {
+            saveData();
+            // Small delay to ensure GPS is captured
+            setTimeout(() => {
+                renderPhotos();
+            }, 300);
+        }
+    }
     
     // Reset input
     event.target.value = '';
