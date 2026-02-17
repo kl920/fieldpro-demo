@@ -163,9 +163,9 @@ class LocationService {
                     reject(error);
                 },
                 {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
+                    enableHighAccuracy: false,  // Changed to false for faster response
+                    timeout: 15000,  // Increased to 15 seconds
+                    maximumAge: 300000  // Accept cached position up to 5 minutes old
                 }
             );
         });
