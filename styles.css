@@ -1874,6 +1874,113 @@ a:hover {
     }
 }
 
+/* QR Scanner */
+.qr-scanner-container {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-top: var(--spacing-md);
+}
+
+.qr-reader {
+    width: 100%;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.qr-reader video {
+    width: 100%;
+    border-radius: var(--radius-md);
+}
+
+.qr-result {
+    padding: var(--spacing-md);
+    background: var(--success);
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-sm);
+}
+
+.scanned-equipment-list {
+    margin-top: var(--spacing-md);
+}
+
+.scanned-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.scanned-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.scanned-icon svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+    stroke-width: 2;
+}
+
+.scanned-info {
+    flex: 1;
+}
+
+.scanned-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.scanned-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.scanned-serial {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: monospace;
+}
+
+.button-icon-small {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.button-icon-small:hover {
+    background: var(--gray-200);
+    color: var(--danger);
+}
+
+.button-icon-small svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
 .button-icon {
     width: 40px;
     height: 40px;

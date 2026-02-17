@@ -114,6 +114,29 @@ function renderOrderDetailPage(data) {
                     <p class="task-description">${task.description}</p>
                 </div>
 
+                <!-- QR Scanner -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h3>Scan udstyr</h3>
+                        <button class="button-icon" onclick="toggleQRScanner(${taskId})">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                <rect x="7" y="7" width="10" height="10"></rect>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="qrScanner${taskId}" class="qr-scanner-container" style="display: none;">
+                        <div id="qrReader${taskId}" class="qr-reader"></div>
+                        <div id="qrResult${taskId}" class="qr-result" style="display: none;"></div>
+                    </div>
+                    <div id="scannedEquipment${taskId}" class="scanned-equipment-list">
+                        <!-- Scanned items will appear here -->
+                    </div>
+                </div>
+
                 <!-- Quick Start Button -->
                 ${task.status === 'pending' ? `
                     <button class="button-primary button-large" onclick="startTask(${taskId})">
@@ -565,6 +588,7 @@ function renderOrderDetailPage(data) {
         calculateTotalTime(taskId);
         renderChecklist(taskId);
         renderVoiceNotes(taskId);
+        renderScannedEquipment(taskId);
         initSignaturePad(taskId);
     }, 100);
 }
@@ -1206,6 +1230,34 @@ async function exportToPDF(taskId) {
             yPos += 10;
         }
         
+        // Scanned Equipment
+        const scannedEquipment = AppData.getTaskData(taskId, 'scannedEquipment', []);
+        if (scannedEquipment && scannedEquipment.length > 0) {
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Scannet Udstyr', margin, yPos);
+            
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            
+            scannedEquipment.forEach(eq => {
+                doc.text(`• ${eq.name || eq.qrCode}`, margin + 5, yPos);
+                if (eq.serialNumber) {
+                    yPos += 6;
+                    doc.text(`  S/N: ${eq.serialNumber}`, margin + 10, yPos);
+                }
+                yPos += 6;
+            });
+            
+            yPos += 10;
+        }
+        
         // Checklist
         if (checklist && checklist.length > 0) {
             if (yPos > 240) {
@@ -1504,6 +1556,154 @@ function deleteVoiceNote(taskId, noteId) {
     AppData.saveTaskData(taskId, 'voiceNotes', voiceNotes);
     renderVoiceNotes(taskId);
     showToast('Stemmebesked slettet', 'success');
+}
+
+// QR Scanner functions
+let qrScanner = null;
+let isQRScannerActive = false;
+
+function toggleQRScanner(taskId) {
+    const container = document.getElementById(`qrScanner${taskId}`);
+    
+    if (isQRScannerActive) {
+        // Stop scanner
+        if (qrScanner) {
+            qrScanner.stop().then(() => {
+                qrScanner.clear();
+                qrScanner = null;
+            }).catch(err => console.error('Error stopping scanner:', err));
+        }
+        container.style.display = 'none';
+        isQRScannerActive = false;
+        showToast('Scanner lukket', 'info');
+    } else {
+        // Start scanner
+        container.style.display = 'block';
+        startQRScanner(taskId);
+        isQRScannerActive = true;
+        showToast('📷 Scanner startet', 'info');
+    }
+}
+
+function startQRScanner(taskId) {
+    const readerId = `qrReader${taskId}`;
+    
+    qrScanner = new Html5Qrcode(readerId);
+    
+    const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+    };
+    
+    qrScanner.start(
+        { facingMode: "environment" }, // Use back camera
+        config,
+        (decodedText, decodedResult) => {
+            handleQRScan(taskId, decodedText);
+        },
+        (errorMessage) => {
+            // Ignore scanning errors (happens continuously while scanning)
+        }
+    ).catch(err => {
+        console.error('Error starting QR scanner:', err);
+        showToast('❌ Kunne ikke starte kamera', 'error');
+        
+        // Fallback: show manual input
+        showManualEquipmentInput(taskId);
+    });
+}
+
+function handleQRScan(taskId, qrData) {
+    // Stop scanner after successful scan
+    if (qrScanner) {
+        qrScanner.stop().then(() => {
+            qrScanner.clear();
+            qrScanner = null;
+        });
+    }
+    
+    const container = document.getElementById(`qrScanner${taskId}`);
+    container.style.display = 'none';
+    isQRScannerActive = false;
+    
+    // Parse QR code data
+    let equipment = {
+        id: generateId(),
+        qrCode: qrData,
+        timestamp: new Date().toISOString()
+    };
+    
+    try {
+        // Try to parse as JSON if it's structured data
+        const parsed = JSON.parse(qrData);
+        equipment = { ...equipment, ...parsed };
+    } catch {
+        // Plain text QR code
+        equipment.name = qrData;
+    }
+    
+    // Save equipment
+    const scannedEquipment = AppData.getTaskData(taskId, 'scannedEquipment', []);
+    scannedEquipment.push(equipment);
+    AppData.saveTaskData(taskId, 'scannedEquipment', scannedEquipment);
+    
+    // Update display
+    renderScannedEquipment(taskId);
+    
+    showToast(`✅ Udstyr scannet: ${equipment.name || qrData}`, 'success', 4000);
+    vibrate(50);
+    
+    ActivityLogger.log('qr_scan', `Scannede udstyr: ${equipment.name || qrData}`, taskId);
+}
+
+function renderScannedEquipment(taskId) {
+    const container = document.getElementById(`scannedEquipment${taskId}`);
+    const scannedEquipment = AppData.getTaskData(taskId, 'scannedEquipment', []);
+    
+    if (scannedEquipment.length === 0) {
+        container.innerHTML = '<div class="empty-state-small"><p>Ingen udstyr scannet</p></div>';
+        return;
+    }
+    
+    container.innerHTML = scannedEquipment.map(eq => `
+        <div class="scanned-item">
+            <div class="scanned-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                </svg>
+            </div>
+            <div class="scanned-info">
+                <div class="scanned-name">${eq.name || eq.qrCode}</div>
+                <div class="scanned-time">${formatPhotoTimestamp(eq.timestamp)}</div>
+                ${eq.serialNumber ? `<div class="scanned-serial">S/N: ${eq.serialNumber}</div>` : ''}
+            </div>
+            <button class="button-icon-small" onclick="deleteScannedEquipment(${taskId}, '${eq.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    `).join('');
+}
+
+function deleteScannedEquipment(taskId, equipmentId) {
+    let scannedEquipment = AppData.getTaskData(taskId, 'scannedEquipment', []);
+    scannedEquipment = scannedEquipment.filter(e => e.id !== equipmentId);
+    AppData.saveTaskData(taskId, 'scannedEquipment', scannedEquipment);
+    renderScannedEquipment(taskId);
+    showToast('Udstyr fjernet', 'success');
+}
+
+function showManualEquipmentInput(taskId) {
+    const equipmentCode = prompt('Indtast udstyrskode manuelt:');
+    if (equipmentCode) {
+        handleQRScan(taskId, equipmentCode);
+    }
 }
 
 // Signature functions
