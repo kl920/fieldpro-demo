@@ -653,6 +653,10 @@ function addPhotos(taskId, event) {
                         try {
                             AppData.saveTaskData(taskId, 'photos', photos);
                             console.log('Data gemt med GPS/adresse');
+                            // Refresh display to show GPS/address
+                            setTimeout(() => {
+                                router.navigate('/order-detail', { taskId });
+                            }, 500);
                         } catch (err) {
                             console.error('Kunne ikke gemme GPS/adresse:', err);
                         }
@@ -682,7 +686,7 @@ function addPhotos(taskId, event) {
                     setTimeout(() => {
                         console.log('Navigerer til order-detail');
                         router.navigate('/order-detail', { taskId });
-                    }, 1000);
+                    }, 2000);  // Increased to 2 seconds to allow GPS/address to complete
                 } catch (error) {
                     console.error('Fejl ved gemning:', error);
                     if (error.name === 'QuotaExceededError') {
