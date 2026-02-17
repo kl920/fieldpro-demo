@@ -48,23 +48,10 @@ function renderMorePage() {
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
+                <!-- Navigation -->
                 <div class="menu-section">
-                    <div class="menu-section-header">Genveje</div>
+                    <div class="menu-section-header">Navigation</div>
                     <div class="menu-items">
-                        <button class="menu-item" onclick="router.navigate('/route')">
-                            <div class="menu-item-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                    <path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"></path>
-                                </svg>
-                            </div>
-                            <span>📍 Dagens rute</span>
-                            <svg class="menu-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </button>
-
                         <button class="menu-item" onclick="router.navigate('/calendar')">
                             <div class="menu-item-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

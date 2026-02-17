@@ -2994,31 +2994,34 @@ a:hover {
 .calendar-container {
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-sm);
     margin-bottom: var(--spacing-xl);
     box-shadow: var(--shadow-sm);
+    overflow-x: auto;
 }
 
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    gap: 4px;
+    margin-bottom: var(--spacing-sm);
+    min-width: 280px;
 }
 
 .weekday {
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: var(--text-secondary);
-    padding: var(--spacing-sm);
+    padding: 4px 2px;
     text-transform: uppercase;
 }
 
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: var(--spacing-sm);
+    gap: 4px;
+    min-width: 280px;
 }
 
 .calendar-day {
@@ -3027,13 +3030,14 @@ a:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-md);
+    padding: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
     background: var(--bg-secondary);
     border: 2px solid transparent;
     position: relative;
+    min-height: 40px;
 }
 
 .calendar-day.empty {
@@ -3069,10 +3073,10 @@ a:hover {
 }
 
 .day-number {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 2px;
 }
 
 .day-tasks {
@@ -3084,14 +3088,14 @@ a:hover {
 }
 
 .task-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: var(--radius-full);
     display: inline-block;
 }
 
 .task-count {
-    font-size: 0.625rem;
+    font-size: 0.55rem;
     color: var(--text-secondary);
     font-weight: 600;
     margin-left: 2px;
@@ -3111,27 +3115,27 @@ a:hover {
 .month-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     margin-bottom: var(--spacing-xl);
 }
 
 .month-stats .stat-item {
     background: var(--bg-primary);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
     text-align: center;
     box-shadow: var(--shadow-sm);
 }
 
 .month-stats .stat-value {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary);
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 4px;
 }
 
 .month-stats .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     font-weight: 500;
@@ -3139,25 +3143,25 @@ a:hover {
 
 .calendar-legend {
     display: flex;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     justify-content: center;
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     background: var(--bg-primary);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     flex-wrap: wrap;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.875rem;
+    gap: var(--spacing-xs);
+    font-size: 0.75rem;
     color: var(--text-secondary);
 }
 
 .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: var(--radius-full);
     display: inline-block;
 }
