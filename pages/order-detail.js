@@ -590,19 +590,22 @@ function addPhotos(taskId, event) {
         return;
     }
     
+    // START GPS REQUEST IMMEDIATELY
+    console.log('Starter GPS request...');
+    let locationPromise = null;
+    try {
+        locationPromise = LocationService.getCurrentPosition();
+        console.log('GPS request startet');
+    } catch (err) {
+        console.error('GPS ikke tilgængelig:', err);
+        showToast('GPS ikke tilgængelig - billeder uploades uden lokation', 'warning', 4000);
+    }
+    
     const photos = AppData.getTaskData(taskId, 'photos', []);
     console.log('Eksisterende billeder:', photos.length);
     
     const fileArray = Array.from(files);
     let processed = 0;
-    
-    // Get GPS location (non-blocking)
-    let locationPromise = null;
-    try {
-        locationPromise = LocationService.getCurrentPosition();
-    } catch (err) {
-        console.log('GPS ikke tilgængelig:', err);
-    }
     
     // Process each file
     fileArray.forEach((file, index) => {
@@ -627,28 +630,41 @@ function addPhotos(taskId, event) {
             photos.push(photoData);
             console.log('Billede tilføjet, total nu:', photos.length);
             
-            // Add GPS if available
+            // Add GPS if available (will resolve when ready)
             if (locationPromise) {
+                console.log('Forsøger at hente GPS...');
                 locationPromise.then(async location => {
+                    console.log('GPS location modtaget:', location);
                     if (location && location.lat && location.lng) {
                         photoData.lat = location.lat;
                         photoData.lng = location.lng;
                         photoData.accuracy = location.accuracy;
-                        console.log('GPS tilføjet:', photoData.lat, photoData.lng);
+                        console.log('GPS tilføjet til billede:', photoData.lat, photoData.lng);
                         
                         // Get address in background
-                        const address = await LocationService.reverseGeocode(location.lat, location.lng);
-                        if (address) {
-                            photoData.address = address;
-                            console.log('Adresse fundet:', address);
+                        console.log('Henter adresse...');
+                        try {
+                            const address = await LocationService.reverseGeocode(location.lat, location.lng);
+                            console.log('Adresse resultat:', address);
+                            if (address) {
+                                photoData.address = address;
+                                console.log('Adresse tilføjet:', address);
+                                showToast('📍 Lokation gemt: ' + address, 'success', 3000);
+                            }
+                        } catch (err) {
+                            console.error('Adresse fejl:', err);
                         }
                         
                         // Re-save with GPS and address
                         AppData.saveTaskData(taskId, 'photos', photos);
+                        console.log('Data gemt med GPS/adresse');
                     }
                 }).catch(err => {
-                    console.log('GPS fejl:', err);
+                    console.error('GPS fejl:', err);
+                    showToast('GPS blev afvist eller er ikke tilgængelig', 'warning', 3000);
                 });
+            } else {
+                console.log('Ingen GPS location promise');
             }
             
             processed++;
@@ -668,7 +684,7 @@ function addPhotos(taskId, event) {
                     setTimeout(() => {
                         console.log('Navigerer til order-detail');
                         router.navigate('/order-detail', { taskId });
-                    }, 500);
+                    }, 1000);
                 } catch (error) {
                     console.error('Fejl ved gemning:', error);
                     showToast('Fejl ved gemning af billeder', 'error', 5000);

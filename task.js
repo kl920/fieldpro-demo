@@ -228,18 +228,20 @@ function addPhotos(event) {
         return;
     }
     
-    const fileArray = Array.from(files);
-    let processed = 0;
-    
-    // Get GPS location (non-blocking)
+    // START GPS REQUEST IMMEDIATELY
+    console.log('Starter GPS request...');
     let locationPromise = null;
     try {
         if (typeof LocationService !== 'undefined') {
             locationPromise = LocationService.getCurrentPosition();
+            console.log('GPS request startet');
         }
     } catch (err) {
-        console.log('GPS ikke tilgængelig:', err);
+        console.error('GPS ikke tilgængelig:', err);
     }
+    
+    const fileArray = Array.from(files);
+    let processed = 0;
     
     fileArray.forEach((file) => {
         const reader = new FileReader();
@@ -260,23 +262,33 @@ function addPhotos(event) {
             
             // Add GPS if available
             if (locationPromise) {
+                console.log('Forsøger at hente GPS...');
                 locationPromise.then(async location => {
+                    console.log('GPS location modtaget:', location);
                     if (location && location.lat && location.lng) {
                         photoData.lat = location.lat;
                         photoData.lng = location.lng;
                         photoData.accuracy = location.accuracy;
+                        console.log('GPS tilføjet:', photoData.lat, photoData.lng);
                         
                         // Get address in background
-                        const address = await LocationService.reverseGeocode(location.lat, location.lng);
-                        if (address) {
-                            photoData.address = address;
+                        console.log('Henter adresse...');
+                        try {
+                            const address = await LocationService.reverseGeocode(location.lat, location.lng);
+                            console.log('Adresse resultat:', address);
+                            if (address) {
+                                photoData.address = address;
+                                console.log('Adresse tilføjet:', address);
+                            }
+                        } catch (err) {
+                            console.error('Adresse fejl:', err);
                         }
                         
                         saveData();
                         renderPhotos();
                     }
                 }).catch(err => {
-                    console.log('GPS fejl:', err);
+                    console.error('GPS fejl:', err);
                 });
             }
             
@@ -286,7 +298,7 @@ function addPhotos(event) {
                 // Delay render to allow GPS/address to be captured
                 setTimeout(() => {
                     renderPhotos();
-                }, 500);
+                }, 1000);
             }
         };
         
