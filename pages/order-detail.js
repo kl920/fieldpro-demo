@@ -267,7 +267,15 @@ function renderOrderDetailPage(data) {
                                 <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
                                 <div class="photo-info">
                                     ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                                    ${photo.lat && photo.lng ? `
+                                    ${photo.address ? `
+                                        <div class="photo-location">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                <circle cx="12" cy="10" r="3"></circle>
+                                            </svg>
+                                            ${photo.address}
+                                        </div>
+                                    ` : photo.lat && photo.lng ? `
                                         <div class="photo-location">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
                                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -588,6 +596,14 @@ function addPhotos(taskId, event) {
     const fileArray = Array.from(files);
     let processed = 0;
     
+    // Get GPS location (non-blocking)
+    let locationPromise = null;
+    try {
+        locationPromise = LocationService.getCurrentPosition();
+    } catch (err) {
+        console.log('GPS ikke tilgængelig:', err);
+    }
+    
     // Process each file
     fileArray.forEach((file, index) => {
         console.log(`Læser fil ${index + 1}/${fileArray.length}:`, file.name, file.type, file.size);
@@ -611,6 +627,30 @@ function addPhotos(taskId, event) {
             photos.push(photoData);
             console.log('Billede tilføjet, total nu:', photos.length);
             
+            // Add GPS if available
+            if (locationPromise) {
+                locationPromise.then(async location => {
+                    if (location && location.lat && location.lng) {
+                        photoData.lat = location.lat;
+                        photoData.lng = location.lng;
+                        photoData.accuracy = location.accuracy;
+                        console.log('GPS tilføjet:', photoData.lat, photoData.lng);
+                        
+                        // Get address in background
+                        const address = await LocationService.reverseGeocode(location.lat, location.lng);
+                        if (address) {
+                            photoData.address = address;
+                            console.log('Adresse fundet:', address);
+                        }
+                        
+                        // Re-save with GPS and address
+                        AppData.saveTaskData(taskId, 'photos', photos);
+                    }
+                }).catch(err => {
+                    console.log('GPS fejl:', err);
+                });
+            }
+            
             processed++;
             if (processed === fileArray.length) {
                 console.log('Alle billeder indlæst, gemmer...');
@@ -623,9 +663,12 @@ function addPhotos(taskId, event) {
                     
                     // Reset input
                     event.target.value = '';
-                    console.log('Navigerer til order-detail');
                     
-                    router.navigate('/order-detail', { taskId });
+                    // Delay navigation to allow GPS/address to be captured
+                    setTimeout(() => {
+                        console.log('Navigerer til order-detail');
+                        router.navigate('/order-detail', { taskId });
+                    }, 500);
                 } catch (error) {
                     console.error('Fejl ved gemning:', error);
                     showToast('Fejl ved gemning af billeder', 'error', 5000);

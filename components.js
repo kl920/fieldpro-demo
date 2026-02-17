@@ -192,6 +192,53 @@ class LocationService {
         }
         return `${km.toFixed(1)} km`;
     }
+    
+    static async reverseGeocode(lat, lng) {
+        try {
+            // Use Nominatim (OpenStreetMap) - free, no API key needed
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+                {
+                    headers: {
+                        'User-Agent': 'FieldPro-App'
+                    }
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error('Geocoding failed');
+            }
+            
+            const data = await response.json();
+            
+            // Format address nicely
+            const addr = data.address || {};
+            let formattedAddress = '';
+            
+            if (addr.road) {
+                formattedAddress = addr.road;
+                if (addr.house_number) {
+                    formattedAddress += ' ' + addr.house_number;
+                }
+            } else if (addr.neighbourhood) {
+                formattedAddress = addr.neighbourhood;
+            }
+            
+            if (addr.city || addr.town || addr.village) {
+                const city = addr.city || addr.town || addr.village;
+                if (formattedAddress) {
+                    formattedAddress += ', ' + city;
+                } else {
+                    formattedAddress = city;
+                }
+            }
+            
+            return formattedAddress || data.display_name || null;
+        } catch (error) {
+            console.log('Reverse geocoding fejl:', error);
+            return null;
+        }
+    }
 }
 
 // Quick Timer Widget
