@@ -573,43 +573,63 @@ function deleteMaterial(taskId, materialId) {
 }
 
 function addPhotos(taskId, event) {
+    console.log('addPhotos kaldt for taskId:', taskId);
     const files = event.target.files;
+    console.log('Antal filer:', files ? files.length : 0);
     
     if (!files || files.length === 0) {
+        console.log('Ingen filer valgt');
         return;
     }
     
     const photos = AppData.getTaskData(taskId, 'photos', []);
+    console.log('Eksisterende billeder:', photos.length);
+    
     const fileArray = Array.from(files);
     let processed = 0;
     
     // Process each file
-    fileArray.forEach((file) => {
+    fileArray.forEach((file, index) => {
+        console.log(`Læser fil ${index + 1}/${fileArray.length}:`, file.name, file.type, file.size);
         const reader = new FileReader();
         
-        reader.onerror = function() {
+        reader.onerror = function(error) {
+            console.error('FileReader fejl for ' + file.name, error);
             showToast('Fejl ved indlæsning af billede: ' + file.name, 'error', 5000);
             processed++;
         };
         
         reader.onload = function(e) {
-            photos.push({
+            console.log(`Fil ${index + 1} indlæst, størrelse:`, e.target.result.length);
+            
+            const photoData = {
                 id: generateId(),
                 data: e.target.result,
                 timestamp: new Date().toISOString()
-            });
+            };
+            
+            photos.push(photoData);
+            console.log('Billede tilføjet, total nu:', photos.length);
             
             processed++;
             if (processed === fileArray.length) {
-                AppData.saveTaskData(taskId, 'photos', photos);
-                ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
-                showToast(`${fileArray.length} billede(r) tilføjet`, 'success');
-                vibrate(50);
-                
-                // Reset input
-                event.target.value = '';
-                
-                router.navigate('/order-detail', { taskId });
+                console.log('Alle billeder indlæst, gemmer...');
+                try {
+                    AppData.saveTaskData(taskId, 'photos', photos);
+                    console.log('Billeder gemt i AppData');
+                    ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
+                    showToast(`${fileArray.length} billede(r) tilføjet`, 'success', 3000);
+                    vibrate(50);
+                    
+                    // Reset input
+                    event.target.value = '';
+                    console.log('Navigerer til order-detail');
+                    
+                    router.navigate('/order-detail', { taskId });
+                } catch (error) {
+                    console.error('Fejl ved gemning:', error);
+                    showToast('Fejl ved gemning af billeder', 'error', 5000);
+                }
             }
         };
         
