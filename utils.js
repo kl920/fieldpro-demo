@@ -67,6 +67,22 @@ function formatFullDate(dateString) {
     return date.toLocaleDateString('da-DK', options);
 }
 
+function formatPhotoTimestamp(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    const timeStr = date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+    
+    if (isToday) {
+        return `I dag ${timeStr}`;
+    } else {
+        const dateStr = date.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
+        return `${dateStr} ${timeStr}`;
+    }
+}
+
 function isToday(dateString) {
     const today = new Date();
     const date = new Date(dateString);

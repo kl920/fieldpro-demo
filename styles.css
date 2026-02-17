@@ -1186,6 +1186,19 @@ a:hover {
     color: var(--danger);
 }
 
+.photo-timestamp {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+    font-size: 0.75rem;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    text-align: center;
+    font-weight: 500;
+}
+
 /* Buttons */
 .button-primary,
 .button-secondary,

@@ -229,7 +229,8 @@ function addPhotos(event) {
         reader.onload = function(e) {
             photos.push({
                 id: Date.now() + Math.random(),
-                data: e.target.result
+                data: e.target.result,
+                timestamp: new Date().toISOString()
             });
             saveData();
             renderPhotos();
@@ -262,6 +263,7 @@ function renderPhotos() {
     container.innerHTML = photos.map(photo => `
         <div class="photo-item">
             <img src="${photo.data}" alt="Opgave foto">
+            ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
             <button class="delete-btn" onclick="deletePhoto(${photo.id})">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
