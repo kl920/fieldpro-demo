@@ -610,20 +610,14 @@ function addPhotos(taskId, event) {
     // Process each file
     fileArray.forEach((file, index) => {
         console.log(`Læser fil ${index + 1}/${fileArray.length}:`, file.name, file.type, file.size);
-        const reader = new FileReader();
         
-        reader.onerror = function(error) {
-            console.error('FileReader fejl for ' + file.name, error);
-            showToast('Fejl ved indlæsning af billede: ' + file.name, 'error', 5000);
-            processed++;
-        };
-        
-        reader.onload = function(e) {
-            console.log(`Fil ${index + 1} indlæst, størrelse:`, e.target.result.length);
+        // Compress image first
+        compressImage(file, 1200, 0.7).then(compressedData => {
+            console.log(`Fil ${index + 1} komprimeret, original: ${file.size} bytes`);
             
             const photoData = {
                 id: generateId(),
-                data: e.target.result,
+                data: compressedData,
                 timestamp: new Date().toISOString()
             };
             
@@ -656,8 +650,12 @@ function addPhotos(taskId, event) {
                         }
                         
                         // Re-save with GPS and address
-                        AppData.saveTaskData(taskId, 'photos', photos);
-                        console.log('Data gemt med GPS/adresse');
+                        try {
+                            AppData.saveTaskData(taskId, 'photos', photos);
+                            console.log('Data gemt med GPS/adresse');
+                        } catch (err) {
+                            console.error('Kunne ikke gemme GPS/adresse:', err);
+                        }
                     }
                 }).catch(err => {
                     console.error('GPS fejl:', err);
@@ -687,12 +685,18 @@ function addPhotos(taskId, event) {
                     }, 1000);
                 } catch (error) {
                     console.error('Fejl ved gemning:', error);
-                    showToast('Fejl ved gemning af billeder', 'error', 5000);
+                    if (error.name === 'QuotaExceededError') {
+                        showToast('📦 Lagerplads fuld! Slet gamle billeder eller ryd data', 'error', 6000);
+                    } else {
+                        showToast('Fejl ved gemning af billeder', 'error', 5000);
+                    }
                 }
             }
-        };
-        
-        reader.readAsDataURL(file);
+        }).catch(error => {
+            console.error('Komprimeringsfejl for ' + file.name, error);
+            showToast('Fejl ved komprimering af billede', 'error', 5000);
+            processed++;
+        });
     });
 }
 

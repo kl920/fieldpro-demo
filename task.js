@@ -244,17 +244,14 @@ function addPhotos(event) {
     let processed = 0;
     
     fileArray.forEach((file) => {
-        const reader = new FileReader();
+        console.log('Komprimerer:', file.name, file.size, 'bytes');
         
-        reader.onerror = function() {
-            console.error('Error reading file:', file.name);
-            processed++;
-        };
-        
-        reader.onload = function(e) {
+        compressImage(file, 1200, 0.7).then(compressedData => {
+            console.log('Billede komprimeret');
+            
             const photoData = {
                 id: Date.now() + Math.random(),
-                data: e.target.result,
+                data: compressedData,
                 timestamp: new Date().toISOString()
             };
             
@@ -294,15 +291,22 @@ function addPhotos(event) {
             
             processed++;
             if (processed === fileArray.length) {
-                saveData();
-                // Delay render to allow GPS/address to be captured
-                setTimeout(() => {
-                    renderPhotos();
-                }, 1000);
+                try {
+                    saveData();
+                    // Delay render to allow GPS/address to be captured
+                    setTimeout(() => {
+                        renderPhotos();
+                    }, 1000);
+                } catch (error) {
+                    if (error.name === 'QuotaExceededError') {
+                        alert('Lagerplads fuld! Slet gamle billeder.');
+                    }
+                }
             }
-        };
-        
-        reader.readAsDataURL(file);
+        }).catch(error => {
+            console.error('Komprimeringsfejl:', file.name, error);
+            processed++;
+        });
     });
     
     // Reset input

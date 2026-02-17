@@ -95,6 +95,47 @@ function getGoogleMapsLink(lat, lng) {
     return `https://www.google.com/maps?q=${lat},${lng}`;
 }
 
+// Compress image before saving
+function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onerror = reject;
+        
+        reader.onload = function(e) {
+            const img = new Image();
+            
+            img.onerror = reject;
+            
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Calculate new dimensions
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to JPEG with quality
+                const compressedData = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressedData);
+            };
+            
+            img.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(file);
+    });
+}
+
 function isToday(dateString) {
     const today = new Date();
     const date = new Date(dateString);
