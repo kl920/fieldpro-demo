@@ -221,7 +221,57 @@ function renderMaterials() {
 }
 
 // Photo functions
-function addPhotos(event) {
+function showPhotoTypeDialog() {
+    const dialog = document.createElement('div');
+    dialog.className = 'photo-type-dialog-overlay';
+    dialog.innerHTML = `
+        <div class="photo-type-dialog">
+            <h3>Vælg billedtype</h3>
+            <div class="photo-type-options">
+                <button class="photo-type-btn before" onclick="selectPhotoType('before')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>FØR</span>
+                    <small>Start af arbejde</small>
+                </button>
+                <button class="photo-type-btn after" onclick="selectPhotoType('after')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>EFTER</span>
+                    <small>Færdigt arbejde</small>
+                </button>
+                <button class="photo-type-btn standard" onclick="selectPhotoType('standard')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <span>STANDARD</span>
+                    <small>Generelt billede</small>
+                </button>
+            </div>
+            <button class="dialog-cancel" onclick="this.closest('.photo-type-dialog-overlay').remove()">
+                Annuller
+            </button>
+        </div>
+    `;
+    document.body.appendChild(dialog);
+}
+
+let currentPhotoType = 'standard';
+
+function selectPhotoType(type) {
+    currentPhotoType = type;
+    const input = document.getElementById('photoInput');
+    input.click();
+    document.querySelector('.photo-type-dialog-overlay').remove();
+}
+
+function addPhotos(event, photoType) {
+    const type = photoType || currentPhotoType || 'standard';
     const files = event.target.files;
     
     if (!files || files.length === 0) {
@@ -252,7 +302,8 @@ function addPhotos(event) {
             const photoData = {
                 id: Date.now() + Math.random(),
                 data: compressedData,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                type: type
             };
             
             photos.push(photoData);
@@ -331,37 +382,141 @@ function renderPhotos() {
         return;
     }
     
-    container.innerHTML = photos.map(photo => `
-        <div class="photo-item">
-            <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
-            <div class="photo-info">
-                ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                ${photo.address ? `
-                    <div class="photo-location">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        ${photo.address}
-                    </div>
-                ` : photo.lat && photo.lng ? `
-                    <div class="photo-location">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        ${formatGPSCoordinates(photo.lat, photo.lng)}
-                    </div>
-                ` : ''}
+    const beforePhotos = photos.filter(p => p.type === 'before');
+    const afterPhotos = photos.filter(p => p.type === 'after');
+    const standardPhotos = photos.filter(p => !p.type || p.type === 'standard');
+    
+    let html = '';
+    
+    // Before photos
+    if (beforePhotos.length > 0) {
+        html += `
+            <div class="photo-section">
+                <div class="photo-section-label before">FØR (${beforePhotos.length})</div>
+                <div class="photos-grid">
+                    ${beforePhotos.map(photo => `
+                        <div class="photo-item">
+                            <div class="photo-type-badge before">FØR</div>
+                            <img src="${photo.data}" alt="Før foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+                            <div class="photo-info">
+                                ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
+                                ${photo.address ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${photo.address}
+                                    </div>
+                                ` : photo.lat && photo.lng ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${formatGPSCoordinates(photo.lat, photo.lng)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
-            <button class="delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-    `).join('');
+        `;
+    }
+    
+    // After photos
+    if (afterPhotos.length > 0) {
+        html += `
+            <div class="photo-section">
+                <div class="photo-section-label after">EFTER (${afterPhotos.length})</div>
+                <div class="photos-grid">
+                    ${afterPhotos.map(photo => `
+                        <div class="photo-item">
+                            <div class="photo-type-badge after">EFTER</div>
+                            <img src="${photo.data}" alt="Efter foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+                            <div class="photo-info">
+                                ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
+                                ${photo.address ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${photo.address}
+                                    </div>
+                                ` : photo.lat && photo.lng ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${formatGPSCoordinates(photo.lat, photo.lng)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Standard photos
+    if (standardPhotos.length > 0) {
+        html += `
+            <div class="photo-section">
+                ${beforePhotos.length > 0 || afterPhotos.length > 0 ? `<div class="photo-section-label">ANDRE BILLEDER (${standardPhotos.length})</div>` : ''}
+                <div class="photos-grid">
+                    ${standardPhotos.map(photo => `
+                        <div class="photo-item">
+                            <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+                            <div class="photo-info">
+                                ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
+                                ${photo.address ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${photo.address}
+                                    </div>
+                                ` : photo.lat && photo.lng ? `
+                                    <div class="photo-location">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        ${formatGPSCoordinates(photo.lat, photo.lng)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
 }
 
 // Submit task
