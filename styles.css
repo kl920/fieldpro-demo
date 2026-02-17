@@ -1477,12 +1477,6 @@ a:hover {
     background: #D32F2F;
 }
 
-.button-large {
-    width: 100%;
-    padding: var(--spacing-lg);
-    font-size: 1.125rem;
-}
-
 /* Export PDF Button */
 .export-pdf-button {
     width: 100%;

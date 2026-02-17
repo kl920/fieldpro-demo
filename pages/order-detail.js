@@ -137,16 +137,6 @@ function renderOrderDetailPage(data) {
                     </div>
                 </div>
 
-                <!-- Quick Start Button -->
-                ${task.status === 'pending' ? `
-                    <button class="button-primary button-large" onclick="startTask(${taskId})">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                        Start opgave
-                    </button>
-                ` : ''}
-
                 <!-- Quick Timer Button -->
                 ${task.status !== 'completed' ? `
                     <button class="button-primary button-timer" id="timerBtn${taskId}" onclick="toggleWorkTimer(${taskId})" data-state="stopped">
@@ -910,24 +900,6 @@ function deletePhoto(taskId, photoId) {
     router.navigate('/order-detail', { taskId });
 }
 
-function startTask(taskId) {
-    AppData.updateTask(taskId, { status: 'active' });
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    document.getElementById('startHour').value = hours;
-    document.getElementById('startMinute').value = minutes;
-    updateTaskTime(taskId);
-    
-    const task = AppData.getTask(taskId);
-    ActivityLogger.log('start', `Startede opgave ${task.orderNumber}`, taskId);
-    
-    showToast('Opgave startet!', 'success');
-    vibrate(50);
-    router.navigate('/order-detail', { taskId });
-}
-
 // Simple Timer Functions
 let workTimer = {
     startTime: null,
@@ -939,6 +911,13 @@ function toggleWorkTimer(taskId) {
     const state = btn.getAttribute('data-state');
     
     if (state === 'stopped') {
+        // Start task if pending
+        const task = AppData.getTask(taskId);
+        if (task && task.status === 'pending') {
+            AppData.updateTask(taskId, { status: 'active' });
+            ActivityLogger.log('start', 'Ordre startet', taskId);
+        }
+        
         // Start timer
         workTimer.taskId = taskId;
         workTimer.startTime = new Date();
