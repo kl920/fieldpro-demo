@@ -1,8 +1,29 @@
-// Signature Pad Component
+// ============================================================================
+// SIGNATURE PAD
+// ============================================================================
+
+/**
+ * A canvas-based signature pad for capturing user signatures.
+ * Supports both mouse and touch input with high-DPI scaling.
+ * 
+ * @class SignaturePad
+ * @example
+ * const pad = new SignaturePad('signatureCanvas');
+ * if (!pad.isEmpty()) {
+ *     const dataUrl = pad.getDataURL();
+ * }
+ */
 class SignaturePad {
+    /**
+     * Creates a new signature pad instance
+     * @param {string} canvasId - The ID of the canvas element
+     */
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) return;
+        if (!this.canvas) {
+            console.warn(`SignaturePad: Canvas element '${canvasId}' not found`);
+            return;
+        }
         
         this.ctx = this.canvas.getContext('2d');
         this.isDrawing = false;
@@ -12,18 +33,28 @@ class SignaturePad {
         this.bindEvents();
     }
     
+    /**
+     * Sets up canvas for high-DPI displays and configures drawing style
+     * @private
+     */
     setupCanvas() {
         const rect = this.canvas.getBoundingClientRect();
+        // Scale for retina displays
         this.canvas.width = rect.width * 2;
         this.canvas.height = rect.height * 2;
         this.ctx.scale(2, 2);
         
+        // Configure drawing style
         this.ctx.strokeStyle = '#212121';
         this.ctx.lineWidth = 2;
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
     }
     
+    /**
+     * Binds mouse and touch event listeners to the canvas
+     * @private
+     */
     bindEvents() {
         // Mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -43,6 +74,11 @@ class SignaturePad {
         this.canvas.addEventListener('touchend', () => this.stopDrawing());
     }
     
+    /**
+     * Starts a new drawing path
+     * @param {MouseEvent|Touch} e - Mouse or touch event
+     * @private
+     */
     startDrawing(e) {
         this.isDrawing = true;
         this.hasSignature = true;
@@ -51,6 +87,11 @@ class SignaturePad {
         this.ctx.moveTo(pos.x, pos.y);
     }
     
+    /**
+     * Continues drawing the current path
+     * @param {MouseEvent|Touch} e - Mouse or touch event
+     * @private
+     */
     draw(e) {
         if (!this.isDrawing) return;
         const pos = this.getPosition(e);
@@ -58,10 +99,20 @@ class SignaturePad {
         this.ctx.stroke();
     }
     
+    /**
+     * Stops the current drawing path
+     * @private
+     */
     stopDrawing() {
         this.isDrawing = false;
     }
     
+    /**
+     * Calculates canvas position from mouse/touch event
+     * @param {MouseEvent|Touch} e - Mouse or touch event
+     * @returns {{x: number, y: number}} Canvas coordinates
+     * @private
+     */
     getPosition(e) {
         const rect = this.canvas.getBoundingClientRect();
         return {
@@ -70,21 +121,48 @@ class SignaturePad {
         };
     }
     
+    /**
+     * Clears the signature pad
+     */
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.hasSignature = false;
     }
     
+    /**
+     * Gets the signature as a data URL
+     * @returns {string} PNG data URL of the signature
+     */
     getDataURL() {
         return this.canvas.toDataURL('image/png');
     }
     
+    /**
+     * Checks if the signature pad is empty
+     * @returns {boolean} True if no signature has been drawn
+     */
     isEmpty() {
         return !this.hasSignature;
     }
 }
 
-// Voice Recorder Component
+
+// ============================================================================
+// VOICE RECORDER
+// ============================================================================
+
+/**
+ * Records audio using the MediaRecorder API.
+ * Captures audio from device microphone and provides audio blob + base64 output.
+ * 
+ * @class VoiceRecorder
+ * @example
+ * const recorder = new VoiceRecorder();
+ * const started = await recorder.start();
+ * if (started) {
+ *     const audio = await recorder.stop(); // { url, data, duration }
+ * }
+ */
 class VoiceRecorder {
     constructor() {
         this.mediaRecorder = null;
@@ -92,6 +170,10 @@ class VoiceRecorder {
         this.isRecording = false;
     }
     
+    /**
+     * Starts recording audio from the microphone
+     * @returns {Promise<boolean>} True if recording started successfully
+     */
     async start() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -106,12 +188,16 @@ class VoiceRecorder {
             this.isRecording = true;
             return true;
         } catch (error) {
-            console.error('Error starting recording:', error);
+            console.error('VoiceRecorder: Failed to start recording', error);
             showToast('Mikrofon adgang nægtet', 'error');
             return false;
         }
     }
     
+    /**
+     * Stops recording and returns the audio data
+     * @returns {Promise<{url: string, data: string, duration: number}|null>} Audio data object or null
+     */
     stop() {
         return new Promise((resolve) => {
             if (!this.mediaRecorder || !this.isRecording) {
@@ -123,7 +209,7 @@ class VoiceRecorder {
                 const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 
-                // Convert to base64
+                // Convert to base64 for storage
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
                 reader.onloadend = () => {
@@ -136,18 +222,35 @@ class VoiceRecorder {
             };
             
             this.mediaRecorder.stop();
+            // Release microphone resources
             this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
             this.isRecording = false;
         });
     }
 }
 
-// GPS Location Service
+
+// ============================================================================
+// LOCATION SERVICE
+// ============================================================================
+
+/**
+ * Static service for GPS location operations.
+ * Provides geolocation, distance calculations, and reverse geocoding.
+ * 
+ * @class LocationService
+ * @static
+ */
 class LocationService {
+    /**
+     * Gets the current device position using GPS
+     * @returns {Promise<{lat: number, lng: number, accuracy: number}>} Location data
+     * @throws {Error} If geolocation is not supported or permission denied
+     */
     static async getCurrentPosition() {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
-                reject(new Error('Geolocation not supported'));
+                reject(new Error('Geolocation ikke understøttet'));
                 return;
             }
             
@@ -160,17 +263,26 @@ class LocationService {
                     });
                 },
                 (error) => {
+                    console.error('LocationService: Failed to get position', error);
                     reject(error);
                 },
                 {
-                    enableHighAccuracy: false,  // Changed to false for faster response
-                    timeout: 15000,  // Increased to 15 seconds
-                    maximumAge: 300000  // Accept cached position up to 5 minutes old
+                    enableHighAccuracy: CONFIG.GEO.HIGH_ACCURACY,
+                    timeout: CONFIG.GEO.TIMEOUT,
+                    maximumAge: CONFIG.GEO.MAX_AGE
                 }
             );
         });
     }
     
+    /**
+     * Calculates distance between two coordinates using Haversine formula
+     * @param {number} lat1 - First latitude
+     * @param {number} lon1 - First longitude
+     * @param {number} lat2 - Second latitude
+     * @param {number} lon2 - Second longitude
+     * @returns {number} Distance in kilometers
+     */
     static calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371; // Earth radius in km
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -186,6 +298,11 @@ class LocationService {
         return distance;
     }
     
+    /**
+     * Formats distance in human-readable format
+     * @param {number} km - Distance in kilometers
+     * @returns {string} Formatted distance string (meters or km)
+     */
     static formatDistance(km) {
         if (km < 1) {
             return `${Math.round(km * 1000)} m`;
@@ -193,19 +310,25 @@ class LocationService {
         return `${km.toFixed(1)} km`;
     }
     
+    /**
+     * Performs reverse geocoding to get address from coordinates
+     * Uses BigDataCloud API (free, no API key required)
+     * @param {number} lat - Latitude
+     * @param {number} lng - Longitude
+     * @returns {Promise<string|null>} Formatted address or null on error
+     */
     static async reverseGeocode(lat, lng) {
         try {
-            // Use BigDataCloud - free, no API key, no CORS issues
             const response = await fetch(
-                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=da`
+                `${CONFIG.GEOCODING.API_URL}?latitude=${lat}&longitude=${lng}&localityLanguage=${CONFIG.GEOCODING.LANGUAGE}`
             );
             
             if (!response.ok) {
-                throw new Error('Geocoding failed');
+                throw new Error(`Geocoding failed: ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('BigDataCloud API response:', data);
+            console.log('Geocode response:', data);
             
             // Build address from available components
             const addressParts = [];
@@ -215,10 +338,9 @@ class LocationService {
                 addressParts.push(data.localityName);
             }
             
-            // Check administrative levels for street/road info
+            // Check administrative levels for street/road info (Order 8 = street level in Denmark)
             if (data.localityInfo?.administrative) {
                 const admin = data.localityInfo.administrative;
-                // Order 8 is typically street level in Danish addresses
                 const street = admin.find(a => a.order === 8 && a.name);
                 if (street && !addressParts.includes(street.name)) {
                     addressParts.push(street.name);
@@ -232,20 +354,30 @@ class LocationService {
                 addressParts.push(data.locality);
             }
             
-            // If we have no specific address, just use city
+            // Fallback to region if no specific address
             const formattedAddress = addressParts.length > 0 
                 ? addressParts.join(', ')
                 : (data.principalSubdivision || 'Ukendt lokation');
             
             return formattedAddress;
         } catch (error) {
-            console.log('Reverse geocoding fejl:', error);
+            console.error('LocationService: Reverse geocoding failed', error);
             return null;
         }
     }
 }
 
-// Quick Timer Widget
+
+// ============================================================================
+// QUICK TIMER
+// ============================================================================
+
+/**
+ * Manages a quick timer widget for tracking work time on tasks.
+ * Persists timer state in localStorage and can restore after page reload.
+ * 
+ * @class QuickTimer
+ */
 class QuickTimer {
     constructor() {
         this.startTime = null;
@@ -255,6 +387,10 @@ class QuickTimer {
         this.currentTaskId = null;
     }
     
+    /**
+     * Starts the timer for a specific task
+     * @param {string} taskId - ID of the task to time
+     */
     start(taskId) {
         if (this.isRunning) {
             this.stop();
@@ -264,20 +400,26 @@ class QuickTimer {
         this.startTime = Date.now() - this.elapsedTime;
         this.isRunning = true;
         
+        // Update display every second
         this.interval = setInterval(() => {
             this.elapsedTime = Date.now() - this.startTime;
             this.updateDisplay();
         }, 1000);
         
+        // Persist timer state
         saveToStorage('quickTimer', {
             taskId,
             startTime: this.startTime,
             elapsedTime: this.elapsedTime
         });
         
-        vibrate(50);
+        vibrate(CONFIG.VIBRATION.SHORT);
     }
     
+    /**
+     * Stops the timer and returns elapsed time
+     * @returns {number} Elapsed time in milliseconds
+     */
     stop() {
         if (this.interval) {
             clearInterval(this.interval);
@@ -294,6 +436,10 @@ class QuickTimer {
         return duration;
     }
     
+    /**
+     * Updates the timer display element
+     * @private
+     */
     updateDisplay() {
         const element = document.getElementById('quickTimerDisplay');
         if (element) {
@@ -301,6 +447,12 @@ class QuickTimer {
         }
     }
     
+    /**
+     * Formats milliseconds to HH:MM:SS or MM:SS
+     * @param {number} ms - Time in milliseconds
+     * @returns {string} Formatted time string
+     * @private
+     */
     formatTime(ms) {
         const seconds = Math.floor(ms / 1000);
         const hours = Math.floor(seconds / 3600);
@@ -313,6 +465,9 @@ class QuickTimer {
         return `${minutes}:${String(secs).padStart(2, '0')}`;
     }
     
+    /**
+     * Restores timer state from localStorage (called on page load)
+     */
     restore() {
         const saved = getFromStorage('quickTimer');
         if (saved && saved.startTime) {
@@ -321,6 +476,7 @@ class QuickTimer {
             this.elapsedTime = Date.now() - saved.startTime;
             this.isRunning = true;
             
+            // Resume interval
             this.interval = setInterval(() => {
                 this.elapsedTime = Date.now() - this.startTime;
                 this.updateDisplay();
@@ -329,10 +485,35 @@ class QuickTimer {
     }
 }
 
+// ============================================================================
+// GLOBAL TIMER INSTANCE
+// ============================================================================
+
+/**
+ * Global quick timer instance used across the application
+ * @type {QuickTimer}
+ */
 const quickTimer = new QuickTimer();
 
-// Activity Logger
+
+// ============================================================================
+// ACTIVITY LOGGER
+// ============================================================================
+
+/**
+ * Static service for logging user activities.
+ * Maintains a log of recent activities with automatic trimming.
+ * 
+ * @class ActivityLogger
+ * @static
+ */
 class ActivityLogger {
+    /**
+     * Logs a new activity
+     * @param {string} type - Activity type (e.g., 'photo', 'note', 'checklist')
+     * @param {string} description - Human-readable description
+     * @param {string|null} taskId - Associated task ID (optional)
+     */
     static log(type, description, taskId = null) {
         const activities = getFromStorage('activities', []);
         
@@ -352,18 +533,48 @@ class ActivityLogger {
         saveToStorage('activities', activities);
     }
     
+    /**
+     * Retrieves recent activities
+     * @param {number} limit - Maximum number of activities to return
+     * @returns {Array<Object>} Array of activity objects
+     */
     static getRecent(limit = 10) {
         const activities = getFromStorage('activities', []);
         return activities.slice(0, limit);
     }
     
+    /**
+     * Clears all logged activities
+     */
     static clear() {
         saveToStorage('activities', []);
     }
 }
 
-// Swipe Handler
+
+// ============================================================================
+// SWIPE HANDLER
+// ============================================================================
+
+/**
+ * Handles touch swipe gestures on an element.
+ * Detects left and right swipes and triggers callbacks.
+ * 
+ * @class SwipeHandler
+ * @example
+ * const handler = new SwipeHandler(element, {
+ *     onSwipeRight: () => console.log('Swiped right'),
+ *     onSwipeLeft: () => console.log('Swiped left')
+ * });
+ */
 class SwipeHandler {
+    /**
+     * Creates a new swipe handler
+     * @param {HTMLElement} element - Element to track swipes on
+     * @param {Object} callbacks - Callback functions
+     * @param {Function} [callbacks.onSwipeRight] - Called on right swipe
+     * @param {Function} [callbacks.onSwipeLeft] - Called on left swipe
+     */
     constructor(element, callbacks) {
         this.element = element;
         this.callbacks = callbacks;
@@ -371,10 +582,15 @@ class SwipeHandler {
         this.startY = 0;
         this.currentX = 0;
         this.currentY = 0;
+        this.SWIPE_THRESHOLD = 50; // Minimum swipe distance in pixels
         
         this.bindEvents();
     }
     
+    /**
+     * Binds touch event listeners
+     * @private
+     */
     bindEvents() {
         this.element.addEventListener('touchstart', (e) => {
             this.startX = e.touches[0].clientX;
@@ -391,7 +607,7 @@ class SwipeHandler {
             const diffY = this.currentY - this.startY;
             
             // Only trigger if horizontal swipe is dominant
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > this.SWIPE_THRESHOLD) {
                 if (diffX > 0 && this.callbacks.onSwipeRight) {
                     this.callbacks.onSwipeRight();
                 } else if (diffX < 0 && this.callbacks.onSwipeLeft) {
@@ -399,6 +615,7 @@ class SwipeHandler {
                 }
             }
             
+            // Reset coordinates
             this.startX = 0;
             this.startY = 0;
             this.currentX = 0;
@@ -407,8 +624,23 @@ class SwipeHandler {
     }
 }
 
-// Checklist Manager
+
+// ============================================================================
+// CHECKLIST MANAGER
+// ============================================================================
+
+/**
+ * Static service for managing task checklists.
+ * Provides default checklist and progress tracking.
+ * 
+ * @class ChecklistManager
+ * @static
+ */
 class ChecklistManager {
+    /**
+     * Returns the default checklist template
+     * @returns {Array<{id: number, text: string, completed: boolean}>} Default checklist items
+     */
     static getDefaultChecklist() {
         return [
             { id: 1, text: 'Ankommet til lokation', completed: false },
@@ -423,38 +655,65 @@ class ChecklistManager {
         ];
     }
     
+    /**
+     * Gets the checklist for a specific task
+     * @param {string} taskId - Task ID
+     * @returns {Array} Checklist items
+     */
     static getChecklist(taskId) {
         return AppData.getTaskData(taskId, 'checklist', this.getDefaultChecklist());
     }
     
+    /**
+     * Updates a checklist item's completion status
+     * @param {string} taskId - Task ID
+     * @param {number} itemId - Checklist item ID
+     * @param {boolean} completed - New completion status
+     */
     static updateChecklistItem(taskId, itemId, completed) {
         const checklist = this.getChecklist(taskId);
         const item = checklist.find(i => i.id === itemId);
+        
         if (item) {
             item.completed = completed;
             AppData.saveTaskData(taskId, 'checklist', checklist);
             
             // Log activity
-            const task = AppData.getTask(taskId);
-            ActivityLogger.log('checklist', `${completed ? 'Afkrydsede' : 'Fjernede markering fra'}: ${item.text}`, taskId);
+            const action = completed ? 'Afkrydsede' : 'Fjernede markering fra';
+            ActivityLogger.log('checklist', `${action}: ${item.text}`, taskId);
             
-            vibrate(20);
+            vibrate(CONFIG.VIBRATION.SHORT);
         }
     }
     
+    /**
+     * Gets checklist completion progress
+     * @param {string} taskId - Task ID
+     * @returns {{completed: number, total: number, percentage: number}} Progress statistics
+     */
     static getProgress(taskId) {
         const checklist = this.getChecklist(taskId);
         const completed = checklist.filter(i => i.completed).length;
+        const total = checklist.length;
+        
         return {
             completed,
-            total: checklist.length,
-            percentage: Math.round((completed / checklist.length) * 100)
+            total,
+            percentage: Math.round((completed / total) * 100)
         };
     }
 }
 
-// Initialize components
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+/**
+ * Initialize components on page load
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    // Restore quick timer if running
+    // Restore quick timer if it was running before page reload
     quickTimer.restore();
 });
+

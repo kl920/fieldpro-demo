@@ -1,8 +1,14 @@
-// Main App Entry Point
+// ============================================================================
+// MAIN APPLICATION ENTRY POINT
+// ============================================================================
+
+/**
+ * Initialize application on DOM ready
+ */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 FieldPro initializing...');
     
-    // Show app with smooth fade-in
+    // Show app with smooth fade-in effect
     const appWrapper = document.querySelector('.app-wrapper');
     if (appWrapper) {
         appWrapper.style.opacity = '0';
@@ -12,25 +18,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }
     
-    // Initialize router
+    // Initialize router and navigate to initial page
     router.init();
     
-    // Check for updates periodically (for PWA)
+    // Check for PWA updates periodically
     checkForUpdates();
     
-    // Add smooth scroll behavior
+    // Enable smooth scrolling
     document.documentElement.style.scrollBehavior = 'smooth';
     
-    // Add keyboard shortcuts
+    // Setup keyboard shortcuts
     initKeyboardShortcuts();
     
-    // Initialize active nav on load
+    // Initialize navigation state
     updateNavOnLoad();
     
     console.log('✅ FieldPro ready');
 });
 
-// Update navigation state on initial load
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
+/**
+ * Updates navigation state on initial page load
+ * Syncs active nav item with current route from URL hash
+ */
 function updateNavOnLoad() {
     const currentPath = window.location.hash.slice(1) || '/';
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -41,7 +55,16 @@ function updateNavOnLoad() {
     });
 }
 
-// Keyboard shortcuts for power users
+
+// ============================================================================
+// KEYBOARD SHORTCUTS
+// ============================================================================
+
+/**
+ * Initializes keyboard shortcuts for power users
+ * - Cmd/Ctrl + K: Quick search (future feature)
+ * - Cmd/Ctrl + H: Navigate to home
+ */
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
         // Cmd/Ctrl + K for search (future feature)
@@ -58,46 +81,78 @@ function initKeyboardShortcuts() {
     });
 }
 
-// Check for app updates
+
+// ============================================================================
+// PWA & SERVICE WORKER
+// ============================================================================
+
+/**
+ * Checks for application updates periodically
+ * Triggers service worker update check every 30 minutes
+ */
 function checkForUpdates() {
     if ('serviceWorker' in navigator) {
         setInterval(() => {
-            // Check for new version every 30 minutes
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 registrations.forEach(reg => reg.update());
             });
-        }, 30 * 60 * 1000);
+        }, 30 * 60 * 1000); // Every 30 minutes
     }
 }
 
-// PWA Service Worker (optional - for offline support)
+/**
+ * Register service worker for PWA functionality (currently disabled)
+ */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Uncomment to enable PWA
+        // Uncomment to enable PWA offline support
         // navigator.serviceWorker.register('/sw.js').then(reg => {
         //     console.log('Service Worker registered', reg);
         // });
     });
 }
 
-// Handle online/offline status
+
+// ============================================================================
+// NETWORK STATUS
+// ============================================================================
+
+/**
+ * Notifies user when internet connection is restored
+ */
 window.addEventListener('online', () => {
     showToast('Forbindelse genetableret', 'success', 2000);
 });
 
+/**
+ * Notifies user when internet connection is lost
+ */
 window.addEventListener('offline', () => {
     showToast('Ingen internetforbindelse', 'warning', 3000);
 });
 
-// Add global error handler for better UX
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+/**
+ * Global error handler for logging uncaught errors
+ */
 window.addEventListener('error', (e) => {
     console.error('Global error:', e.error);
-    // Don't show toast for every error, but log it
+    // Log errors silently - don't show toast for every error
 });
 
-// Prevent accidental data loss
+
+// ============================================================================
+// DATA PROTECTION
+// ============================================================================
+
+/**
+ * Warns user before leaving page if there are unsaved changes
+ */
 window.addEventListener('beforeunload', (e) => {
-    // Check if user has unsaved changes
     const hasUnsavedChanges = checkForUnsavedChanges();
     if (hasUnsavedChanges) {
         e.preventDefault();
@@ -105,8 +160,13 @@ window.addEventListener('beforeunload', (e) => {
     }
 });
 
+/**
+ * Checks if current page has unsaved form data
+ * @returns {boolean} True if there are unsaved changes
+ */
 function checkForUnsavedChanges() {
-    // Check if there are any forms with unsaved data
-    // This is a simple check - can be enhanced
+    // Simple check - can be enhanced with form tracking
+    // Currently returns false (disabled)
     return false;
 }
+
