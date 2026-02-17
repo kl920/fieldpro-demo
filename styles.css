@@ -1580,6 +1580,41 @@ a:hover {
     font-size: 1.125rem;
 }
 
+/* Export PDF Button */
+.export-pdf-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    margin-top: var(--spacing-lg);
+}
+
+.export-pdf-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.export-pdf-button:active {
+    transform: translateY(0);
+}
+
+.export-pdf-button svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
 /* Complete Task Button - Premium Style */
 .complete-task-button {
     width: 100%;

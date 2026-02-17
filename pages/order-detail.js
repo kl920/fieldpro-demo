@@ -486,6 +486,17 @@ function renderOrderDetailPage(data) {
                     </div>
                 </div>
 
+                <!-- Export PDF Button -->
+                <button class="export-pdf-button" onclick="exportToPDF(${taskId})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <polyline points="9 15 12 18 15 15"></polyline>
+                    </svg>
+                    Eksporter til PDF
+                </button>
+
                 <!-- Complete Task Button -->
                 <button class="complete-task-button" onclick="completeTask(${taskId})">
                     <div class="complete-task-icon">
@@ -1081,6 +1092,233 @@ function completeTask(taskId) {
         showToast('Opgave afsluttet! 🎉', 'success');
         vibrate([50, 100, 50]);
         setTimeout(() => router.navigate('/orders'), 1000);
+    }
+}
+
+async function exportToPDF(taskId) {
+    const task = AppData.getTask(taskId);
+    const photos = AppData.getTaskData(taskId, 'photos', []);
+    const materials = AppData.getTaskData(taskId, 'materials', []);
+    const checklist = AppData.getTaskData(taskId, 'checklist', ChecklistManager.getDefaultChecklist());
+    const signature = AppData.getTaskData(taskId, 'signature');
+    
+    showToast('📄 Genererer PDF...', 'info', 2000);
+    
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        let yPos = 20;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 20;
+        const contentWidth = pageWidth - (2 * margin);
+        
+        // Header
+        doc.setFontSize(22);
+        doc.setFont(undefined, 'bold');
+        doc.text('Service Rapport', margin, yPos);
+        
+        yPos += 10;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100);
+        doc.text(`Ordre #${task.orderNumber}`, margin, yPos);
+        
+        yPos += 15;
+        
+        // Order Info
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0);
+        doc.text('Ordre Information', margin, yPos);
+        
+        yPos += 8;
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        
+        const orderInfo = [
+            `Type: ${task.title}`,
+            `Kunde: ${task.customer}`,
+            `Adresse: ${task.location.address}`,
+            `Dato: ${new Date(task.scheduledDate).toLocaleDateString('da-DK')}`,
+            `Status: ${task.status === 'completed' ? 'Afsluttet' : task.status === 'active' ? 'Aktiv' : 'Afventer'}`
+        ];
+        
+        orderInfo.forEach(line => {
+            doc.text(line, margin, yPos);
+            yPos += 6;
+        });
+        
+        yPos += 10;
+        
+        // Time Registration
+        const startHour = document.getElementById('startHour')?.value;
+        const startMinute = document.getElementById('startMinute')?.value;
+        const endHour = document.getElementById('endHour')?.value;
+        const endMinute = document.getElementById('endMinute')?.value;
+        const totalTimeEl = document.getElementById('totalTime');
+        
+        if (startHour || endHour || totalTimeEl) {
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Tidsregistrering', margin, yPos);
+            
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            
+            if (startHour && startMinute) {
+                doc.text(`Start: ${startHour}:${startMinute}`, margin, yPos);
+                yPos += 6;
+            }
+            if (endHour && endMinute) {
+                doc.text(`Slut: ${endHour}:${endMinute}`, margin, yPos);
+                yPos += 6;
+            }
+            if (totalTimeEl) {
+                doc.text(`Total tid: ${totalTimeEl.textContent}`, margin, yPos);
+                yPos += 6;
+            }
+            
+            yPos += 10;
+        }
+        
+        // Materials
+        if (materials && materials.length > 0) {
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Materialer/Dele', margin, yPos);
+            
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            
+            materials.forEach(mat => {
+                doc.text(`• ${mat.name} (${mat.quantity} ${mat.unit})`, margin + 5, yPos);
+                yPos += 6;
+            });
+            
+            yPos += 10;
+        }
+        
+        // Checklist
+        if (checklist && checklist.length > 0) {
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Tjekliste', margin, yPos);
+            
+            yPos += 8;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            
+            checklist.forEach(item => {
+                const status = item.checked ? '☑' : '☐';
+                doc.text(`${status} ${item.label}`, margin + 5, yPos);
+                yPos += 6;
+            });
+            
+            yPos += 10;
+        }
+        
+        // Photos - Before/After
+        const beforePhotos = photos.filter(p => p.type === 'before');
+        const afterPhotos = photos.filter(p => p.type === 'after');
+        
+        if (beforePhotos.length > 0 || afterPhotos.length > 0) {
+            doc.addPage();
+            yPos = 20;
+            
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text('Før/Efter Billeder', margin, yPos);
+            yPos += 10;
+            
+            // Before photos
+            if (beforePhotos.length > 0) {
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('FØR', margin, yPos);
+                yPos += 5;
+                
+                for (let i = 0; i < Math.min(2, beforePhotos.length); i++) {
+                    const photo = beforePhotos[i];
+                    try {
+                        const imgWidth = 80;
+                        const imgHeight = 60;
+                        doc.addImage(photo.data, 'JPEG', margin + (i * 90), yPos, imgWidth, imgHeight);
+                    } catch (e) {
+                        console.error('Error adding image', e);
+                    }
+                }
+                yPos += 70;
+            }
+            
+            // After photos
+            if (afterPhotos.length > 0) {
+                if (yPos > 200) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('EFTER', margin, yPos);
+                yPos += 5;
+                
+                for (let i = 0; i < Math.min(2, afterPhotos.length); i++) {
+                    const photo = afterPhotos[i];
+                    try {
+                        const imgWidth = 80;
+                        const imgHeight = 60;
+                        doc.addImage(photo.data, 'JPEG', margin + (i * 90), yPos, imgWidth, imgHeight);
+                    } catch (e) {
+                        console.error('Error adding image', e);
+                    }
+                }
+                yPos += 70;
+            }
+        }
+        
+        // Signature
+        if (signature) {
+            if (yPos > 220) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Kundens Signatur', margin, yPos);
+            yPos += 5;
+            
+            try {
+                doc.addImage(signature, 'PNG', margin, yPos, 80, 40);
+            } catch (e) {
+                console.error('Error adding signature', e);
+            }
+        }
+        
+        // Save PDF
+        const filename = `Service_Rapport_${task.orderNumber}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+        
+        showToast('✅ PDF eksporteret!', 'success');
+        ActivityLogger.log('export', 'Eksporterede PDF rapport', taskId);
+        vibrate(50);
+        
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        showToast('❌ Fejl ved PDF-generering', 'error');
     }
 }
 
