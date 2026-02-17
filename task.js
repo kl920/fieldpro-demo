@@ -224,19 +224,37 @@ function renderMaterials() {
 function addPhotos(event) {
     const files = event.target.files;
     
-    for (let file of files) {
+    if (!files || files.length === 0) {
+        return;
+    }
+    
+    const fileArray = Array.from(files);
+    let processed = 0;
+    
+    fileArray.forEach((file) => {
         const reader = new FileReader();
+        
+        reader.onerror = function() {
+            console.error('Error reading file:', file.name);
+            processed++;
+        };
+        
         reader.onload = function(e) {
             photos.push({
                 id: Date.now() + Math.random(),
                 data: e.target.result,
                 timestamp: new Date().toISOString()
             });
-            saveData();
-            renderPhotos();
+            
+            processed++;
+            if (processed === fileArray.length) {
+                saveData();
+                renderPhotos();
+            }
         };
+        
         reader.readAsDataURL(file);
-    }
+    });
     
     // Reset input
     event.target.value = '';

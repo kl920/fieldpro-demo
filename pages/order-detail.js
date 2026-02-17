@@ -255,7 +255,7 @@ function renderOrderDetailPage(data) {
                                 <polyline points="21 15 16 10 5 21"></polyline>
                             </svg>
                         </button>
-                        <input type="file" id="photoInput${taskId}" accept="image/*" multiple style="display: none;" onchange="addPhotos(${taskId}, event)">
+                        <input type="file" id="photoInput${taskId}" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif" capture="environment" multiple style="display: none;" onchange="addPhotos(${taskId}, event)">
                     </div>
                     <div class="photos-grid" id="photoGrid">
                         ${photos.length === 0 ? `
@@ -563,11 +563,24 @@ function deleteMaterial(taskId, materialId) {
 
 function addPhotos(taskId, event) {
     const files = event.target.files;
+    
+    if (!files || files.length === 0) {
+        return;
+    }
+    
     const photos = AppData.getTaskData(taskId, 'photos', []);
     
     let processed = 0;
-    for (let file of files) {
+    const fileArray = Array.from(files);
+    
+    fileArray.forEach((file) => {
         const reader = new FileReader();
+        
+        reader.onerror = function() {
+            showToast('Fejl ved indlæsning af billede', 'error');
+            processed++;
+        };
+        
         reader.onload = function(e) {
             photos.push({
                 id: generateId(),
@@ -576,15 +589,21 @@ function addPhotos(taskId, event) {
             });
             
             processed++;
-            if (processed === files.length) {
+            if (processed === fileArray.length) {
                 AppData.saveTaskData(taskId, 'photos', photos);
-                ActivityLogger.log('photo', `Tilføjede ${files.length} billede(r)`, taskId);
-                showToast(`${files.length} billede(r) tilføjet`, 'success');
+                ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
+                showToast(`${fileArray.length} billede(r) tilføjet`, 'success');
+                vibrate(50);
+                
+                // Reset input
+                event.target.value = '';
+                
                 router.navigate('/order-detail', { taskId });
             }
         };
+        
         reader.readAsDataURL(file);
-    }
+    });
 }
 
 function deletePhoto(taskId, photoId) {
