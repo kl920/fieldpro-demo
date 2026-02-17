@@ -195,14 +195,9 @@ class LocationService {
     
     static async reverseGeocode(lat, lng) {
         try {
-            // Use Nominatim (OpenStreetMap) - free, no API key needed
+            // Use BigDataCloud - free, no API key, no CORS issues
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-                {
-                    headers: {
-                        'User-Agent': 'FieldPro-App'
-                    }
-                }
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=da`
             );
             
             if (!response.ok) {
@@ -211,29 +206,40 @@ class LocationService {
             
             const data = await response.json();
             
-            // Format address nicely
-            const addr = data.address || {};
+            // Format address from BigDataCloud
             let formattedAddress = '';
             
-            if (addr.road) {
-                formattedAddress = addr.road;
-                if (addr.house_number) {
-                    formattedAddress += ' ' + addr.house_number;
+            if (data.locality) {
+                // Street address
+                if (data.localityInfo && data.localityInfo.administrative) {
+                    const admin = data.localityInfo.administrative;
+                    if (admin.find(a => a.name)) {
+                        const street = admin.find(a => a.order === 8);
+                        if (street) formattedAddress = street.name;
+                    }
                 }
-            } else if (addr.neighbourhood) {
-                formattedAddress = addr.neighbourhood;
+                
+                // City
+                if (data.city) {
+                    if (formattedAddress) {
+                        formattedAddress += ', ' + data.city;
+                    } else {
+                        formattedAddress = data.city;
+                    }
+                } else if (data.locality && data.locality !== formattedAddress) {
+                    if (formattedAddress) {
+                        formattedAddress += ', ' + data.locality;
+                    } else {
+                        formattedAddress = data.locality;
+                    }
+                }
+            } else if (data.city) {
+                formattedAddress = data.city;
+            } else if (data.principalSubdivision) {
+                formattedAddress = data.principalSubdivision;
             }
             
-            if (addr.city || addr.town || addr.village) {
-                const city = addr.city || addr.town || addr.village;
-                if (formattedAddress) {
-                    formattedAddress += ', ' + city;
-                } else {
-                    formattedAddress = city;
-                }
-            }
-            
-            return formattedAddress || data.display_name || null;
+            return formattedAddress || data.localityInfo?.informative?.find(i => i.name)?.name || null;
         } catch (error) {
             console.log('Reverse geocoding fejl:', error);
             return null;
