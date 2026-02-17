@@ -1228,6 +1228,168 @@ a:hover {
     flex-shrink: 0;
 }
 
+/* Photo Type Dialog */
+.photo-type-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.photo-type-dialog {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 400px;
+    width: 90%;
+    animation: slideUp 0.3s ease;
+}
+
+.photo-type-dialog h3 {
+    margin: 0 0 var(--spacing-lg) 0;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.photo-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.photo-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.photo-type-btn:hover {
+    border-color: var(--primary);
+    background: var(--gray-50);
+    transform: translateY(-2px);
+}
+
+.photo-type-btn.before:hover {
+    border-color: #2196F3;
+}
+
+.photo-type-btn.after:hover {
+    border-color: #4CAF50;
+}
+
+.photo-type-btn svg {
+    width: 32px;
+    height: 32px;
+    stroke-width: 2;
+}
+
+.photo-type-btn.before svg {
+    color: #2196F3;
+}
+
+.photo-type-btn.after svg {
+    color: #4CAF50;
+}
+
+.photo-type-btn.standard svg {
+    color: var(--gray-600);
+}
+
+.photo-type-btn span {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.photo-type-btn small {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.dialog-cancel {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.dialog-cancel:hover {
+    background: var(--gray-50);
+}
+
+/* Photo Sections */
+.photo-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.photo-section:last-child {
+    margin-bottom: 0;
+}
+
+.photo-section-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.photo-section-label.before {
+    background: #E3F2FD;
+    color: #1976D2;
+}
+
+.photo-section-label.after {
+    background: #E8F5E9;
+    color: #388E3C;
+}
+
+/* Photo Type Badge */
+.photo-type-badge {
+    position: absolute;
+    top: var(--spacing-xs);
+    left: var(--spacing-xs);
+    background: rgba(255, 255, 255, 0.95);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.5px;
+    z-index: 10;
+}
+
+.photo-type-badge.before {
+    background: #2196F3;
+}
+
+.photo-type-badge.after {
+    background: #4CAF50;
+}
+
 /* Buttons */
 .button-primary,
 .button-secondary,
