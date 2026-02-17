@@ -83,6 +83,18 @@ function formatPhotoTimestamp(timestamp) {
     }
 }
 
+function formatGPSCoordinates(lat, lng) {
+    if (!lat || !lng) return '';
+    const latDir = lat >= 0 ? 'N' : 'S';
+    const lngDir = lng >= 0 ? 'Ø' : 'V';
+    return `${Math.abs(lat).toFixed(5)}° ${latDir}, ${Math.abs(lng).toFixed(5)}° ${lngDir}`;
+}
+
+function getGoogleMapsLink(lat, lng) {
+    if (!lat || !lng) return '#';
+    return `https://www.google.com/maps?q=${lat},${lng}`;
+}
+
 function isToday(dateString) {
     const today = new Date();
     const date = new Date(dateString);

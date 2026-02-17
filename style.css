@@ -494,17 +494,46 @@ header {
     padding: 0.25rem;
 }
 
-.photo-timestamp {
+.photo-item img {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.photo-item img:hover {
+    opacity: 0.9;
+}
+
+.photo-info {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
     color: white;
-    font-size: 0.75rem;
     padding: 0.5rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.photo-timestamp {
+    font-size: 0.75rem;
     text-align: center;
     font-weight: 500;
+}
+
+.photo-location {
+    font-size: 0.65rem;
+    text-align: center;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.photo-location svg {
+    flex-shrink: 0;
 }
 
 /* Submit Button */

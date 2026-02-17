@@ -221,11 +221,21 @@ function renderMaterials() {
 }
 
 // Photo functions
-function addPhotos(event) {
+async function addPhotos(event) {
     const files = event.target.files;
     
     if (!files || files.length === 0) {
         return;
+    }
+    
+    // Get GPS location once for all photos
+    let location = null;
+    try {
+        if (typeof LocationService !== 'undefined') {
+            location = await LocationService.getCurrentPosition();
+        }
+    } catch (err) {
+        console.log('GPS ikke tilgængelig:', err);
     }
     
     const fileArray = Array.from(files);
@@ -240,11 +250,20 @@ function addPhotos(event) {
         };
         
         reader.onload = function(e) {
-            photos.push({
+            const photoData = {
                 id: Date.now() + Math.random(),
                 data: e.target.result,
                 timestamp: new Date().toISOString()
-            });
+            };
+            
+            // Add GPS if available
+            if (location) {
+                photoData.lat = location.lat;
+                photoData.lng = location.lng;
+                photoData.accuracy = location.accuracy;
+            }
+            
+            photos.push(photoData);
             
             processed++;
             if (processed === fileArray.length) {
@@ -280,9 +299,20 @@ function renderPhotos() {
     
     container.innerHTML = photos.map(photo => `
         <div class="photo-item">
-            <img src="${photo.data}" alt="Opgave foto">
-            ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-            <button class="delete-btn" onclick="deletePhoto(${photo.id})">
+            <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+            <div class="photo-info">
+                ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
+                ${photo.lat && photo.lng ? `
+                    <div class="photo-location">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        ${formatGPSCoordinates(photo.lat, photo.lng)}
+                    </div>
+                ` : ''}
+            </div>
+            <button class="delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id})">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
