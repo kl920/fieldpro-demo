@@ -205,41 +205,39 @@ class LocationService {
             }
             
             const data = await response.json();
+            console.log('BigDataCloud API response:', data);
             
-            // Format address from BigDataCloud
-            let formattedAddress = '';
+            // Build address from available components
+            const addressParts = [];
             
-            if (data.locality) {
-                // Street address
-                if (data.localityInfo && data.localityInfo.administrative) {
-                    const admin = data.localityInfo.administrative;
-                    if (admin.find(a => a.name)) {
-                        const street = admin.find(a => a.order === 8);
-                        if (street) formattedAddress = street.name;
-                    }
-                }
-                
-                // City
-                if (data.city) {
-                    if (formattedAddress) {
-                        formattedAddress += ', ' + data.city;
-                    } else {
-                        formattedAddress = data.city;
-                    }
-                } else if (data.locality && data.locality !== formattedAddress) {
-                    if (formattedAddress) {
-                        formattedAddress += ', ' + data.locality;
-                    } else {
-                        formattedAddress = data.locality;
-                    }
-                }
-            } else if (data.city) {
-                formattedAddress = data.city;
-            } else if (data.principalSubdivision) {
-                formattedAddress = data.principalSubdivision;
+            // Try to get street name and number
+            if (data.localityName && data.localityName !== data.locality) {
+                addressParts.push(data.localityName);
             }
             
-            return formattedAddress || data.localityInfo?.informative?.find(i => i.name)?.name || null;
+            // Check administrative levels for street/road info
+            if (data.localityInfo?.administrative) {
+                const admin = data.localityInfo.administrative;
+                // Order 8 is typically street level in Danish addresses
+                const street = admin.find(a => a.order === 8 && a.name);
+                if (street && !addressParts.includes(street.name)) {
+                    addressParts.push(street.name);
+                }
+            }
+            
+            // Add city/locality
+            if (data.city) {
+                addressParts.push(data.city);
+            } else if (data.locality) {
+                addressParts.push(data.locality);
+            }
+            
+            // If we have no specific address, just use city
+            const formattedAddress = addressParts.length > 0 
+                ? addressParts.join(', ')
+                : (data.principalSubdivision || 'Ukendt lokation');
+            
+            return formattedAddress;
         } catch (error) {
             console.log('Reverse geocoding fejl:', error);
             return null;
