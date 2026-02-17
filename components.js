@@ -225,10 +225,10 @@ class LocationService {
                 }
             }
             
-            // Add city/locality
-            if (data.city) {
+            // Add city/locality (avoid duplicates)
+            if (data.city && !addressParts.includes(data.city)) {
                 addressParts.push(data.city);
-            } else if (data.locality) {
+            } else if (data.locality && !addressParts.includes(data.locality)) {
                 addressParts.push(data.locality);
             }
             
