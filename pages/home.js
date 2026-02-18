@@ -3,6 +3,13 @@ function renderHomePage() {
     const todayTasks = AppData.getTodayTasks();
     const activeTasks = AppData.getTasksByStatus('active');
     
+    // Get today's date in dd-mm-yyyy format
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    
     const content = `
         <div class="page page-home">
             <div class="page-header">
@@ -15,7 +22,7 @@ function renderHomePage() {
                 <!-- Today's Tasks -->
                 <div class="section">
                     <div class="section-header">
-                        <h2>Dagens opgaver</h2>
+                        <h2>${dateString}</h2>
                         <a href="#/orders" onclick="router.navigate('/orders')" class="link-button">Se alle</a>
                     </div>
 
