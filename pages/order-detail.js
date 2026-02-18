@@ -114,29 +114,6 @@ function renderOrderDetailPage(data) {
                     <p class="task-description">${task.description}</p>
                 </div>
 
-                <!-- QR Scanner -->
-                <div class="section-card">
-                    <div class="section-card-header">
-                        <h3>Scan udstyr</h3>
-                        <button class="button-icon" onclick="toggleQRScanner(${taskId})">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                                <rect x="7" y="7" width="10" height="10"></rect>
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="qrScanner${taskId}" class="qr-scanner-container" style="display: none;">
-                        <div id="qrReader${taskId}" class="qr-reader"></div>
-                        <div id="qrResult${taskId}" class="qr-result" style="display: none;"></div>
-                    </div>
-                    <div id="scannedEquipment${taskId}" class="scanned-equipment-list">
-                        <!-- Scanned items will appear here -->
-                    </div>
-                </div>
-
                 <!-- Quick Timer Button -->
                 ${task.status !== 'completed' ? `
                     <button class="button-primary button-timer" id="timerBtn${taskId}" onclick="toggleWorkTimer(${taskId})" data-state="stopped">
