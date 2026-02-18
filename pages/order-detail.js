@@ -29,8 +29,8 @@ function renderOrderDetailPage(data) {
                     </svg>
                 </button>
                 <div class="header-title">
-                    <h1>Ordre ${task.orderNumber}</h1>
-                    <span class="header-subtitle">${task.title}</span>
+                    <h1>${task.location.address}</h1>
+                    <span class="header-subtitle">${task.type}</span>
                 </div>
                 <button class="header-action" onclick="shareOrder(${taskId})">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
