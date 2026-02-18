@@ -45,6 +45,13 @@ function renderHomePage() {
                                         </svg>
                                         <span>${task.location.address}</span>
                                     </div>
+                                    <div class="task-time">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span>${task.scheduledStart} - ${task.scheduledEnd}</span>
+                                    </div>
                                     <div class="task-type-label">Opgavetype: ${task.type}</div>
                                 </div>
                                 <button class="button-start-route" onclick="event.stopPropagation(); navigateToLocation('${task.location.address}')">

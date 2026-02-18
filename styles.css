@@ -509,6 +509,7 @@ a:hover {
 
 .task-card-main {
     padding: var(--spacing-lg);
+    padding-bottom: var(--spacing-xl);
     cursor: pointer;
 }
 
@@ -527,7 +528,7 @@ a:hover {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: var(--spacing-sm) 0;
+    margin: var(--spacing-sm) 0 var(--spacing-md) 0;
 }
 
 .task-address {
@@ -536,10 +537,24 @@ a:hover {
     gap: var(--spacing-sm);
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin: var(--spacing-sm) 0;
+    margin-bottom: var(--spacing-xs);
 }
 
 .task-address svg {
+    flex-shrink: 0;
+    stroke-width: 2;
+}
+
+.task-time {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.task-time svg {
     flex-shrink: 0;
     stroke-width: 2;
 }
@@ -556,7 +571,8 @@ a:hover {
     justify-content: center;
     gap: var(--spacing-sm);
     width: 100%;
-    padding: var(--spacing-md);
+    padding: 1rem;
+    margin-top: var(--spacing-xs);
     background: linear-gradient(135deg, var(--primary) 0%, #1565C0 100%);
     color: white;
     border: none;
@@ -564,7 +580,7 @@ a:hover {
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border);
 }
 
 .button-start-route:hover {
