@@ -1,7 +1,5 @@
 // Home Page
 function renderHomePage() {
-    const weather = getWeather();
-    const greeting = getGreeting();
     const todayTasks = AppData.getTodayTasks();
     const activeTasks = AppData.getTasksByStatus('active');
     
@@ -9,12 +7,7 @@ function renderHomePage() {
         <div class="page page-home">
             <div class="page-header">
                 <div class="header-main">
-                    <h1>${greeting}! 👋</h1>
-                    <div class="weather-widget">
-                        <span class="weather-icon">${weather.icon}</span>
-                        <span class="weather-temp">${weather.temp}°C</span>
-                        <span class="weather-condition">${weather.condition}</span>
-                    </div>
+                    <h1>Kenneth Larsen</h1>
                 </div>
             </div>
 
