@@ -23,7 +23,7 @@ const DEMO_TASKS = {
             lat: 55.7058,
             lng: 12.5733
         },
-        date: '2026-02-16',
+        date: '2026-02-20',
         scheduledStart: '07:00',
         scheduledEnd: '15:00',
         status: 'active',
@@ -47,7 +47,7 @@ const DEMO_TASKS = {
             lat: 55.4580,
             lng: 12.1823
         },
-        date: '2026-02-16',
+        date: '2026-02-21',
         scheduledStart: '09:00',
         scheduledEnd: '11:00',
         status: 'pending',
@@ -71,7 +71,7 @@ const DEMO_TASKS = {
             lat: 55.6217,
             lng: 8.4831
         },
-        date: '2026-02-17',
+        date: '2026-02-19',
         scheduledStart: '08:00',
         scheduledEnd: '16:00',
         status: 'pending',
