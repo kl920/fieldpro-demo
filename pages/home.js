@@ -19,34 +19,6 @@ function renderHomePage() {
             </div>
 
             <div class="page-content">
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card stat-primary">
-                        <div class="stat-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M9 11l3 3L22 4"></path>
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value">${todayTasks.length}</div>
-                            <div class="stat-label">Opgaver i dag</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card stat-success">
-                        <div class="stat-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value">${activeTasks.length}</div>
-                            <div class="stat-label">Aktive opgaver</div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Today's Tasks -->
                 <div class="section">
                     <div class="section-header">
