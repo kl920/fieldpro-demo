@@ -33,7 +33,6 @@ function renderHomePage() {
                 <div class="section">
                     <div class="section-header">
                         <h2>${dateString}</h2>
-                        <a href="#/orders" onclick="router.navigate('/orders')" class="link-button">Se alle</a>
                     </div>
 
                     <div class="task-list">
