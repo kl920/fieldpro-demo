@@ -34,36 +34,25 @@ function renderHomePage() {
                                 <p>Du har ingen planlagte opgaver for i dag</p>
                             </div>
                         ` : todayTasks.map(task => `
-                            <div class="task-card" onclick="router.navigate('/order-detail', { taskId: ${task.id} })">
-                                <div class="task-card-header">
-                                    <div class="task-badge task-badge-${task.type.toLowerCase()}">${task.type}</div>
-                                    <div class="task-priority priority-${task.priority}">
-                                        <span class="priority-dot"></span>
-                                    </div>
-                                </div>
-                                <h3 class="task-title">${task.orderNumber} - ${task.title}</h3>
-                                <div class="task-meta">
-                                    <div class="task-meta-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
+                            <div class="task-card-clean">
+                                <div class="task-card-main" onclick="router.navigate('/order-detail', { taskId: ${task.id} })">
+                                    <div class="task-id">ID: ${task.orderNumber}</div>
+                                    <h3 class="task-title-clean">${task.title}</h3>
+                                    <div class="task-address">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
-                                        <span>${task.customer.name}</span>
+                                        <span>${task.location.address}</span>
                                     </div>
-                                    <div class="task-meta-item">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>${task.scheduledStart} - ${task.scheduledEnd}</span>
-                                    </div>
+                                    <div class="task-type-label">Opgavetype: ${task.type}</div>
                                 </div>
-                                <div class="task-card-footer">
-                                    <span class="status-badge status-${task.status}">${getStatusText(task.status)}</span>
-                                    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                <button class="button-start-route" onclick="event.stopPropagation(); navigateToLocation('${task.location.address}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
+                                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                                     </svg>
-                                </div>
+                                    Start rute
+                                </button>
                             </div>
                         `).join('')}
                     </div>

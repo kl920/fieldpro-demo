@@ -493,6 +493,92 @@ a:hover {
     stroke-width: 2;
 }
 
+/* Clean Task Card Design */
+.task-card-clean {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+}
+
+.task-card-clean:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.task-card-main {
+    padding: var(--spacing-lg);
+    cursor: pointer;
+}
+
+.task-id {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--gray-100);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.task-title-clean {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: var(--spacing-sm) 0;
+}
+
+.task-address {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: var(--spacing-sm) 0;
+}
+
+.task-address svg {
+    flex-shrink: 0;
+    stroke-width: 2;
+}
+
+.task-type-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+.button-start-route {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, var(--primary) 0%, #1565C0 100%);
+    color: white;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.button-start-route:hover {
+    background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+}
+
+.button-start-route:active {
+    transform: scale(0.98);
+}
+
+.button-start-route svg {
+    stroke-width: 2.5;
+}
+
 /* Quick Actions Grid */
 .quick-actions-grid {
     display: grid;
