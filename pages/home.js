@@ -1,7 +1,12 @@
 // Home Page
 function renderHomePage() {
     const todayTasks = AppData.getTodayTasks();
-    const activeTasks = AppData.getTasksByStatus('active');
+    const allTasks = AppData.getAllTasks();
+    const todayDate = new Date().toISOString().split('T')[0];
+    
+    // Get upcoming tasks (not today)
+    const upcomingTasks = allTasks.filter(task => task.date > todayDate)
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
     
     // Get today's date in dd-mm-yyyy format
     const today = new Date();
@@ -64,6 +69,46 @@ function renderHomePage() {
                         `).join('')}
                     </div>
                 </div>
+
+                <!-- Upcoming Tasks -->
+                ${upcomingTasks.length > 0 ? `
+                    <div class="section section-upcoming">
+                        <div class="section-header">
+                            <h2>Kommende opgaver</h2>
+                            <span class="task-count">${upcomingTasks.length}</span>
+                        </div>
+                        
+                        <div class="upcoming-task-list">
+                            ${upcomingTasks.map(task => `
+                                <div class="upcoming-task-card" onclick="router.navigate('/order-detail', { taskId: ${task.id} })">
+                                    <div class="upcoming-task-left">
+                                        <div class="upcoming-task-date">
+                                            <div class="date-day">${new Date(task.date).getDate()}</div>
+                                            <div class="date-month">${new Date(task.date).toLocaleDateString('da-DK', { month: 'short' })}</div>
+                                        </div>
+                                    </div>
+                                    <div class="upcoming-task-content">
+                                        <div class="upcoming-task-header">
+                                            <span class="upcoming-task-id">ID: ${task.orderNumber}</span>
+                                            <span class="upcoming-task-type">${task.type}</span>
+                                        </div>
+                                        <h4 class="upcoming-task-title">${task.title}</h4>
+                                        <div class="upcoming-task-meta">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                <circle cx="12" cy="10" r="3"></circle>
+                                            </svg>
+                                            <span>${task.location.address}</span>
+                                        </div>
+                                    </div>
+                                    <svg class="upcoming-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
