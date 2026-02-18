@@ -103,6 +103,54 @@ const DEMO_TASKS = {
         description: 'Installation af ny el-tavle.',
         estimatedHours: 4,
         billable: true
+    },
+    5: {
+        id: 5,
+        orderNumber: '399',
+        title: 'Malerarbejde',
+        type: 'Ny',
+        customer: {
+            name: 'Lars Nielsen',
+            phone: '+45 25 44 55 66',
+            email: 'lars@example.com'
+        },
+        location: {
+            address: 'Rosenvej 15, 8000 Aarhus C',
+            lat: 56.1629,
+            lng: 10.2039
+        },
+        date: '2026-02-22',
+        scheduledStart: '08:00',
+        scheduledEnd: '16:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Maling af stue og gang.',
+        estimatedHours: 8,
+        billable: true
+    },
+    6: {
+        id: 6,
+        orderNumber: '402',
+        title: 'VVS tjek',
+        type: 'Service',
+        customer: {
+            name: 'Maria Hansen',
+            phone: '+45 40 77 88 99',
+            email: 'maria@example.com'
+        },
+        location: {
+            address: 'Birkevej 23, 5000 Odense C',
+            lat: 55.3959,
+            lng: 10.3883
+        },
+        date: '2026-02-25',
+        scheduledStart: '13:00',
+        scheduledEnd: '15:00',
+        status: 'pending',
+        priority: 'low',
+        description: 'Rutineeftersyn af VVS installationer.',
+        estimatedHours: 2,
+        billable: true
     }
 };
 
