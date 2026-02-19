@@ -11,7 +11,7 @@ const DEMO_TASKS = {
     1: {
         id: 1,
         orderNumber: '378-1',
-        title: 'Montering',
+        title: 'Køkkenmontering',
         type: 'Ny',
         customer: {
             name: 'Isabella Westen',
@@ -23,9 +23,9 @@ const DEMO_TASKS = {
             lat: 55.7058,
             lng: 12.5733
         },
-        date: '2026-02-20',
-        scheduledStart: '07:00',
-        scheduledEnd: '15:00',
+        date: '2026-02-19',
+        scheduledStart: '08:00',
+        scheduledEnd: '16:00',
         status: 'active',
         priority: 'high',
         description: 'Montering af nyt køkken inkl. bordplade, skabe og hvidevarer.',
@@ -35,7 +35,7 @@ const DEMO_TASKS = {
     2: {
         id: 2,
         orderNumber: '361',
-        title: 'WC',
+        title: 'VVS reparation',
         type: 'Service',
         customer: {
             name: 'Pia Jørgensen',
@@ -47,9 +47,9 @@ const DEMO_TASKS = {
             lat: 55.4580,
             lng: 12.1823
         },
-        date: '2026-02-21',
-        scheduledStart: '09:00',
-        scheduledEnd: '11:00',
+        date: '2026-02-19',
+        scheduledStart: '13:00',
+        scheduledEnd: '15:00',
         status: 'pending',
         priority: 'medium',
         description: 'Service af toilet - reparation af skylle­mekanisme.',
@@ -59,7 +59,7 @@ const DEMO_TASKS = {
     3: {
         id: 3,
         orderNumber: '355-1',
-        title: 'Terrændæk 10',
+        title: 'Terrændæk støbning',
         type: 'Ny',
         customer: {
             name: 'Bygmithus A/S',
@@ -71,9 +71,9 @@ const DEMO_TASKS = {
             lat: 55.6217,
             lng: 8.4831
         },
-        date: '2026-02-19',
-        scheduledStart: '08:00',
-        scheduledEnd: '16:00',
+        date: '2026-02-20',
+        scheduledStart: '07:00',
+        scheduledEnd: '15:00',
         status: 'pending',
         priority: 'high',
         description: 'Støbning af terrændæk til nybyggeri.',
@@ -83,7 +83,7 @@ const DEMO_TASKS = {
     4: {
         id: 4,
         orderNumber: '344',
-        title: 'Nyt el',
+        title: 'El-installation',
         type: 'Service',
         customer: {
             name: 'JITS ApS',
@@ -95,13 +95,13 @@ const DEMO_TASKS = {
             lat: 55.4948,
             lng: 10.2632
         },
-        date: '2026-02-18',
-        scheduledStart: '10:00',
-        scheduledEnd: '14:00',
+        date: '2026-02-20',
+        scheduledStart: '09:00',
+        scheduledEnd: '12:00',
         status: 'pending',
-        priority: 'low',
+        priority: 'medium',
         description: 'Installation af ny el-tavle.',
-        estimatedHours: 4,
+        estimatedHours: 3,
         billable: true
     },
     5: {
@@ -119,7 +119,7 @@ const DEMO_TASKS = {
             lat: 56.1629,
             lng: 10.2039
         },
-        date: '2026-02-22',
+        date: '2026-02-21',
         scheduledStart: '08:00',
         scheduledEnd: '16:00',
         status: 'pending',
@@ -131,8 +131,8 @@ const DEMO_TASKS = {
     6: {
         id: 6,
         orderNumber: '402',
-        title: 'VVS tjek',
-        type: 'Service',
+        title: 'Badeværelse renovering',
+        type: 'Ny',
         customer: {
             name: 'Maria Hansen',
             phone: '+45 40 77 88 99',
@@ -143,12 +143,108 @@ const DEMO_TASKS = {
             lat: 55.3959,
             lng: 10.3883
         },
-        date: '2026-02-25',
-        scheduledStart: '13:00',
-        scheduledEnd: '15:00',
+        date: '2026-02-22',
+        scheduledStart: '08:00',
+        scheduledEnd: '17:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'Renovering af badeværelse med nyt flisegulv.',
+        estimatedHours: 9,
+        billable: true
+    },
+    7: {
+        id: 7,
+        orderNumber: '410',
+        title: 'Vinduesudskiftning',
+        type: 'Service',
+        customer: {
+            name: 'Thomas Petersen',
+            phone: '+45 31 22 33 44',
+            email: 'thomas@example.com'
+        },
+        location: {
+            address: 'Strandvej 42, 2900 Hellerup',
+            lat: 55.7340,
+            lng: 12.5765
+        },
+        date: '2026-02-23',
+        scheduledStart: '09:00',
+        scheduledEnd: '14:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Udskiftning af 3 vinduer i stueetage.',
+        estimatedHours: 5,
+        billable: true
+    },
+    8: {
+        id: 8,
+        orderNumber: '415',
+        title: 'Tageftersyn',
+        type: 'Service',
+        customer: {
+            name: 'Anne Sørensen',
+            phone: '+45 42 55 66 77',
+            email: 'anne@example.com'
+        },
+        location: {
+            address: 'Møllevej 8, 4000 Roskilde',
+            lat: 55.6415,
+            lng: 12.0803
+        },
+        date: '2026-02-24',
+        scheduledStart: '10:00',
+        scheduledEnd: '13:00',
         status: 'pending',
         priority: 'low',
-        description: 'Rutineeftersyn af VVS installationer.',
+        description: 'Rutineeftersyn af tag og tagrender.',
+        estimatedHours: 3,
+        billable: true
+    },
+    9: {
+        id: 9,
+        orderNumber: '420',
+        title: 'Gulvlægning',
+        type: 'Ny',
+        customer: {
+            name: 'Peter Andersen',
+            phone: '+45 23 44 55 66',
+            email: 'peter@example.com'
+        },
+        location: {
+            address: 'Parkvej 15, 2000 Frederiksberg',
+            lat: 55.6790,
+            lng: 12.5345
+        },
+        date: '2026-02-24',
+        scheduledStart: '08:00',
+        scheduledEnd: '16:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Lægning af parketgulv i soveværelse og stue.',
+        estimatedHours: 8,
+        billable: true
+    },
+    10: {
+        id: 10,
+        orderNumber: '425',
+        title: 'Garage port reparation',
+        type: 'Service',
+        customer: {
+            name: 'Jens Mortensen',
+            phone: '+45 50 11 22 33',
+            email: 'jens@example.com'
+        },
+        location: {
+            address: 'Egevej 30, 3000 Helsingør',
+            lat: 56.0362,
+            lng: 12.6136
+        },
+        date: '2026-02-25',
+        scheduledStart: '10:00',
+        scheduledEnd: '12:00',
+        status: 'pending',
+        priority: 'low',
+        description: 'Reparation af automatisk garageport mekanisme.',
         estimatedHours: 2,
         billable: true
     }

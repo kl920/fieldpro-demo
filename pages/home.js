@@ -4,14 +4,9 @@ function renderHomePage() {
     const allTasks = AppData.getAllTasks();
     const todayDate = new Date().toISOString().split('T')[0];
     
-    console.log('Today:', todayDate);
-    console.log('All tasks:', allTasks.map(t => ({ id: t.id, date: t.date })));
-    
     // Get upcoming tasks (not today)
     const upcomingTasks = allTasks.filter(task => task.date > todayDate)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    console.log('Upcoming tasks:', upcomingTasks.length, upcomingTasks.map(t => ({ id: t.id, date: t.date })));
     
     // Get today's date in dd-mm-yyyy format
     const today = new Date();
