@@ -1419,7 +1419,7 @@ function saveSignature(taskId) {
     if (signaturePad && !signaturePad.isEmpty()) {
         const signatureData = signaturePad.getDataURL();
         AppData.saveTaskData(taskId, 'signature', signatureData);
-        ActivityLogger.log('signature', 'Customer signature received', taskId);t', taskId);
+        ActivityLogger.log('signature', 'Customer signature received', taskId);
         return true;
     }
     return false;
