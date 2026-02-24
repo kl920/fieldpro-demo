@@ -4194,22 +4194,24 @@ input[type="number"]:hover::-webkit-outer-spin-button {
     color: white;
 }
 
-.button-icon-sm.button-danger {
-    color: var(--danger);
-    border-color: var(--danger);
+/* Standalone delete variant — NO inheritance from .button-danger */
+.icon-btn-danger {
+    border-color: var(--danger) !important;
+    background: white !important;
 }
 
-.button-icon-sm.button-danger svg {
-    color: var(--danger);
+.icon-btn-danger svg {
+    stroke: var(--danger) !important;
+    color: var(--danger) !important;
 }
 
-.button-icon-sm.button-danger:hover {
-    background: var(--danger);
-    border-color: var(--danger);
+.icon-btn-danger:hover {
+    background: var(--danger) !important;
 }
 
-.button-icon-sm.button-danger:hover svg {
-    color: white;
+.icon-btn-danger:hover svg {
+    stroke: white !important;
+    color: white !important;
 }
 
 .admin-stats {
