@@ -1393,20 +1393,24 @@ function showManualEquipmentInput(taskId) {
 let signaturePad = null;
 
 function initSignaturePad(taskId) {
-    signaturePad = new SignaturePad(`signatureCanvas${taskId}`);
-    
-    // Load saved signature
-    const savedSignature = AppData.getTaskData(taskId, 'signature');
-    if (savedSignature) {
-        const canvas = document.getElementById(`signatureCanvas${taskId}`);
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = savedSignature;
-        signaturePad.hasSignature = true;
-    }
+    // Delay until browser has laid out the DOM so getBoundingClientRect returns real dimensions
+    setTimeout(() => {
+        signaturePad = new SignaturePad(`signatureCanvas${taskId}`);
+
+        // Load saved signature
+        const savedSignature = AppData.getTaskData(taskId, 'signature');
+        if (savedSignature && signaturePad.canvas) {
+            const img = new Image();
+            img.onload = function() {
+                // Draw at CSS size (context is already scaled by dpr)
+                const cssW = signaturePad.canvas.width / (signaturePad.dpr || 1);
+                const cssH = signaturePad.canvas.height / (signaturePad.dpr || 1);
+                signaturePad.ctx.drawImage(img, 0, 0, cssW, cssH);
+            };
+            img.src = savedSignature;
+            signaturePad.hasSignature = true;
+        }
+    }, 50);
 }
 
 function clearSignature(taskId) {

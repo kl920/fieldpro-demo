@@ -39,10 +39,14 @@ class SignaturePad {
      */
     setupCanvas() {
         const rect = this.canvas.getBoundingClientRect();
-        // Scale for retina displays
-        this.canvas.width = rect.width * 2;
-        this.canvas.height = rect.height * 2;
-        this.ctx.scale(2, 2);
+        // Use offsetWidth as fallback if getBoundingClientRect returns 0 (not yet laid out)
+        const w = rect.width || this.canvas.offsetWidth || 300;
+        const h = rect.height || this.canvas.offsetHeight || 150;
+        const dpr = window.devicePixelRatio || 1;
+        this.dpr = dpr;
+        this.canvas.width = w * dpr;
+        this.canvas.height = h * dpr;
+        this.ctx.scale(dpr, dpr);
         
         // Configure drawing style
         this.ctx.strokeStyle = '#212121';
