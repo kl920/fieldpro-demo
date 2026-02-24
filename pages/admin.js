@@ -584,6 +584,9 @@ function openSurveyManager() {
 }
 
 function closeSurveyManager() {
+    // Auto-save current tempSurveyQuestions to hidden field when closing
+    document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
+    document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
     document.getElementById('surveyManagerModal').style.display = 'none';
 }
 
@@ -733,6 +736,17 @@ function saveSurveyQuestions() {
     // Save to hidden field
     document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
     document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
+
+    // Also immediately persist to localStorage if editing an existing job type
+    const index = parseInt(document.getElementById('jobTypeIndex').value);
+    if (index >= 0) {
+        const jobTypes = getJobTypes();
+        if (jobTypes[index]) {
+            jobTypes[index].surveyQuestions = tempSurveyQuestions;
+            saveToStorage('admin_job_types', jobTypes);
+        }
+    }
+
     closeSurveyManager();
     showToast('Survey questions saved', 'success');
 }
