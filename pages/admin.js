@@ -1,5 +1,27 @@
 // Admin Page - Manage job types with checklists and photo categories
 
+const DEFAULT_MATERIALS = [
+    { name: 'Blowing up to 24SM pr meter', category: 'Construction', unit: 'SDU' },
+    { name: 'Blowing 96SM pr meter', category: 'Construction', unit: 'SDU' },
+    { name: 'z\u00fcss\u00e4tzliche Fasern f\u00fcr MFH', category: 'Installation', unit: 'SDU' },
+    { name: 'Patch Only', category: 'Installation', unit: 'SDU' },
+    { name: 'Price per meter Unsealed', category: 'Construction', unit: 'SDU' },
+    { name: 'Hourly rate - Construction', category: 'Installation', unit: 'SDU' },
+    { name: 'House inspection - Status 102', category: 'Installation', unit: 'SDU' },
+    { name: 'House inspection - Status 108', category: 'Installation', unit: 'SDU' },
+    { name: 'Trees', category: 'Construction', unit: 'SDU' },
+    { name: 'Price per meter Paving', category: 'Construction', unit: 'SDU' },
+    { name: 'Hourly rate - Technichian', category: 'Installation', unit: 'SDU' },
+    { name: 'Activation - Status 100', category: 'Installation', unit: 'SDU' },
+    { name: 'Mosaik', category: 'Construction', unit: 'SDU' },
+    { name: 'Construction - Status 109 - Blowing only', category: 'Construction', unit: 'SDU' },
+    { name: 'Construction - Status 107', category: 'Construction', unit: 'SDU' },
+    { name: 'House installation - Status 101', category: 'Installation', unit: 'SDU' },
+    { name: 'Extra manhole secured/unsecured', category: 'Construction', unit: 'SDU' },
+    { name: 'Nachr\u00fcsten GF-TA', category: 'Installation', unit: 'SDU' },
+    { name: 'Extra manhole asphalt', category: 'Construction', unit: 'SDU' }
+];
+
 const DEFAULT_JOB_TYPES = [
     {
         id: 1,
@@ -39,7 +61,8 @@ const DEFAULT_JOB_TYPES = [
                 type: 'yesno',
                 required: true
             }
-        ]
+        ],
+        materials: DEFAULT_MATERIALS
     }
 ];
 
@@ -49,6 +72,16 @@ function getJobTypes() {
         saveToStorage('admin_job_types', DEFAULT_JOB_TYPES);
         return DEFAULT_JOB_TYPES;
     }
+    // Migration: add materials to job types that don't have them yet
+    let migrated = false;
+    stored.forEach(jt => {
+        if (!jt.materials) {
+            const globalMats = getFromStorage('admin_common_materials', null);
+            jt.materials = globalMats || DEFAULT_MATERIALS;
+            migrated = true;
+        }
+    });
+    if (migrated) saveToStorage('admin_job_types', stored);
     return stored;
 }
 
@@ -57,7 +90,6 @@ function renderAdminPage() {
     const jobTypes = getJobTypes();
     
     const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
-    const materials = AppData.commonMaterials;
     
     const content = `
         <div class="page page-admin">
@@ -111,7 +143,7 @@ function renderAdminPage() {
                                 </div>
                                 <div class="admin-item-content">
                                     <div class="admin-item-title">${jobType.name} ${jobType.id === activeJobTypeId ? '<span style="color: #2196F3; font-size: 11px; font-weight: 600;">(ACTIVE)</span>' : ''}</div>
-                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} checklist • ${jobType.photoCategories.length} photos • ${(jobType.surveyQuestions || []).length} questions</div>
+                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} checklist • ${jobType.photoCategories.length} photos • ${(jobType.surveyQuestions || []).length} questions • ${(jobType.materials || []).length} materials</div>
                                 </div>
                                 <div class="admin-item-actions">
                                     ${jobType.id !== activeJobTypeId ? `
@@ -139,62 +171,6 @@ function renderAdminPage() {
                     </div>
                 </div>
 
-                <!-- Materials Management -->
-                <div class="admin-section">
-                    <div class="admin-section-header">
-                        <h3>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M12 6v6l4 2"></path>
-                            </svg>
-                            Standard Materials
-                        </h3>
-                        <button class="button-primary-sm" onclick="openAddMaterialDialog()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Add
-                        </button>
-                    </div>
-                    <div class="admin-list" id="materialsList">
-                        ${materials.length === 0 ? `
-                            <div class="empty-state-small">
-                                <p>No materials added</p>
-                            </div>
-                        ` : materials.map((mat, index) => `
-                            <div class="admin-list-item">
-                                <div class="admin-item-icon" style="background: #E8F5E9;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50">
-                                        <rect x="1" y="3" width="15" height="13"></rect>
-                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                                    </svg>
-                                </div>
-                                <div class="admin-item-content">
-                                    <div class="admin-item-title">${mat.name}</div>
-                                    <div class="admin-item-subtitle">${mat.category || 'Uden kategori'} • ${mat.unit}</div>
-                                </div>
-                                <div class="admin-item-actions">
-                                    <button class="button-icon-sm" onclick="editMaterial(${index})">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                        </svg>
-                                    </button>
-                                    <button class="button-icon-sm button-danger" onclick="deleteMaterial(${index})">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <polyline points="3 6 5 6 21 6"></polyline>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
                 <!-- Stats -->
                 <div class="admin-stats">
                     <div class="stat-card">
@@ -208,21 +184,7 @@ function renderAdminPage() {
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${jobTypes.length}</div>
-                            <div class="stat-label">Opgavetyper</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #E8F5E9;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50">
-                                <rect x="1" y="3" width="15" height="13"></rect>
-                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value">${materials.length}</div>
-                            <div class="stat-label">Materialer</div>
+                            <div class="stat-label">Job Types</div>
                         </div>
                     </div>
                 </div>
@@ -275,7 +237,21 @@ After work"></textarea>
                         </button>
                         <input type="hidden" id="jobTypeSurveyData" value="[]">
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label>Standard Materials</label>
+                        <button type="button" class="button-secondary" style="width: 100%;" onclick="openMaterialManager()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 8px;">
+                                <rect x="1" y="3" width="15" height="13"></rect>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                            </svg>
+                            Manage Materials (<span id="materialCount">0</span>)
+                        </button>
+                        <input type="hidden" id="jobTypeMaterialsData" value="[]">
+                    </div>
+
                     <input type="hidden" id="jobTypeIndex" value="-1">
                     <div class="button-group">
                         <button class="button-secondary" onclick="closeJobTypeModal()">Cancel</button>
@@ -285,12 +261,45 @@ After work"></textarea>
             </div>
         </div>
 
-        <!-- Add/Edit Material Modal -->
-        <div id="materialModal" class="modal">
-            <div class="modal-content">
+        <!-- Material Manager Modal -->
+        <div id="materialManagerModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
-                    <h3 id="materialModalTitle">Add Material</h3>
-                    <button class="modal-close" onclick="closeMaterialModal()">
+                    <h3>Standard Materials</h3>
+                    <button class="modal-close" onclick="closeMaterialManager()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <button class="button-primary-sm" onclick="openEditMaterialItem(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Material
+                        </button>
+                    </div>
+                    <div id="materialManagerList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Rendered by JS -->
+                    </div>
+                    <div class="button-group" style="margin-top: var(--spacing-lg);">
+                        <button class="button-secondary" onclick="closeMaterialManager()">Close</button>
+                        <button class="button-primary" onclick="saveJobTypeMaterials()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Material Item Modal -->
+        <div id="editMaterialItemModal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3 id="editMaterialItemTitle">Add Material</h3>
+                    <button class="modal-close" onclick="closeEditMaterialItem()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -300,15 +309,15 @@ After work"></textarea>
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" id="materialName" placeholder="e.g. Floor Boards">
+                        <input type="text" id="jtMaterialName" placeholder="e.g. Cable 10m">
                     </div>
                     <div class="form-group">
                         <label>Category</label>
-                        <input type="text" id="materialCategory" placeholder="e.g. Wood">
+                        <input type="text" id="jtMaterialCategory" placeholder="e.g. Construction">
                     </div>
                     <div class="form-group">
                         <label>Unit</label>
-                        <select id="materialUnit">
+                        <select id="jtMaterialUnit">
                             <option value="SDU">SDU</option>
                             <option value="stk">Pieces</option>
                             <option value="m">Meters</option>
@@ -318,10 +327,10 @@ After work"></textarea>
                             <option value="pk">Package</option>
                         </select>
                     </div>
-                    <input type="hidden" id="materialIndex" value="-1">
+                    <input type="hidden" id="jtMaterialIndex" value="-1">
                     <div class="button-group">
-                        <button class="button-secondary" onclick="closeMaterialModal()">Cancel</button>
-                        <button class="button-primary" onclick="saveMaterial()">Save</button>
+                        <button class="button-secondary" onclick="closeEditMaterialItem()">Cancel</button>
+                        <button class="button-primary" onclick="saveJobTypeMaterialItem()">Save</button>
                     </div>
                 </div>
             </div>
@@ -429,6 +438,8 @@ function openAddJobTypeDialog() {
     document.getElementById('jobTypePhotos').value = '';
     document.getElementById('jobTypeSurveyData').value = '[]';
     document.getElementById('surveyCount').textContent = '0';
+    document.getElementById('jobTypeMaterialsData').value = '[]';
+    document.getElementById('materialCount').textContent = '0';
     document.getElementById('jobTypeIndex').value = '-1';
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
@@ -456,6 +467,8 @@ function editJobType(index) {
     document.getElementById('jobTypePhotos').value = jobType.photoCategories.join('\n');
     document.getElementById('jobTypeSurveyData').value = JSON.stringify(jobType.surveyQuestions || []);
     document.getElementById('surveyCount').textContent = (jobType.surveyQuestions || []).length;
+    document.getElementById('jobTypeMaterialsData').value = JSON.stringify(jobType.materials || []);
+    document.getElementById('materialCount').textContent = (jobType.materials || []).length;
     document.getElementById('jobTypeIndex').value = index;
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
@@ -490,8 +503,9 @@ function saveJobType() {
     const checklistItems = checklistText.split('\n').map(item => item.trim()).filter(item => item);
     const photoCategories = photosText.split('\n').map(cat => cat.trim()).filter(cat => cat);
     
-    // Get survey questions from hidden field
+    // Get survey questions and materials from hidden fields
     const surveyQuestions = JSON.parse(document.getElementById('jobTypeSurveyData').value || '[]');
+    const materials = JSON.parse(document.getElementById('jobTypeMaterialsData').value || '[]');
     
     const jobTypes = getJobTypes();
     
@@ -501,6 +515,7 @@ function saveJobType() {
         jobTypes[index].checklistItems = checklistItems;
         jobTypes[index].photoCategories = photoCategories;
         jobTypes[index].surveyQuestions = surveyQuestions;
+        jobTypes[index].materials = materials;
         showToast('Job type updated', 'success');
     } else {
         // Add new - generate new ID
@@ -510,7 +525,8 @@ function saveJobType() {
             name: name,
             checklistItems: checklistItems,
             photoCategories: photoCategories,
-            surveyQuestions: surveyQuestions
+            surveyQuestions: surveyQuestions,
+            materials: materials
         });
         
         // If this is the first job type, make it active
@@ -752,98 +768,133 @@ function saveSurveyQuestions() {
 }
 
 // ============================================================================
-// MATERIAL MANAGEMENT
+// MATERIAL MANAGER (per job type)
 // ============================================================================
 
-function openAddMaterialDialog() {
-    const modal = document.getElementById('materialModal');
-    document.getElementById('materialModalTitle').textContent = 'Add Material';
-    document.getElementById('materialName').value = '';
-    document.getElementById('materialCategory').value = '';
-    document.getElementById('materialUnit').value = 'stk';
-    document.getElementById('materialIndex').value = '-1';
-    modal.style.display = 'flex';
-    setTimeout(() => document.getElementById('materialName').focus(), 100);
+let tempMaterials = [];
+
+function openMaterialManager() {
+    const currentData = document.getElementById('jobTypeMaterialsData').value;
+    tempMaterials = JSON.parse(currentData || '[]');
+    document.getElementById('materialManagerModal').style.display = 'flex';
+    renderMaterialManagerList();
 }
 
-function editMaterial(index) {
-    console.log('editMaterial called with index:', index);
-    const materials = AppData.commonMaterials;
-    console.log('materials loaded:', materials.length, 'items');
-    const mat = materials[index];
-    
-    if (!mat) {
-        console.error('No material found at index', index);
-        showToast('Error: Material not found', 'error');
+function closeMaterialManager() {
+    // Auto-save to hidden field when closing
+    document.getElementById('jobTypeMaterialsData').value = JSON.stringify(tempMaterials);
+    document.getElementById('materialCount').textContent = tempMaterials.length;
+    document.getElementById('materialManagerModal').style.display = 'none';
+}
+
+function renderMaterialManagerList() {
+    const container = document.getElementById('materialManagerList');
+    if (tempMaterials.length === 0) {
+        container.innerHTML = `<div class="empty-state-small"><p>No materials added yet</p></div>`;
         return;
     }
-    
-    const modal = document.getElementById('materialModal');
-    document.getElementById('materialModalTitle').textContent = 'Edit Material';
-    document.getElementById('materialName').value = mat.name;
-    document.getElementById('materialCategory').value = mat.category || '';
-    document.getElementById('materialUnit').value = mat.unit;
-    document.getElementById('materialIndex').value = index;
-    modal.style.display = 'flex';
-    setTimeout(() => document.getElementById('materialName').focus(), 100);
+    container.innerHTML = tempMaterials.map((m, index) => `
+        <div class="admin-list-item" style="margin-bottom: var(--spacing-sm);">
+            <div class="admin-item-icon" style="background: #E8F5E9;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+            </div>
+            <div class="admin-item-content">
+                <div class="admin-item-title">${m.name}</div>
+                <div class="admin-item-subtitle">${m.category || 'Other'} • ${m.unit}</div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="button-icon-sm" onclick="openEditMaterialItem(${index})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
+                <button class="button-icon-sm button-danger" onclick="deleteJobTypeMaterialItem(${index})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
 }
 
-function closeMaterialModal() {
-    document.getElementById('materialModal').style.display = 'none';
+function openEditMaterialItem(index) {
+    document.getElementById('jtMaterialIndex').value = index;
+    if (index >= 0) {
+        const m = tempMaterials[index];
+        document.getElementById('editMaterialItemTitle').textContent = 'Edit Material';
+        document.getElementById('jtMaterialName').value = m.name;
+        document.getElementById('jtMaterialCategory').value = m.category || '';
+        document.getElementById('jtMaterialUnit').value = m.unit;
+    } else {
+        document.getElementById('editMaterialItemTitle').textContent = 'Add Material';
+        document.getElementById('jtMaterialName').value = '';
+        document.getElementById('jtMaterialCategory').value = '';
+        document.getElementById('jtMaterialUnit').value = 'SDU';
+    }
+    document.getElementById('editMaterialItemModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('jtMaterialName').focus(), 100);
 }
 
-function saveMaterial() {
-    const name = document.getElementById('materialName').value.trim();
-    const category = document.getElementById('materialCategory').value.trim();
-    const unit = document.getElementById('materialUnit').value;
-    const index = parseInt(document.getElementById('materialIndex').value);
-    
+function closeEditMaterialItem() {
+    document.getElementById('editMaterialItemModal').style.display = 'none';
+}
+
+function saveJobTypeMaterialItem() {
+    const name = document.getElementById('jtMaterialName').value.trim();
+    const category = document.getElementById('jtMaterialCategory').value.trim();
+    const unit = document.getElementById('jtMaterialUnit').value;
+    const index = parseInt(document.getElementById('jtMaterialIndex').value);
+
     if (!name) {
         showToast('Enter material name', 'error');
         return;
     }
-    
-    const material = {
-        name: name,
-        category: category || 'Other',
-        unit: unit
-    };
-    
+
+    const item = { name, category: category || 'Other', unit };
+
     if (index >= 0) {
-        // Edit existing
-        AppData.commonMaterials[index] = material;
+        tempMaterials[index] = item;
         showToast('Material updated', 'success');
     } else {
-        // Add new
-        AppData.commonMaterials.push(material);
+        tempMaterials.push(item);
         showToast('Material added', 'success');
     }
-    
-    // Save to localStorage
-    saveToStorage('admin_common_materials', AppData.commonMaterials);
-    
-    closeMaterialModal();
-    renderAdminPage();
+
+    closeEditMaterialItem();
+    renderMaterialManagerList();
 }
 
-function deleteMaterial(index) {
-    console.log('deleteMaterial called with index:', index);
-    
-    if (!confirm('Delete this material?')) {
-        return;
-    }
-    
-    if (index < 0 || index >= AppData.commonMaterials.length) {
-        console.error('Invalid material index:', index);
-        showToast('Error: Material not found', 'error');
-        return;
-    }
-    
-    AppData.commonMaterials.splice(index, 1);
-    saveToStorage('admin_common_materials', AppData.commonMaterials);
-    
+function deleteJobTypeMaterialItem(index) {
+    if (!confirm('Delete this material?')) return;
+    tempMaterials.splice(index, 1);
     showToast('Material deleted', 'success');
-    renderAdminPage();
+    renderMaterialManagerList();
+}
+
+function saveJobTypeMaterials() {
+    document.getElementById('jobTypeMaterialsData').value = JSON.stringify(tempMaterials);
+    document.getElementById('materialCount').textContent = tempMaterials.length;
+
+    // Immediately persist to localStorage for existing job types
+    const index = parseInt(document.getElementById('jobTypeIndex').value);
+    if (index >= 0) {
+        const jobTypes = getJobTypes();
+        if (jobTypes[index]) {
+            jobTypes[index].materials = tempMaterials;
+            saveToStorage('admin_job_types', jobTypes);
+        }
+    }
+
+    closeMaterialManager();
+    showToast('Materials saved', 'success');
 }
 
 // ============================================================================
@@ -861,43 +912,9 @@ function getActiveJobType() {
 // INITIALIZE
 // ============================================================================
 
-// Load custom materials from storage on app start
-const DEFAULT_MATERIALS = [
-    { name: 'Blowing up to 24SM pr meter', category: 'Construction', unit: 'SDU' },
-    { name: 'Blowing 96SM pr meter', category: 'Construction', unit: 'SDU' },
-    { name: 'zusätzliche Fasern für MFH', category: 'Installation', unit: 'SDU' },
-    { name: 'Patch Only', category: 'Installation', unit: 'SDU' },
-    { name: 'Price per meter Unsealed', category: 'Construction', unit: 'SDU' },
-    { name: 'Hourly rate - Construction', category: 'Installation', unit: 'SDU' },
-    { name: 'House inspection - Status 102', category: 'Installation', unit: 'SDU' },
-    { name: 'House inspection - Status 108', category: 'Installation', unit: 'SDU' },
-    { name: 'Trees', category: 'Construction', unit: 'SDU' },
-    { name: 'Price per meter Paving', category: 'Construction', unit: 'SDU' },
-    { name: 'Hourly rate - Technichian', category: 'Installation', unit: 'SDU' },
-    { name: 'Activation - Status 100', category: 'Installation', unit: 'SDU' },
-    { name: 'Mosaik', category: 'Construction', unit: 'SDU' },
-    { name: 'Construction - Status 109 - Blowing only', category: 'Construction', unit: 'SDU' },
-    { name: 'Construction - Status 107', category: 'Construction', unit: 'SDU' },
-    { name: 'House installation - Status 101', category: 'Installation', unit: 'SDU' },
-    { name: 'Extra manhole secured/unsecured', category: 'Construction', unit: 'SDU' },
-    { name: 'Nachrüsten GF-TA', category: 'Installation', unit: 'SDU' },
-    { name: 'Extra manhole asphalt', category: 'Construction', unit: 'SDU' }
-];
-
-function initializeAdminData() {
-    const savedMaterials = getFromStorage('admin_common_materials');
-    if (savedMaterials && savedMaterials.length > 0) {
-        AppData.commonMaterials = savedMaterials;
-    } else {
-        // First time - seed default materials
-        AppData.commonMaterials = DEFAULT_MATERIALS;
-        saveToStorage('admin_common_materials', DEFAULT_MATERIALS);
-    }
-}
-
-// Call this when app initializes
+// Call this when app initializes - ensure job types are seeded
 if (typeof window !== 'undefined') {
-    initializeAdminData();
+    getJobTypes(); // seeds defaults + runs migration on first call
 }
 
 // Register route

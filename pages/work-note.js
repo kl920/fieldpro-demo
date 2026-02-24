@@ -119,7 +119,12 @@ function renderWorkNotePage(data) {
                         <label>Material</label>
                         <input type="text" id="materialName" list="commonMaterials" placeholder="Select or type...">
                         <datalist id="commonMaterials">
-                            ${AppData.commonMaterials.map(m => `<option value="${m.name}">`).join('')}
+                            ${(() => {
+                                const jobTypes = getFromStorage('admin_job_types', []);
+                                const activeId = getFromStorage('admin_active_job_type', 1);
+                                const jt = jobTypes.find(j => j.id === activeId) || jobTypes[0];
+                                return ((jt && jt.materials) || []).map(m => `<option value="${m.name}">`).join('');
+                            })()}
                         </datalist>
                     </div>
                     <div class="form-row">
