@@ -83,7 +83,7 @@ function renderMorePage() {
 
 // Logout function
 function handleLogout() {
-    if (confirm('Er du sikker på, at du vil logge ud?')) {
+    if (confirm('Are you sure you want to log out?')) {
         localStorage.removeItem('fieldpro_logged_in');
         localStorage.removeItem('fieldpro_username');
         window.location.href = 'index.html';

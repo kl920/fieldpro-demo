@@ -26,7 +26,7 @@ function renderRoutePage() {
                         <circle cx="12" cy="12" r="10"></circle>
                         <polygon points="16 8 8 12 16 16 16 8"></polygon>
                     </svg>
-                    Min position
+                    My location
                 </button>
             </div>
             
@@ -145,11 +145,11 @@ function getTaskColor(priority) {
 
 function getCurrentLocation() {
     if (!navigator.geolocation) {
-        showToast('Geolocation ikke understøttet', 'error');
+        showToast('Geolocation not supported', 'error');
         return;
     }
     
-    showToast('📍 Finder din position...', 'info');
+    showToast('📍 Finding your location...', 'info');
     
     navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -171,13 +171,13 @@ function getCurrentLocation() {
             
             userMarker = L.marker([lat, lng], { icon: icon })
                 .addTo(routeMap)
-                .bindPopup('Din position');
+                .bindPopup('Your location');
             
             routeMap.setView([lat, lng], 13);
-            showToast('📍 Position fundet', 'success');
+            showToast('📍 Location found', 'success');
         },
         (error) => {
-            showToast('Kunne ikke finde position', 'error');
+            showToast('Could not find location', 'error');
         }
     );
 }
@@ -188,7 +188,7 @@ function optimizeRoute() {
         return;
     }
     
-    showToast('🔄 Optimerer rute...', 'info');
+    showToast('🔄 Optimising route...', 'info');
     
     // Simple route optimization: nearest neighbor algorithm
     navigator.geolocation.getCurrentPosition(
@@ -246,10 +246,10 @@ function optimizeRoute() {
             });
             
             const totalKm = calculateTotalDistance(fullRoute);
-            showToast(`✅ Rute optimeret - ${totalKm.toFixed(1)} km`, 'success', 4000);
+            showToast(`✅ Route optimised - ${totalKm.toFixed(1)} km`, 'success', 4000);
         },
         () => {
-            showToast('Aktiver GPS for at optimere rute', 'warning');
+            showToast('Enable GPS to optimise route', 'warning');
         }
     );
 }

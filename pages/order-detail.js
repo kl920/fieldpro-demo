@@ -791,10 +791,10 @@ function completeTask(taskId) {
         saveSignature(taskId);
     }
     
-    if (window.confirm('Er du sikker på at opgaven er færdig?')) {
+    if (window.confirm('Are you sure the task is complete?')) {
         AppData.updateTask(taskId, { status: 'completed' });
-        ActivityLogger.log('complete', 'Ordre afsluttet', taskId);
-        showToast('Opgave afsluttet! 🎉', 'success');
+        ActivityLogger.log('complete', 'Order completed', taskId);
+        showToast('Task completed! 🎉', 'success');
         vibrate([50, 100, 50]);
         setTimeout(() => router.navigate('/orders'), 1000);
     }
@@ -1288,7 +1288,7 @@ function startQRScanner(taskId) {
         }
     ).catch(err => {
         console.error('Error starting QR scanner:', err);
-        showToast('❌ Kunne ikke starte kamera', 'error');
+        showToast('❌ Could not start camera', 'error');
         
         // Fallback: show manual input
         showManualEquipmentInput(taskId);

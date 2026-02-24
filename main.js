@@ -70,7 +70,7 @@ function initKeyboardShortcuts() {
         // Cmd/Ctrl + K for search (future feature)
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
             e.preventDefault();
-            showToast('Søgefunktion kommer snart', 'info');
+            showToast('Search coming soon', 'info');
         }
         
         // Cmd/Ctrl + H for home
@@ -121,14 +121,14 @@ if ('serviceWorker' in navigator) {
  * Notifies user when internet connection is restored
  */
 window.addEventListener('online', () => {
-    showToast('Forbindelse genetableret', 'success', 2000);
+    showToast('Connection restored', 'success', 2000);
 });
 
 /**
  * Notifies user when internet connection is lost
  */
 window.addEventListener('offline', () => {
-    showToast('Ingen internetforbindelse', 'warning', 3000);
+    showToast('No internet connection', 'warning', 3000);
 });
 
 
