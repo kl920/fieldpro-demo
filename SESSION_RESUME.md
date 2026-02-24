@@ -1,6 +1,307 @@
-# 🔄 Session Resume Guide
+# FieldPro — Session Resume
 
-**Hurtig reference til at genoptage arbejdet med FieldPro**
+**Last updated**: 24. February 2026  
+**Live URL**: https://kl920.github.io/fieldpro-demo/  
+**GitHub**: https://github.com/kl920/fieldpro-demo  
+**Local path**: `C:\fieldpro-demo\`
+
+---
+
+## Quick Start
+
+```powershell
+cd C:\fieldpro-demo
+# Deploy after changes:
+git add -A
+git commit -m "description"
+git push
+# GitHub Pages auto-deploys within ~30 seconds
+```
+
+---
+
+## Project Overview
+
+**FieldPro** is a mobile-first field service management app for technicians/craftsmen.  
+- Stack: **Vanilla JS, HTML5, CSS3, localStorage** — no framework
+- SPA with custom hash-based router
+- All data stored in localStorage (offline-first)
+- Language: **English** (app was translated from Danish — do not re-introduce Danish text)
+
+---
+
+## File Structure
+
+```
+C:\fieldpro-demo\
+├── index.html              ← Login page (sets fieldpro_logged_in in localStorage)
+├── app.html                ← Main app shell — loads ALL scripts, bottom nav
+├── main.js                 ← App init, global error handler
+├── router.js               ← SPA router (hash-based)
+├── data.js                 ← AppData object, 10 mock tasks, localStorage helpers
+├── components.js           ← SignaturePad, VoiceRecorder, LocationService,
+│                             QuickTimer, ActivityLogger, ChecklistManager
+├── config.js               ← App configuration constants
+├── utils.js                ← generateId, saveToStorage, getFromStorage,
+│                             formatDate, showToast, vibrate, etc.
+├── styles.css              ← ALL styling (~4,400 lines)
+├── libs/
+│   ├── leaflet.js + leaflet.css
+│   ├── html5-qrcode.min.js
+│   ├── jspdf.umd.min.js
+│   └── html2canvas.min.js
+└── pages/
+    ├── home.js             ← Dashboard (today's tasks, upcoming tasks)
+    ├── orders.js           ← Orders list with filter chips + search
+    ├── order-detail.js     ← Task detail page (LARGEST FILE, ~1430 lines)
+    ├── work-note.js        ← Materials management for a task
+    ├── calendar.js         ← Monthly calendar view
+    ├── route.js            ← Map with today's tasks (Leaflet)
+    ├── time.js             ← Time registration standalone page
+    ├── more.js             ← Profile / settings page
+    └── admin.js            ← Admin panel — configure job types
+```
+
+---
+
+## Script Versions (app.html — bump when changing a file)
+
+| File | Current version |
+|---|---|
+| styles.css | v=12 |
+| config.js | v=5 |
+| utils.js | v=5 |
+| data.js | v=5 |
+| components.js | v=10 |
+| router.js | v=5 |
+| pages/home.js | v=7 |
+| pages/orders.js | v=5 |
+| pages/order-detail.js | v=17 |
+| pages/work-note.js | v=10 |
+| pages/calendar.js | v=6 |
+| pages/route.js | v=8 |
+| pages/time.js | v=5 |
+| pages/more.js | v=6 |
+| pages/admin.js | v=15 |
+| main.js | v=6 |
+
+---
+
+## Router
+
+- **File**: router.js
+- Hash-based: URL looks like `app.html#/order-detail`
+- Routes are exact string matches — **no dynamic segments** like `/order/:id`
+- API: `router.register(path, fn)` and `router.navigate(path, data)`
+- Data is passed as the second argument and received in the page function
+
+### Registered Routes
+
+| Route | Page | Data passed |
+|---|---|---|
+| `/` | home.js → renderHomePage() | — |
+| `/orders` | orders.js → renderOrdersPage() | — |
+| `/order-detail` | order-detail.js → renderOrderDetailPage(data) | `{ taskId }` |
+| `/work-note` | work-note.js → renderWorkNotePage(data) | `{ taskId }` |
+| `/calendar` | calendar.js | — |
+| `/route` | route.js | — |
+| `/more` | more.js | — |
+| `/admin` | admin.js | — |
+
+**IMPORTANT**: Never use `/order/8` or similar. Always use `/order-detail` with `{ taskId }`.
+
+---
+
+## Key Components (components.js)
+
+### SignaturePad
+```javascript
+const pad = new SignaturePad('signatureCanvas' + taskId);
+pad.isEmpty()       // true if no drawing
+pad.getDataURL()    // returns PNG base64 data URL
+pad.clear()
+```
+
+### ChecklistManager
+```javascript
+ChecklistManager.getDefaultChecklist()         // from active job type in admin
+ChecklistManager.getChecklist(taskId)          // auto-init from defaults if empty
+ChecklistManager.updateChecklistItem(taskId, itemId, completed)
+ChecklistManager.getProgress(taskId)           // { completed, total, percentage }
+// getProgress returns percentage=0 (not NaN) when total=0
+```
+
+### AppData (data.js)
+```javascript
+AppData.getAllTasks()
+AppData.getTask(taskId)
+AppData.getTodayTasks()
+AppData.updateTask(taskId, updates)
+AppData.getTaskData(taskId, key, defaultValue)  // e.g. 'photos', 'materials', 'checklist'
+AppData.saveTaskData(taskId, key, value)
+```
+
+### ActivityLogger
+```javascript
+ActivityLogger.log(type, description, taskId)
+ActivityLogger.getRecent(limit)
+```
+
+---
+
+## localStorage Keys
+
+| Key | Content |
+|---|---|
+| `fieldpro_logged_in` | `"true"` — set by login page |
+| `fieldpro_tasks` | Array of task objects |
+| `fieldpro_task_data_{taskId}_{key}` | Per-task data (photos, notes, time, materials, checklist, signature, voiceNotes, scannedEquipment, surveyAnswers) |
+| `admin_job_types` | Array of job type objects |
+| `admin_active_job_type` | Number (job type id) |
+| `activities` | Array of activity log entries |
+
+---
+
+## Admin Panel (/admin)
+
+- Accessed from the More/Profile page
+- Configure **Job Types** (each with):
+  - Name
+  - Checklist items (array of strings)
+  - Photo categories (array of strings) — shown in photo dialog
+  - Survey questions (array with type: yesno / select / text)
+  - Default materials (19 pre-loaded per type)
+- One job type is set as **active** — it determines what shows in order-detail
+- Stored in `admin_job_types` and `admin_active_job_type`
+
+---
+
+## Task Object Shape
+
+```javascript
+{
+  id: number,
+  orderNumber: string,       // e.g. "ORD-001"
+  title: string,
+  type: string,              // job type name
+  status: 'pending' | 'active' | 'completed',
+  customer: { name, phone, email },
+  location: { address, lat, lng },
+  scheduledDate: 'YYYY-MM-DD',
+  scheduledStart: 'HH:MM',
+  scheduledEnd: 'HH:MM',
+  description: string,
+  priority: 'low' | 'medium' | 'high'
+}
+```
+
+---
+
+## Order Detail Page (order-detail.js — ~1430 lines)
+
+### Sections rendered (in order):
+1. Description
+2. Notes (textarea, auto-saves)
+3. Survey questions (from active job type)
+4. Photos (grouped by category, with GPS/address)
+5. Checklist (from active job type checklist items)
+6. Voice Notes
+7. QR Scanner / equipment
+8. Time registration (start/end/pause with timer button)
+9. Materials (summary list)
+10. Customer Signature (canvas)
+11. Work Note button → navigates to /work-note
+12. Complete Task button
+13. PDF Export button
+
+### setTimeout init block (after innerHTML set):
+```javascript
+setTimeout(() => {
+    initializeTimeInputs(taskId, timeData);
+    calculateTotalTime(taskId);
+    renderChecklist(taskId);
+    renderVoiceNotes(taskId);
+    renderScannedEquipment(taskId);
+    initSignaturePad(taskId);
+}, 100);
+```
+
+### Null guards (IMPORTANT):
+- `initializeTimeInputs` — each getElementById is null-checked
+- `calculateTotalTime` — has `if (!document.getElementById('startHour')) return;` at top
+- `updateTaskTime` — has `if (!document.getElementById('startHour')) return;` at top
+- These fire on page load globally, so they must not crash when not on order-detail page
+
+---
+
+## Work Note Page (work-note.js — ~258 lines)
+
+- Shows task customer info + materials list
+- Add/delete materials (modal with name, quantity, unit)
+- "Back to task" button → `router.navigate('/order-detail', { taskId })`
+- "Save & close" button → `completeWorkNote(taskId)` → navigates back to /order-detail
+- **No stat-cards** — the "1 MATERIALER / Klar STATUS" block was removed
+- Empty state uses `.empty-state-small` (no large SVG)
+
+---
+
+## CSS Notes (styles.css — ~4,400 lines)
+
+Important classes:
+
+| Class | Purpose |
+|---|---|
+| `.section-card` | White card with shadow, `padding: var(--spacing-lg)` |
+| `.section-card-header` | Flex row header with h3 + right-side button |
+| `.info-card` | Card with icon+title header |
+| `.button-primary` | Dark blue filled button |
+| `.button-secondary` | Outlined button |
+| `.button-group` | Flex row of buttons |
+| `.empty-state-small` | Small empty state (text only, no SVG) |
+| `.checklist-item` | Flex row with checkbox + label |
+| `.checklist-item.completed` | Green tint, strikethrough label |
+| `.progress-bar` | 6px gray bar container |
+| `.progress-bar-fill` | Blue fill (transition: width 0.4s) |
+| `.progress-badge` | Blue pill showing "X%" |
+| `.signature-canvas` | 160px tall canvas, cursor: crosshair |
+| `.signature-pad-container` | Dashed border container, touch-action: none |
+| `.photo-type-dialog-overlay` | Full-screen overlay for photo category picker |
+| `.photo-type-options` | Scrollable list inside dialog (overflow-y: auto) |
+| `.stats-grid` / `.stat-card` | **DO NOT USE on work-note — removed** |
+
+---
+
+## Known Fixed Bugs (do not re-introduce)
+
+| Bug | Fix |
+|---|---|
+| `calculateTotalTime crash` | Null guard at top of function |
+| `updateTaskTime crash` | Null guard + restored `startH/startM` vars |
+| `ChecklistManager.getProgress NaN` | Returns 0 when total=0 |
+| `Checklist empty on load` | `getChecklist()` re-inits from defaults when stored=[] |
+| `Signature pad invisible` | Added `.signature-canvas { height: 160px }` CSS |
+| `Checklist no CSS` | Added `.checklist-item`, `.progress-bar`, `.progress-badge` CSS |
+| `Photo dialog not scrollable` | `.photo-type-options { overflow-y: auto; flex: 1 }` |
+| `Work note back button` | Uses `/order-detail` with `{ taskId }`, not `/order/8` |
+| `Stat-cards in work-note` | Removed entire stats-grid block |
+| `Danish text in app` | Fully translated — all UI is in English |
+
+---
+
+## Bottom Navigation (app.html)
+
+Three tabs: **Home** (`/`) · **Calendar** (`/calendar`) · **Profil** (`/more`)  
+The `/orders` and `/route` pages are navigated to from within the app (not bottom nav).
+
+---
+
+## What Still Could Be Improved
+
+- `orders.js` still has some Danish text in filter chips ("I gang", "Ikke startet", "I dag")
+- `route.js` map uses random coordinates (not real geocoding) — acceptable for demo
+- PDF export references some Danish labels internally
+- `time.js` page exists but may have stale content (rarely used)
+
 
 ---
 
