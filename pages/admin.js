@@ -12,6 +12,12 @@ function renderAdminPage() {
     
     const materials = AppData.commonMaterials;
     
+    const photoCategories = getFromStorage('admin_photo_categories', [
+        'Før arbejde',
+        'Under arbejde',
+        'Efter arbejde'
+    ]);
+    
     const content = `
         <div class="page page-admin">
             <div class="page-header page-header-with-back">
@@ -136,6 +142,62 @@ function renderAdminPage() {
                     </div>
                 </div>
 
+                <!-- Photo Categories Management -->
+                <div class="admin-section">
+                    <div class="admin-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Foto Kategorier
+                        </h3>
+                        <button class="button-primary-sm" onclick="openAddPhotoCategoryDialog()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Tilføj
+                        </button>
+                    </div>
+                    <div class="admin-list" id="photoCategoriesList">
+                        ${photoCategories.length === 0 ? `
+                            <div class="empty-state-small">
+                                <p>Ingen foto kategorier oprettet</p>
+                            </div>
+                        ` : photoCategories.map((category, index) => `
+                            <div class="admin-list-item">
+                                <div class="admin-item-icon" style="background: #FFF3E0;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#FF9800">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="admin-item-content">
+                                    <div class="admin-item-title">${category}</div>
+                                    <div class="admin-item-subtitle">Kategori ${index + 1}</div>
+                                </div>
+                                <div class="admin-item-actions">
+                                    <button class="button-icon-sm" onclick="editPhotoCategory(${index}, '${category.replace(/'/g, "\\'")}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="button-icon-sm button-danger" onclick="deletePhotoCategory(${index})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
                 <!-- Stats -->
                 <div class="admin-stats">
                     <div class="stat-card">
@@ -230,6 +292,32 @@ function renderAdminPage() {
                     <div class="button-group">
                         <button class="button-secondary" onclick="closeMaterialModal()">Annuller</button>
                         <button class="button-primary" onclick="saveMaterial()">Gem</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Photo Category Modal -->
+        <div id="photoCategoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="photoCategoryModalTitle">Tilføj foto kategori</h3>
+                    <button class="modal-close" onclick="closePhotoCategoryModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Kategori navn</label>
+                        <input type="text" id="photoCategoryName" placeholder="F.eks. Område før arbejde">
+                    </div>
+                    <input type="hidden" id="photoCategoryIndex" value="-1">
+                    <div class="button-group">
+                        <button class="button-secondary" onclick="closePhotoCategoryModal()">Annuller</button>
+                        <button class="button-primary" onclick="savePhotoCategory()">Gem</button>
                     </div>
                 </div>
             </div>
@@ -380,6 +468,72 @@ function deleteMaterial(index) {
     saveToStorage('admin_common_materials', AppData.commonMaterials);
     
     showToast('Materiale slettet', 'success');
+    renderAdminPage();
+}
+
+// ============================================================================
+// PHOTO CATEGORY MANAGEMENT
+// ============================================================================
+
+function openAddPhotoCategoryDialog() {
+    const modal = document.getElementById('photoCategoryModal');
+    document.getElementById('photoCategoryModalTitle').textContent = 'Tilføj foto kategori';
+    document.getElementById('photoCategoryName').value = '';
+    document.getElementById('photoCategoryIndex').value = '-1';
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('photoCategoryName').focus(), 100);
+}
+
+function editPhotoCategory(index, name) {
+    const modal = document.getElementById('photoCategoryModal');
+    document.getElementById('photoCategoryModalTitle').textContent = 'Rediger foto kategori';
+    document.getElementById('photoCategoryName').value = name;
+    document.getElementById('photoCategoryIndex').value = index;
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('photoCategoryName').focus(), 100);
+}
+
+function closePhotoCategoryModal() {
+    document.getElementById('photoCategoryModal').style.display = 'none';
+}
+
+function savePhotoCategory() {
+    const name = document.getElementById('photoCategoryName').value.trim();
+    const index = parseInt(document.getElementById('photoCategoryIndex').value);
+    
+    if (!name) {
+        showToast('Indtast kategori navn', 'error');
+        return;
+    }
+    
+    const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+    
+    if (index >= 0) {
+        // Edit existing
+        categories[index] = name;
+        showToast('Foto kategori opdateret', 'success');
+    } else {
+        // Add new
+        categories.push(name);
+        showToast('Foto kategori tilføjet', 'success');
+    }
+    
+    saveToStorage('admin_photo_categories', categories);
+    
+    closePhotoCategoryModal();
+    renderAdminPage();
+}
+
+function deletePhotoCategory(index) {
+    if (!confirm('Vil du slette denne foto kategori?')) {
+        return;
+    }
+    
+    const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+    categories.splice(index, 1);
+    saveToStorage('admin_photo_categories', categories);
+    
+    showToast('Foto kategori slettet', 'success');
     renderAdminPage();
 }
 

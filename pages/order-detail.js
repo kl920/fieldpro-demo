@@ -71,110 +71,78 @@ function renderOrderDetailPage(data) {
                         <input type="file" id="photoInput${taskId}" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif" capture="environment" multiple style="display: none;" data-photo-type="standard">
                     </div>
                     ${(() => {
-                        const beforePhotos = photos.filter(p => p.type === 'before');
-                        const afterPhotos = photos.filter(p => p.type === 'after');
-                        const standardPhotos = photos.filter(p => !p.type || p.type === 'standard');
-                        
                         if (photos.length === 0) {
                             return `<div class="empty-state-small"><p>Ingen billeder tilføjet endnu</p></div>`;
                         }
                         
+                        // Load photo categories from admin settings
+                        const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+                        
                         let html = '';
                         
-                        // Before photos
-                        if (beforePhotos.length > 0) {
-                            html += `
-                                <div class="photo-section">
-                                    <div class="photo-section-label before">FØR (${beforePhotos.length})</div>
-                                    <div class="photos-grid">
-                                        ${beforePhotos.map(photo => `
-                                            <div class="photo-item">
-                                                <div class="photo-type-badge before">FØR</div>
-                                                <img src="${photo.data}" alt="Før foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
-                                                <div class="photo-info">
-                                                    ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                                                    ${photo.address ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${photo.address}
-                                                        </div>
-                                                    ` : photo.lat && photo.lng ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${formatGPSCoordinates(photo.lat, photo.lng)}
-                                                        </div>
-                                                    ` : ''}
+                        // Group photos by category
+                        categories.forEach((category, index) => {
+                            const categoryPhotos = photos.filter(p => p.type === category);
+                            
+                            if (categoryPhotos.length > 0) {
+                                html += `
+                                    <div class="photo-section">
+                                        <div class="photo-section-label" style="background: hsl(${index * (360 / categories.length)}, 70%, 95%); color: hsl(${index * (360 / categories.length)}, 70%, 40%);">
+                                            ${category.toUpperCase()} (${categoryPhotos.length})
+                                        </div>
+                                        <div class="photos-grid">
+                                            ${categoryPhotos.map(photo => `
+                                                <div class="photo-item">
+                                                    <div class="photo-type-badge" style="background: hsl(${index * (360 / categories.length)}, 70%, 60%);">
+                                                        ${category}
+                                                    </div>
+                                                    <img src="${photo.data}" alt="${category} foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+                                                    <div class="photo-info">
+                                                        ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
+                                                        ${photo.address ? `
+                                                            <div class="photo-location">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                                    <circle cx="12" cy="10" r="3"></circle>
+                                                                </svg>
+                                                                ${photo.address}
+                                                            </div>
+                                                        ` : photo.lat && photo.lng ? `
+                                                            <div class="photo-location">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
+                                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                                    <circle cx="12" cy="10" r="3"></circle>
+                                                                </svg>
+                                                                ${formatGPSCoordinates(photo.lat, photo.lng)}
+                                                            </div>
+                                                        ` : ''}
+                                                    </div>
+                                                    <button class="photo-delete" onclick="event.stopPropagation(); deletePhoto(${taskId}, '${photo.id}')">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                        </svg>
+                                                    </button>
                                                 </div>
-                                                <button class="photo-delete" onclick="event.stopPropagation(); deletePhoto(${taskId}, '${photo.id}')">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        `).join('')}
+                                            `).join('')}
+                                        </div>
                                     </div>
-                                </div>
-                            `;
-                        }
+                                `;
+                            }
+                        });
                         
-                        // After photos
-                        if (afterPhotos.length > 0) {
+                        // Show uncategorized photos (those with types not in current categories)
+                        const uncategorizedPhotos = photos.filter(p => !categories.includes(p.type) && p.type);
+                        if (uncategorizedPhotos.length > 0) {
                             html += `
                                 <div class="photo-section">
-                                    <div class="photo-section-label after">EFTER (${afterPhotos.length})</div>
-                                    <div class="photos-grid">
-                                        ${afterPhotos.map(photo => `
-                                            <div class="photo-item">
-                                                <div class="photo-type-badge after">EFTER</div>
-                                                <img src="${photo.data}" alt="Efter foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
-                                                <div class="photo-info">
-                                                    ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                                                    ${photo.address ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${photo.address}
-                                                        </div>
-                                                    ` : photo.lat && photo.lng ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${formatGPSCoordinates(photo.lat, photo.lng)}
-                                                        </div>
-                                                    ` : ''}
-                                                </div>
-                                                <button class="photo-delete" onclick="event.stopPropagation(); deletePhoto(${taskId}, '${photo.id}')">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        `).join('')}
+                                    <div class="photo-section-label" style="background: #f5f5f5; color: #666;">
+                                        ANDRE BILLEDER (${uncategorizedPhotos.length})
                                     </div>
-                                </div>
-                            `;
-                        }
-                        
-                        // Standard photos
-                        if (standardPhotos.length > 0) {
-                            html += `
-                                <div class="photo-section">
-                                    ${beforePhotos.length > 0 || afterPhotos.length > 0 ? `<div class="photo-section-label">ANDRE BILLEDER (${standardPhotos.length})</div>` : ''}
                                     <div class="photos-grid">
-                                        ${standardPhotos.map(photo => `
+                                        ${uncategorizedPhotos.map(photo => `
                                             <div class="photo-item">
+                                                <div class="photo-type-badge" style="background: #999;">${photo.type || 'Standard'}</div>
                                                 <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
                                                 <div class="photo-info">
                                                     ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
@@ -459,36 +427,25 @@ function deleteMaterial(taskId, materialId) {
 }
 
 function showPhotoTypeDialog(taskId) {
+    // Load photo categories from admin settings
+    const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+    
     const dialog = document.createElement('div');
     dialog.className = 'photo-type-dialog-overlay';
     dialog.innerHTML = `
         <div class="photo-type-dialog">
-            <h3>Vælg billedtype</h3>
+            <h3>Vælg foto kategori</h3>
             <div class="photo-type-options">
-                <button class="photo-type-btn before" onclick="selectPhotoType(${taskId}, 'before')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>FØR</span>
-                    <small>Start af arbejde</small>
-                </button>
-                <button class="photo-type-btn after" onclick="selectPhotoType(${taskId}, 'after')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <span>EFTER</span>
-                    <small>Færdigt arbejde</small>
-                </button>
-                <button class="photo-type-btn standard" onclick="selectPhotoType(${taskId}, 'standard')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                        <polyline points="21 15 16 10 5 21"></polyline>
-                    </svg>
-                    <span>STANDARD</span>
-                    <small>Generelt billede</small>
-                </button>
+                ${categories.map((category, index) => `
+                    <button class="photo-type-btn" style="--btn-color: hsl(${index * (360 / categories.length)}, 70%, 60%)" onclick="selectPhotoType(${taskId}, '${category.replace(/'/g, "\\'")}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span>${category}</span>
+                    </button>
+                `).join('')}
             </div>
             <button class="dialog-cancel" onclick="this.closest('.photo-type-dialog-overlay').remove()">
                 Annuller
