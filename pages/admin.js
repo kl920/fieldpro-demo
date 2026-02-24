@@ -407,8 +407,19 @@ function openAddJobTypeDialog() {
 }
 
 function editJobType(index) {
+    console.log('editJobType called with index:', index, 'type:', typeof index);
     const jobTypes = getFromStorage('admin_job_types', []);
+    console.log('jobTypes loaded:', jobTypes.length, 'items');
+    console.log('jobTypes:', JSON.stringify(jobTypes));
+    
     const jobType = jobTypes[index];
+    console.log('jobType at index', index, ':', jobType);
+    
+    if (!jobType) {
+        console.error('No job type found at index', index);
+        showToast('Error: Job type not found', 'error');
+        return;
+    }
     
     const modal = document.getElementById('jobTypeModal');
     document.getElementById('jobTypeModalTitle').textContent = 'Edit Job Type';
@@ -489,8 +500,15 @@ function saveJobType() {
 }
 
 function deleteJobType(index) {
+    console.log('deleteJobType called with index:', index);
     const jobTypes = getFromStorage('admin_job_types', []);
     const jobType = jobTypes[index];
+    
+    if (!jobType) {
+        console.error('No job type found at index', index);
+        showToast('Error: Job type not found', 'error');
+        return;
+    }
     
     if (jobTypes.length === 1) {
         showToast('Cannot delete the only job type', 'error');
@@ -707,8 +725,16 @@ function openAddMaterialDialog() {
 }
 
 function editMaterial(index) {
+    console.log('editMaterial called with index:', index);
     const materials = AppData.commonMaterials;
+    console.log('materials loaded:', materials.length, 'items');
     const mat = materials[index];
+    
+    if (!mat) {
+        console.error('No material found at index', index);
+        showToast('Error: Material not found', 'error');
+        return;
+    }
     
     const modal = document.getElementById('materialModal');
     document.getElementById('materialModalTitle').textContent = 'Edit Material';
@@ -759,7 +785,15 @@ function saveMaterial() {
 }
 
 function deleteMaterial(index) {
+    console.log('deleteMaterial called with index:', index);
+    
     if (!confirm('Delete this material?')) {
+        return;
+    }
+    
+    if (index < 0 || index >= AppData.commonMaterials.length) {
+        console.error('Invalid material index:', index);
+        showToast('Error: Material not found', 'error');
         return;
     }
     
