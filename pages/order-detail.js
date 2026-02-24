@@ -75,8 +75,29 @@ function renderOrderDetailPage(data) {
                             return `<div class="empty-state-small"><p>Ingen billeder tilføjet endnu</p></div>`;
                         }
                         
-                        // Load photo categories from admin settings
-                        const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+                        // Load photo categories from active job type
+                        const jobTypes = getFromStorage('admin_job_types', [
+                            {
+                                id: 1,
+                                name: 'Elarbejde',
+                                checklistItems: [
+                                    'Ankommet til adresse',
+                                    'Værktøj og materialer klar',
+                                    'Gennemgang med kunde',
+                                    'Arbejde udført',
+                                    'Oprydning',
+                                    'Aflevering til kunde'
+                                ],
+                                photoCategories: [
+                                    'Før arbejde',
+                                    'Under arbejde',
+                                    'Efter arbejde'
+                                ]
+                            }
+                        ]);
+                        const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
+                        const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+                        const categories = activeJobType.photoCategories;
                         
                         let html = '';
                         
@@ -427,8 +448,29 @@ function deleteMaterial(taskId, materialId) {
 }
 
 function showPhotoTypeDialog(taskId) {
-    // Load photo categories from admin settings
-    const categories = getFromStorage('admin_photo_categories', ['Før arbejde', 'Under arbejde', 'Efter arbejde']);
+    // Load photo categories from active job type
+    const jobTypes = getFromStorage('admin_job_types', [
+        {
+            id: 1,
+            name: 'Elarbejde',
+            checklistItems: [
+                'Ankommet til adresse',
+                'Værktøj og materialer klar',
+                'Gennemgang med kunde',
+                'Arbejde udført',
+                'Oprydning',
+                'Aflevering til kunde'
+            ],
+            photoCategories: [
+                'Før arbejde',
+                'Under arbejde',
+                'Efter arbejde'
+            ]
+        }
+    ]);
+    const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
+    const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+    const categories = activeJobType.photoCategories;
     
     const dialog = document.createElement('div');
     dialog.className = 'photo-type-dialog-overlay';

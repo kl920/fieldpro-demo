@@ -642,21 +642,32 @@ class ChecklistManager {
      * @returns {Array<{id: number, text: string, completed: boolean}>} Default checklist items
      */
     static getDefaultChecklist() {
-        // Get checklist items from admin settings
-        const adminItems = getFromStorage('admin_checklist_items', [
-            'Ankommet til lokation',
-            'Kontakt med kunde',
-            'Arbejdsområde afmærket',
-            'Værktøj og materialer klar',
-            'Arbejde udført',
-            'Kvalitetskontrol',
-            'Oprydning',
-            'Kundegennemgang',
-            'Signatur'
+        // Get checklist items from active job type in admin settings
+        const jobTypes = getFromStorage('admin_job_types', [
+            {
+                id: 1,
+                name: 'Elarbejde',
+                checklistItems: [
+                    'Ankommet til adresse',
+                    'Værktøj og materialer klar',
+                    'Gennemgang med kunde',
+                    'Arbejde udført',
+                    'Oprydning',
+                    'Aflevering til kunde'
+                ],
+                photoCategories: [
+                    'Før arbejde',
+                    'Under arbejde',
+                    'Efter arbejde'
+                ]
+            }
         ]);
         
+        const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
+        const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+        
         // Convert to checklist format
-        return adminItems.map((text, index) => ({
+        return activeJobType.checklistItems.map((text, index) => ({
             id: index + 1,
             text: text,
             completed: false
