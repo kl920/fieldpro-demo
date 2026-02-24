@@ -42,7 +42,7 @@ function renderAdminPage() {
                 </button>
                 <div class="header-title">
                     <h1>Administrator</h1>
-                    <span class="header-subtitle">Administrer system indstillinger</span>
+                    <span class="header-subtitle">Manage system settings</span>
                 </div>
             </div>
 
@@ -57,20 +57,20 @@ function renderAdminPage() {
                                 <circle cx="17" cy="17" r="3"></circle>
                                 <circle cx="7" cy="7" r="3"></circle>
                             </svg>
-                            Opgavetyper
+                            Job Types
                         </h3>
                         <button class="button-primary-sm" onclick="openAddJobTypeDialog()">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                            Tilføj
+                            Add
                         </button>
                     </div>
                     <div class="admin-list" id="jobTypesList">
                         ${jobTypes.length === 0 ? `
                             <div class="empty-state-small">
-                                <p>Ingen opgavetyper oprettet</p>
+                                <p>No job types created</p>
                             </div>
                         ` : jobTypes.map((jobType, index) => `
                             <div class="admin-list-item ${jobType.id === activeJobTypeId ? 'active-job-type' : ''}">
@@ -83,12 +83,12 @@ function renderAdminPage() {
                                     </svg>
                                 </div>
                                 <div class="admin-item-content">
-                                    <div class="admin-item-title">${jobType.name} ${jobType.id === activeJobTypeId ? '<span style="color: #2196F3; font-size: 11px; font-weight: 600;">(AKTIV)</span>' : ''}</div>
-                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} tjekliste • ${jobType.photoCategories.length} foto • ${(jobType.surveyQuestions || []).length} spørgsmål</div>
+                                    <div class="admin-item-title">${jobType.name} ${jobType.id === activeJobTypeId ? '<span style="color: #2196F3; font-size: 11px; font-weight: 600;">(ACTIVE)</span>' : ''}</div>
+                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} checklist • ${jobType.photoCategories.length} photos • ${(jobType.surveyQuestions || []).length} questions</div>
                                 </div>
                                 <div class="admin-item-actions">
                                     ${jobType.id !== activeJobTypeId ? `
-                                        <button class="button-icon-sm" onclick="setActiveJobType(${jobType.id})" title="Sæt som aktiv">
+                                        <button class="button-icon-sm" onclick="setActiveJobType(${jobType.id})" title="Set as active">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                 <circle cx="12" cy="12" r="10"></circle>
                                             </svg>
@@ -120,20 +120,20 @@ function renderAdminPage() {
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <path d="M12 6v6l4 2"></path>
                             </svg>
-                            Standard Materialer
+                            Standard Materials
                         </h3>
                         <button class="button-primary-sm" onclick="openAddMaterialDialog()">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                            Tilføj
+                            Add
                         </button>
                     </div>
                     <div class="admin-list" id="materialsList">
                         ${materials.length === 0 ? `
                             <div class="empty-state-small">
-                                <p>Ingen materialer oprettet</p>
+                                <p>No materials added</p>
                             </div>
                         ` : materials.map((mat, index) => `
                             <div class="admin-list-item">
@@ -206,7 +206,7 @@ function renderAdminPage() {
         <div id="jobTypeModal" class="modal">
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
-                    <h3 id="jobTypeModalTitle">Tilføj opgavetype</h3>
+                    <h3 id="jobTypeModalTitle">Add Job Type</h3>
                     <button class="modal-close" onclick="closeJobTypeModal()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -216,43 +216,43 @@ function renderAdminPage() {
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Opgavetype navn</label>
-                        <input type="text" id="jobTypeName" placeholder="F.eks. Elarbejde">
+                        <label>Job Type Name</label>
+                        <input type="text" id="jobTypeName" placeholder="e.g. Electrical Work">
                     </div>
                     
                     <div class="form-group">
-                        <label>Tjekliste punkter (ét per linje)</label>
-                        <textarea id="jobTypeChecklist" rows="6" placeholder="Ankommet til adresse
-Værktøj og materialer klar
-Gennemgang med kunde
-Arbejde udført
-Oprydning
-Aflevering til kunde"></textarea>
+                        <label>Checklist Items (one per line)</label>
+                        <textarea id="jobTypeChecklist" rows="6" placeholder="Arrived at address
+Tools and materials ready
+Customer briefing
+Work completed
+Cleanup
+Handover to customer"></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label>Foto kategorier (ét per linje)</label>
-                        <textarea id="jobTypePhotos" rows="4" placeholder="Før arbejde
-Under arbejde
-Efter arbejde"></textarea>
+                        <label>Photo Categories (one per line)</label>
+                        <textarea id="jobTypePhotos" rows="4" placeholder="Before work
+During work
+After work"></textarea>
                     </div>
                     
                     <div class="form-group">
-                        <label>Survey spørgsmål</label>
+                        <label>Survey Questions</label>
                         <button type="button" class="button-secondary" style="width: 100%;" onclick="openSurveyManager()">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 8px;">
                                 <path d="M9 11l3 3L22 4"></path>
                                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                             </svg>
-                            Administrer spørgsmål (<span id="surveyCount">0</span>)
+                            Manage Questions (<span id="surveyCount">0</span>)
                         </button>
                         <input type="hidden" id="jobTypeSurveyData" value="[]">
                     </div>
                     
                     <input type="hidden" id="jobTypeIndex" value="-1">
                     <div class="button-group">
-                        <button class="button-secondary" onclick="closeJobTypeModal()">Annuller</button>
-                        <button class="button-primary" onclick="saveJobType()">Gem</button>
+                        <button class="button-secondary" onclick="closeJobTypeModal()">Cancel</button>
+                        <button class="button-primary" onclick="saveJobType()">Save</button>
                     </div>
                 </div>
             </div>
@@ -262,7 +262,7 @@ Efter arbejde"></textarea>
         <div id="materialModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 id="materialModalTitle">Tilføj materiale</h3>
+                    <h3 id="materialModalTitle">Add Material</h3>
                     <button class="modal-close" onclick="closeMaterialModal()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -272,28 +272,28 @@ Efter arbejde"></textarea>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Navn</label>
-                        <input type="text" id="materialName" placeholder="F.eks. Gulvbrædder">
+                        <label>Name</label>
+                        <input type="text" id="materialName" placeholder="e.g. Floor Boards">
                     </div>
                     <div class="form-group">
-                        <label>Kategori</label>
-                        <input type="text" id="materialCategory" placeholder="F.eks. Træ">
+                        <label>Category</label>
+                        <input type="text" id="materialCategory" placeholder="e.g. Wood">
                     </div>
                     <div class="form-group">
-                        <label>Enhed</label>
+                        <label>Unit</label>
                         <select id="materialUnit">
-                            <option value="stk">Stk</option>
-                            <option value="m">Meter</option>
+                            <option value="stk">Pieces</option>
+                            <option value="m">Meters</option>
                             <option value="m2">m²</option>
                             <option value="kg">Kg</option>
-                            <option value="l">Liter</option>
-                            <option value="pk">Pakke</option>
+                            <option value="l">Liters</option>
+                            <option value="pk">Package</option>
                         </select>
                     </div>
                     <input type="hidden" id="materialIndex" value="-1">
                     <div class="button-group">
-                        <button class="button-secondary" onclick="closeMaterialModal()">Annuller</button>
-                        <button class="button-primary" onclick="saveMaterial()">Gem</button>
+                        <button class="button-secondary" onclick="closeMaterialModal()">Cancel</button>
+                        <button class="button-primary" onclick="saveMaterial()">Save</button>
                     </div>
                 </div>
             </div>
@@ -303,7 +303,7 @@ Efter arbejde"></textarea>
         <div id="surveyManagerModal" class="modal">
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
-                    <h3>Survey Spørgsmål</h3>
+                    <h3>Survey Questions</h3>
                     <button class="modal-close" onclick="closeSurveyManager()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -318,7 +318,7 @@ Efter arbejde"></textarea>
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                            Tilføj spørgsmål
+                            Add Question
                         </button>
                     </div>
                     
@@ -327,8 +327,8 @@ Efter arbejde"></textarea>
                     </div>
                     
                     <div class="button-group" style="margin-top: var(--spacing-lg);">
-                        <button class="button-secondary" onclick="closeSurveyManager()">Luk</button>
-                        <button class="button-primary" onclick="saveSurveyQuestions()">Gem</button>
+                        <button class="button-secondary" onclick="closeSurveyManager()">Close</button>
+                        <button class="button-primary" onclick="saveSurveyQuestions()">Save</button>
                     </div>
                 </div>
             </div>
@@ -338,7 +338,7 @@ Efter arbejde"></textarea>
         <div id="editSurveyQuestionModal" class="modal">
             <div class="modal-content" style="max-width: 500px;">
                 <div class="modal-header">
-                    <h3 id="editSurveyQuestionTitle">Rediger spørgsmål</h3>
+                    <h3 id="editSurveyQuestionTitle">Edit Question</h3>
                     <button class="modal-close" onclick="closeEditSurveyQuestion()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -348,12 +348,12 @@ Efter arbejde"></textarea>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Spørgsmål</label>
-                        <input type="text" id="surveyQuestionText" placeholder="F.eks. Was the owner present?">
+                        <label>Question</label>
+                        <input type="text" id="surveyQuestionText" placeholder="e.g. Was the owner present?">
                     </div>
                     
                     <div class="form-group">
-                        <label>Svartype</label>
+                        <label>Answer Type</label>
                         <select id="surveyQuestionType" onchange="handleSurveyTypeChange()">
                             <option value="yesno">Yes/No</option>
                             <option value="choice">Multiple Choice</option>
@@ -362,7 +362,7 @@ Efter arbejde"></textarea>
                     </div>
                     
                     <div class="form-group" id="surveyChoicesGroup" style="display: none;">
-                        <label>Valgmuligheder (ét per linje)</label>
+                        <label>Choices (one per line)</label>
                         <textarea id="surveyChoices" rows="4" placeholder="Option 1
 Option 2
 Option 3"></textarea>
@@ -371,15 +371,15 @@ Option 3"></textarea>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="surveyQuestionRequired">
-                            <span>Påkrævet</span>
+                            <span>Required</span>
                         </label>
                     </div>
                     
                     <input type="hidden" id="surveyQuestionIndex" value="-1">
                     
                     <div class="button-group">
-                        <button class="button-secondary" onclick="closeEditSurveyQuestion()">Annuller</button>
-                        <button class="button-primary" onclick="saveSurveyQuestion()">Gem</button>
+                        <button class="button-secondary" onclick="closeEditSurveyQuestion()">Cancel</button>
+                        <button class="button-primary" onclick="saveSurveyQuestion()">Save</button>
                     </div>
                 </div>
             </div>
@@ -395,7 +395,7 @@ Option 3"></textarea>
 
 function openAddJobTypeDialog() {
     const modal = document.getElementById('jobTypeModal');
-    document.getElementById('jobTypeModalTitle').textContent = 'Tilføj opgavetype';
+    document.getElementById('jobTypeModalTitle').textContent = 'Add Job Type';
     document.getElementById('jobTypeName').value = '';
     document.getElementById('jobTypeChecklist').value = '';
     document.getElementById('jobTypePhotos').value = '';
@@ -411,7 +411,7 @@ function editJobType(index) {
     const jobType = jobTypes[index];
     
     const modal = document.getElementById('jobTypeModal');
-    document.getElementById('jobTypeModalTitle').textContent = 'Rediger opgavetype';
+    document.getElementById('jobTypeModalTitle').textContent = 'Edit Job Type';
     document.getElementById('jobTypeName').value = jobType.name;
     document.getElementById('jobTypeChecklist').value = jobType.checklistItems.join('\n');
     document.getElementById('jobTypePhotos').value = jobType.photoCategories.join('\n');
@@ -433,17 +433,17 @@ function saveJobType() {
     const index = parseInt(document.getElementById('jobTypeIndex').value);
     
     if (!name) {
-        showToast('Indtast opgavetype navn', 'error');
+        showToast('Enter job type name', 'error');
         return;
     }
     
     if (!checklistText) {
-        showToast('Indtast mindst ét tjekliste punkt', 'error');
+        showToast('Enter at least one checklist item', 'error');
         return;
     }
     
     if (!photosText) {
-        showToast('Indtast mindst én foto kategori', 'error');
+        showToast('Enter at least one photo category', 'error');
         return;
     }
     
@@ -462,7 +462,7 @@ function saveJobType() {
         jobTypes[index].checklistItems = checklistItems;
         jobTypes[index].photoCategories = photoCategories;
         jobTypes[index].surveyQuestions = surveyQuestions;
-        showToast('Opgavetype opdateret', 'success');
+        showToast('Job type updated', 'success');
     } else {
         // Add new - generate new ID
         const newId = jobTypes.length > 0 ? Math.max(...jobTypes.map(jt => jt.id)) + 1 : 1;
@@ -479,7 +479,7 @@ function saveJobType() {
             saveToStorage('admin_active_job_type', newId);
         }
         
-        showToast('Opgavetype tilføjet', 'success');
+        showToast('Job type added', 'success');
     }
     
     saveToStorage('admin_job_types', jobTypes);
@@ -493,11 +493,11 @@ function deleteJobType(index) {
     const jobType = jobTypes[index];
     
     if (jobTypes.length === 1) {
-        showToast('Du kan ikke slette den eneste opgavetype', 'error');
+        showToast('Cannot delete the only job type', 'error');
         return;
     }
     
-    if (!confirm(`Vil du slette opgavetypen "${jobType.name}"?`)) {
+    if (!confirm(`Delete job type "${jobType.name}"?`)) {
         return;
     }
     
@@ -511,13 +511,13 @@ function deleteJobType(index) {
         saveToStorage('admin_active_job_type', jobTypes[0].id);
     }
     
-    showToast('Opgavetype slettet', 'success');
+    showToast('Job type deleted', 'success');
     renderAdminPage();
 }
 
 function setActiveJobType(jobTypeId) {
     saveToStorage('admin_active_job_type', jobTypeId);
-    showToast('Aktiv opgavetype ændret', 'success');
+    showToast('Active job type changed', 'success');
     renderAdminPage();
 }
 
@@ -547,7 +547,7 @@ function renderSurveyQuestions() {
     if (tempSurveyQuestions.length === 0) {
         container.innerHTML = `
             <div class="empty-state-small">
-                <p>Ingen spørgsmål tilføjet endnu</p>
+                <p>No questions added yet</p>
             </div>
         `;
         return;
@@ -591,7 +591,7 @@ function renderSurveyQuestions() {
 }
 
 function addSurveyQuestion() {
-    document.getElementById('editSurveyQuestionTitle').textContent = 'Tilføj spørgsmål';
+    document.getElementById('editSurveyQuestionTitle').textContent = 'Add Question';
     document.getElementById('surveyQuestionText').value = '';
     document.getElementById('surveyQuestionType').value = 'yesno';
     document.getElementById('surveyChoices').value = '';
@@ -603,7 +603,7 @@ function addSurveyQuestion() {
 
 function editSurveyQuestion(index) {
     const q = tempSurveyQuestions[index];
-    document.getElementById('editSurveyQuestionTitle').textContent = 'Rediger spørgsmål';
+    document.getElementById('editSurveyQuestionTitle').textContent = 'Edit Question';
     document.getElementById('surveyQuestionText').value = q.question;
     document.getElementById('surveyQuestionType').value = q.type;
     document.getElementById('surveyQuestionRequired').checked = q.required;
@@ -611,7 +611,7 @@ function editSurveyQuestion(index) {
     
     if (q.type === 'choice') {
         document.getElementById('surveyChoicesGroup').style.display = 'block';
-        document.getElementById('surveyChoices').value = (q.choices || []).join('\\n');
+        document.getElementById('surveyChoices').value = (q.choices || []).join('\n');
     } else {
         document.getElementById('surveyChoicesGroup').style.display = 'none';
     }
@@ -641,7 +641,7 @@ function saveSurveyQuestion() {
     const index = parseInt(document.getElementById('surveyQuestionIndex').value);
     
     if (!question) {
-        showToast('Indtast spørgsmål', 'error');
+        showToast('Enter question', 'error');
         return;
     }
     
@@ -655,18 +655,18 @@ function saveSurveyQuestion() {
     if (type === 'choice') {
         const choicesText = document.getElementById('surveyChoices').value.trim();
         if (!choicesText) {
-            showToast('Indtast mindst én valgmulighed', 'error');
+            showToast('Enter at least one choice', 'error');
             return;
         }
-        questionData.choices = choicesText.split('\\n').map(c => c.trim()).filter(c => c);
+        questionData.choices = choicesText.split('\n').map(c => c.trim()).filter(c => c);
     }
     
     if (index >= 0) {
         tempSurveyQuestions[index] = questionData;
-        showToast('Spørgsmål opdateret', 'success');
+        showToast('Question updated', 'success');
     } else {
         tempSurveyQuestions.push(questionData);
-        showToast('Spørgsmål tilføjet', 'success');
+        showToast('Question added', 'success');
     }
     
     closeEditSurveyQuestion();
@@ -674,12 +674,12 @@ function saveSurveyQuestion() {
 }
 
 function deleteSurveyQuestion(index) {
-    if (!confirm('Vil du slette dette spørgsmål?')) {
+    if (!confirm('Delete this question?')) {
         return;
     }
     
     tempSurveyQuestions.splice(index, 1);
-    showToast('Spørgsmål slettet', 'success');
+    showToast('Question deleted', 'success');
     renderSurveyQuestions();
 }
 
@@ -688,7 +688,7 @@ function saveSurveyQuestions() {
     document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
     document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
     closeSurveyManager();
-    showToast('Survey spørgsmål gemt', 'success');
+    showToast('Survey questions saved', 'success');
 }
 
 // ============================================================================
@@ -697,7 +697,7 @@ function saveSurveyQuestions() {
 
 function openAddMaterialDialog() {
     const modal = document.getElementById('materialModal');
-    document.getElementById('materialModalTitle').textContent = 'Tilføj materiale';
+    document.getElementById('materialModalTitle').textContent = 'Add Material';
     document.getElementById('materialName').value = '';
     document.getElementById('materialCategory').value = '';
     document.getElementById('materialUnit').value = 'stk';
@@ -711,7 +711,7 @@ function editMaterial(index) {
     const mat = materials[index];
     
     const modal = document.getElementById('materialModal');
-    document.getElementById('materialModalTitle').textContent = 'Rediger materiale';
+    document.getElementById('materialModalTitle').textContent = 'Edit Material';
     document.getElementById('materialName').value = mat.name;
     document.getElementById('materialCategory').value = mat.category || '';
     document.getElementById('materialUnit').value = mat.unit;
@@ -731,24 +731,24 @@ function saveMaterial() {
     const index = parseInt(document.getElementById('materialIndex').value);
     
     if (!name) {
-        showToast('Indtast materiale navn', 'error');
+        showToast('Enter material name', 'error');
         return;
     }
     
     const material = {
         name: name,
-        category: category || 'Andet',
+        category: category || 'Other',
         unit: unit
     };
     
     if (index >= 0) {
         // Edit existing
         AppData.commonMaterials[index] = material;
-        showToast('Materiale opdateret', 'success');
+        showToast('Material updated', 'success');
     } else {
         // Add new
         AppData.commonMaterials.push(material);
-        showToast('Materiale tilføjet', 'success');
+        showToast('Material added', 'success');
     }
     
     // Save to localStorage
@@ -759,14 +759,14 @@ function saveMaterial() {
 }
 
 function deleteMaterial(index) {
-    if (!confirm('Vil du slette dette materiale?')) {
+    if (!confirm('Delete this material?')) {
         return;
     }
     
     AppData.commonMaterials.splice(index, 1);
     saveToStorage('admin_common_materials', AppData.commonMaterials);
     
-    showToast('Materiale slettet', 'success');
+    showToast('Material deleted', 'success');
     renderAdminPage();
 }
 

@@ -4,7 +4,7 @@ function renderOrderDetailPage(data) {
     const task = AppData.getTask(taskId);
     
     if (!task) {
-        showToast('Ordre ikke fundet', 'error');
+        showToast('Order not found', 'error');
         router.navigate('/orders');
         return;
     }
@@ -41,18 +41,18 @@ function renderOrderDetailPage(data) {
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
                         </svg>
-                        <h3>Beskrivelse</h3>
+                        <h3>Description</h3>
                     </div>
                     <p class="task-description">${task.description}</p>
                 </div>
 
                 <!-- Notes -->
                 <div class="section-card">
-                    <h3>Noter</h3>
+                    <h3>Notes</h3>
                     <textarea 
                         id="taskNotes" 
                         class="notes-textarea" 
-                        placeholder="Tilføj noter til opgaven..."
+                        placeholder="Add notes to the task..."
                         oninput="saveTaskNotes(${taskId})"
                     >${notes}</textarea>
                 </div>
@@ -114,7 +114,7 @@ function renderOrderDetailPage(data) {
                                                 </label>
                                                 <select class="survey-select" 
                                                         onchange="saveSurveyAnswer(${taskId}, ${q.id}, this.value)">
-                                                    <option value="">Vælg...</option>
+                                                    <option value="">Select...</option>
                                                     ${(q.choices || []).map(choice => `
                                                         <option value="${choice}" ${answer === choice ? 'selected' : ''}>
                                                             ${choice}
@@ -132,7 +132,7 @@ function renderOrderDetailPage(data) {
                                                 </label>
                                                 <input type="text" 
                                                        class="survey-input" 
-                                                       placeholder="Indtast svar..."
+                                                       placeholder="Enter answer..."
                                                        value="${answer}"
                                                        onchange="saveSurveyAnswer(${taskId}, ${q.id}, this.value)">
                                             </div>
@@ -147,7 +147,7 @@ function renderOrderDetailPage(data) {
                 <!-- Photos -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <h3>Billeder</h3>
+                        <h3>Photos</h3>
                         <button class="button-icon" onclick="showPhotoTypeDialog(${taskId})">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -159,7 +159,7 @@ function renderOrderDetailPage(data) {
                     </div>
                     ${(() => {
                         if (photos.length === 0) {
-                            return `<div class="empty-state-small"><p>Ingen billeder tilføjet endnu</p></div>`;
+                            return `<div class="empty-state-small"><p>No photos added yet</p></div>`;
                         }
                         
                         // Load photo categories from active job type
@@ -245,13 +245,13 @@ function renderOrderDetailPage(data) {
                             html += `
                                 <div class="photo-section">
                                     <div class="photo-section-label" style="background: #f5f5f5; color: #666;">
-                                        ANDRE BILLEDER (${uncategorizedPhotos.length})
+                                        OTHER PHOTOS (${uncategorizedPhotos.length})
                                     </div>
                                     <div class="photos-grid">
                                         ${uncategorizedPhotos.map(photo => `
                                             <div class="photo-item">
                                                 <div class="photo-type-badge" style="background: #999;">${photo.type || 'Standard'}</div>
-                                                <img src="${photo.data}" alt="Opgave foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
+                                                <img src="${photo.data}" alt="Task photo" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
                                                 <div class="photo-info">
                                                     ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
                                                     ${photo.address ? `
@@ -292,7 +292,7 @@ function renderOrderDetailPage(data) {
                 <!-- Checklist -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <h3>Tjekliste</h3>
+                        <h3>Checklist</h3>
                         <div class="progress-badge" id="checklistProgress">0%</div>
                     </div>
                     <div class="progress-bar">
@@ -306,7 +306,7 @@ function renderOrderDetailPage(data) {
                 <!-- Voice Notes -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <h3>Stemmebeskeder</h3>
+                        <h3>Voice Notes</h3>
                         <button class="button-icon" id="recordButton${taskId}" onclick="toggleVoiceRecording(${taskId})">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -324,12 +324,12 @@ function renderOrderDetailPage(data) {
                 <!-- Signature -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <h3>Kundens signatur</h3>
-                        <button class="button-text" onclick="clearSignature(${taskId})">Ryd</button>
+                        <h3>Customer Signature</h3>
+                        <button class="button-text" onclick="clearSignature(${taskId})">Clear</button>
                     </div>
                     <div class="signature-pad-container">
                         <canvas id="signatureCanvas${taskId}" class="signature-canvas"></canvas>
-                        <div class="signature-hint">Tegn signatur her</div>
+                        <div class="signature-hint">Draw signature here</div>
                     </div>
                 </div>
 
@@ -346,7 +346,7 @@ function renderOrderDetailPage(data) {
                     </div>
                     <div class="complete-task-content">
                         <div class="complete-task-title">Work note</div>
-                        <div class="complete-task-subtitle">Se og administrer materialer</div>
+                        <div class="complete-task-subtitle">View and manage materials</div>
                     </div>
                 </button>
             </div>
@@ -514,7 +514,7 @@ function saveMaterial(taskId) {
     const unit = document.getElementById('materialUnit').value;
     
     if (!name || quantity <= 0) {
-        showToast('Udfyld venligst alle felter', 'error');
+        showToast('Please fill all fields', 'error');
         return;
     }
     
@@ -527,10 +527,10 @@ function saveMaterial(taskId) {
     });
     
     AppData.saveTaskData(taskId, 'materials', materials);
-    ActivityLogger.log('material', `Tilføjede ${quantity} ${unit} ${name}`, taskId);
+    ActivityLogger.log('material', `Added ${quantity} ${unit} ${name}`, taskId);
     
     closeMaterialModal();
-    showToast('Materiale tilføjet', 'success');
+    showToast('Material added', 'success');
     
     // Refresh page
     router.navigate('/order-detail', { taskId });
@@ -540,7 +540,7 @@ function deleteMaterial(taskId, materialId) {
     let materials = AppData.getTaskData(taskId, 'materials', []);
     materials = materials.filter(m => m.id !== materialId);
     AppData.saveTaskData(taskId, 'materials', materials);
-    showToast('Materiale slettet', 'success');
+    showToast('Material deleted', 'success');
     router.navigate('/order-detail', { taskId });
 }
 
@@ -573,7 +573,7 @@ function showPhotoTypeDialog(taskId) {
     dialog.className = 'photo-type-dialog-overlay';
     dialog.innerHTML = `
         <div class="photo-type-dialog">
-            <h3>Vælg foto kategori</h3>
+            <h3>Select photo category</h3>
             <div class="photo-type-options">
                 ${categories.map((category, index) => `
                     <button class="photo-type-btn" style="--btn-color: hsl(${index * (360 / categories.length)}, 70%, 60%)" onclick="selectPhotoType(${taskId}, '${category.replace(/'/g, "\\'")}')">
@@ -587,7 +587,7 @@ function showPhotoTypeDialog(taskId) {
                 `).join('')}
             </div>
             <button class="dialog-cancel" onclick="this.closest('.photo-type-dialog-overlay').remove()">
-                Annuller
+                Cancel
             </button>
         </div>
     `;
@@ -620,7 +620,7 @@ function addPhotos(taskId, event, photoType = 'standard') {
         console.log('GPS request startet');
     } catch (err) {
         console.error('GPS ikke tilgængelig:', err);
-        showToast('GPS ikke tilgængelig - billeder uploades uden lokation', 'warning', 4000);
+        showToast('GPS not available - images uploaded without location', 'warning', 4000);
     }
     
     const photos = AppData.getTaskData(taskId, 'photos', []);
@@ -666,7 +666,7 @@ function addPhotos(taskId, event, photoType = 'standard') {
                             if (address) {
                                 photoData.address = address;
                                 console.log('Adresse tilføjet:', address);
-                                showToast('📍 Lokation gemt: ' + address, 'success', 3000);
+                                showToast('📍 Location saved: ' + address, 'success', 3000);
                             }
                         } catch (err) {
                             console.error('Adresse fejl:', err);
@@ -686,7 +686,7 @@ function addPhotos(taskId, event, photoType = 'standard') {
                     }
                 }).catch(err => {
                     console.error('GPS fejl:', err);
-                    showToast('GPS blev afvist eller er ikke tilgængelig', 'warning', 3000);
+                    showToast('GPS was denied or is not available', 'warning', 3000);
                 });
             } else {
                 console.log('Ingen GPS location promise');
