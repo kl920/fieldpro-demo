@@ -441,6 +441,8 @@ function openAddJobTypeDialog() {
     document.getElementById('jobTypeMaterialsData').value = '[]';
     document.getElementById('materialCount').textContent = '0';
     document.getElementById('jobTypeIndex').value = '-1';
+    tempSurveyQuestions = []; // reset temp state
+    tempMaterials = [];       // reset temp state
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
 }
@@ -470,6 +472,8 @@ function editJobType(index) {
     document.getElementById('jobTypeMaterialsData').value = JSON.stringify(jobType.materials || []);
     document.getElementById('materialCount').textContent = (jobType.materials || []).length;
     document.getElementById('jobTypeIndex').value = index;
+    tempSurveyQuestions = JSON.parse(JSON.stringify(jobType.surveyQuestions || [])); // deep copy
+    tempMaterials = JSON.parse(JSON.stringify(jobType.materials || []));             // deep copy
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
 }
@@ -503,11 +507,30 @@ function saveJobType() {
     const checklistItems = checklistText.split('\n').map(item => item.trim()).filter(item => item);
     const photoCategories = photosText.split('\n').map(cat => cat.trim()).filter(cat => cat);
     
-    // Get survey questions and materials from hidden fields
-    const surveyQuestions = JSON.parse(document.getElementById('jobTypeSurveyData').value || '[]');
-    const materials = JSON.parse(document.getElementById('jobTypeMaterialsData').value || '[]');
-    
+    // Get survey questions and materials — use in-memory temp vars which are always up to date
+    // Fall back to hidden field (for new job types), wrapped in try-catch against corrupt data
+    let surveyQuestions = tempSurveyQuestions;
+    let materials = tempMaterials;
+    // If temp vars are empty but hidden field has data (e.g. page reload edge case), parse those
+    try {
+        const hSurvey = document.getElementById('jobTypeSurveyData').value;
+        if (surveyQuestions.length === 0 && hSurvey && hSurvey !== '[]') {
+            surveyQuestions = JSON.parse(hSurvey);
+        }
+    } catch(e) { console.warn('Survey parse error:', e); }
+    try {
+        const hMat = document.getElementById('jobTypeMaterialsData').value;
+        if (materials.length === 0 && hMat && hMat !== '[]') {
+            materials = JSON.parse(hMat);
+        }
+    } catch(e) { console.warn('Materials parse error:', e); }
+
+    // For existing job types, also merge from localStorage as ultimate fallback
     const jobTypes = getJobTypes();
+    if (index >= 0 && jobTypes[index]) {
+        if (surveyQuestions.length === 0) surveyQuestions = jobTypes[index].surveyQuestions || [];
+        if (materials.length === 0) materials = jobTypes[index].materials || [];
+    }
     
     if (index >= 0) {
         // Edit existing - keep the same ID
@@ -538,7 +561,6 @@ function saveJobType() {
     }
     
     saveToStorage('admin_job_types', jobTypes);
-    
     closeJobTypeModal();
     renderAdminPage();
 }
@@ -589,6 +611,17 @@ function setActiveJobType(jobTypeId) {
 
 let tempSurveyQuestions = [];
 
+// Helper: persist surveys + materials into localStorage immediately for current job type
+function persistJobTypeDataNow() {
+    const index = parseInt(document.getElementById('jobTypeIndex').value);
+    if (index < 0) return; // new job type not saved yet
+    const jobTypes = getJobTypes();
+    if (!jobTypes[index]) return;
+    jobTypes[index].surveyQuestions = tempSurveyQuestions;
+    jobTypes[index].materials = tempMaterials;
+    saveToStorage('admin_job_types', jobTypes);
+}
+
 function openSurveyManager() {
     // Load current survey questions from hidden field
     const currentData = document.getElementById('jobTypeSurveyData').value;
@@ -600,9 +633,9 @@ function openSurveyManager() {
 }
 
 function closeSurveyManager() {
-    // Auto-save current tempSurveyQuestions to hidden field when closing
     document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
     document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
+    persistJobTypeDataNow(); // persist to localStorage immediately
     document.getElementById('surveyManagerModal').style.display = 'none';
 }
 
@@ -736,6 +769,7 @@ function saveSurveyQuestion() {
     
     closeEditSurveyQuestion();
     renderSurveyQuestions();
+    persistJobTypeDataNow(); // save immediately
 }
 
 function deleteSurveyQuestion(index) {
@@ -746,23 +780,13 @@ function deleteSurveyQuestion(index) {
     tempSurveyQuestions.splice(index, 1);
     showToast('Question deleted', 'success');
     renderSurveyQuestions();
+    persistJobTypeDataNow(); // save immediately
 }
 
 function saveSurveyQuestions() {
-    // Save to hidden field
     document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
     document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
-
-    // Also immediately persist to localStorage if editing an existing job type
-    const index = parseInt(document.getElementById('jobTypeIndex').value);
-    if (index >= 0) {
-        const jobTypes = getJobTypes();
-        if (jobTypes[index]) {
-            jobTypes[index].surveyQuestions = tempSurveyQuestions;
-            saveToStorage('admin_job_types', jobTypes);
-        }
-    }
-
+    persistJobTypeDataNow();
     closeSurveyManager();
     showToast('Survey questions saved', 'success');
 }
@@ -781,9 +805,9 @@ function openMaterialManager() {
 }
 
 function closeMaterialManager() {
-    // Auto-save to hidden field when closing
     document.getElementById('jobTypeMaterialsData').value = JSON.stringify(tempMaterials);
     document.getElementById('materialCount').textContent = tempMaterials.length;
+    persistJobTypeDataNow(); // persist to localStorage immediately
     document.getElementById('materialManagerModal').style.display = 'none';
 }
 
@@ -870,6 +894,7 @@ function saveJobTypeMaterialItem() {
 
     closeEditMaterialItem();
     renderMaterialManagerList();
+    persistJobTypeDataNow(); // save immediately
 }
 
 function deleteJobTypeMaterialItem(index) {
@@ -877,22 +902,13 @@ function deleteJobTypeMaterialItem(index) {
     tempMaterials.splice(index, 1);
     showToast('Material deleted', 'success');
     renderMaterialManagerList();
+    persistJobTypeDataNow(); // save immediately
 }
 
 function saveJobTypeMaterials() {
     document.getElementById('jobTypeMaterialsData').value = JSON.stringify(tempMaterials);
     document.getElementById('materialCount').textContent = tempMaterials.length;
-
-    // Immediately persist to localStorage for existing job types
-    const index = parseInt(document.getElementById('jobTypeIndex').value);
-    if (index >= 0) {
-        const jobTypes = getJobTypes();
-        if (jobTypes[index]) {
-            jobTypes[index].materials = tempMaterials;
-            saveToStorage('admin_job_types', jobTypes);
-        }
-    }
-
+    persistJobTypeDataNow();
     closeMaterialManager();
     showToast('Materials saved', 'success');
 }

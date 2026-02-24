@@ -38,14 +38,18 @@ class SignaturePad {
      * @private
      */
     setupCanvas() {
-        const rect = this.canvas.getBoundingClientRect();
-        // Use offsetWidth as fallback if getBoundingClientRect returns 0 (not yet laid out)
-        const w = rect.width || this.canvas.offsetWidth || 300;
-        const h = rect.height || this.canvas.offsetHeight || 150;
+        // Use parent container dimensions as the source of truth — more reliable than
+        // getBoundingClientRect on the canvas itself which can return 0 if not painted
+        const parent = this.canvas.parentElement;
         const dpr = window.devicePixelRatio || 1;
         this.dpr = dpr;
-        this.canvas.width = w * dpr;
-        this.canvas.height = h * dpr;
+
+        // Read CSS-computed height (falls back to offsetHeight → 200)
+        const cssH = parseFloat(getComputedStyle(this.canvas).height) || this.canvas.offsetHeight || 200;
+        const cssW = (parent ? parent.clientWidth : 0) || this.canvas.offsetWidth || 300;
+
+        this.canvas.width  = Math.round(cssW * dpr);
+        this.canvas.height = Math.round(cssH * dpr);
         this.ctx.scale(dpr, dpr);
         
         // Configure drawing style
