@@ -305,8 +305,8 @@ function editJobType(index) {
     const modal = document.getElementById('jobTypeModal');
     document.getElementById('jobTypeModalTitle').textContent = 'Rediger opgavetype';
     document.getElementById('jobTypeName').value = jobType.name;
-    document.getElementById('jobTypeChecklist').value = jobType.checklistItems.join('\\n');
-    document.getElementById('jobTypePhotos').value = jobType.photoCategories.join('\\n');
+    document.getElementById('jobTypeChecklist').value = jobType.checklistItems.join('\n');
+    document.getElementById('jobTypePhotos').value = jobType.photoCategories.join('\n');
     document.getElementById('jobTypeIndex').value = index;
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
@@ -338,8 +338,8 @@ function saveJobType() {
     }
     
     // Parse checklist items and photo categories from textarea
-    const checklistItems = checklistText.split('\\n').map(item => item.trim()).filter(item => item);
-    const photoCategories = photosText.split('\\n').map(cat => cat.trim()).filter(cat => cat);
+    const checklistItems = checklistText.split('\n').map(item => item.trim()).filter(item => item);
+    const photoCategories = photosText.split('\n').map(cat => cat.trim()).filter(cat => cat);
     
     const jobTypes = getFromStorage('admin_job_types', []);
     
