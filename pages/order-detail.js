@@ -10,7 +10,6 @@ function renderOrderDetailPage(data) {
     }
     
     // Load saved data
-    const materials = AppData.getTaskData(taskId, 'materials', []);
     const photos = AppData.getTaskData(taskId, 'photos', []);
     const notes = AppData.getTaskData(taskId, 'notes', '');
     const timeData = AppData.getTaskData(taskId, 'time', {
@@ -56,40 +55,6 @@ function renderOrderDetailPage(data) {
                         placeholder="Tilføj noter til opgaven..."
                         oninput="saveTaskNotes(${taskId})"
                     >${notes}</textarea>
-                </div>
-
-                <!-- Materials -->
-                <div class="section-card">
-                    <div class="section-card-header">
-                        <h3>Materialer</h3>
-                        <button class="button-icon" onclick="openMaterialModal(${taskId})">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="materials-list" id="materialsList">
-                        ${materials.length === 0 ? `
-                            <div class="empty-state-small">
-                                <p>Ingen materialer tilføjet endnu</p>
-                            </div>
-                        ` : materials.map(mat => `
-                            <div class="material-item">
-                                <div class="material-info">
-                                    <div class="material-name">${mat.name}</div>
-                                    <div class="material-quantity">${mat.quantity} ${mat.unit}</div>
-                                </div>
-                                <button class="button-delete" onclick="deleteMaterial(${taskId}, '${mat.id}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        `).join('')}
-                    </div>
                 </div>
 
                 <!-- Photos -->
@@ -308,50 +273,6 @@ function renderOrderDetailPage(data) {
                         <div class="complete-task-subtitle">Se og administrer materialer</div>
                     </div>
                 </button>
-            </div>
-        </div>
-
-        <!-- Material Modal -->
-        <div id="materialModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Tilføj materiale</h3>
-                    <button class="modal-close" onclick="closeMaterialModal()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Materiale</label>
-                        <input type="text" id="materialName" list="commonMaterials" placeholder="Vælg eller skriv...">
-                        <datalist id="commonMaterials">
-                            ${AppData.commonMaterials.map(m => `<option value="${m.name}">`).join('')}
-                        </datalist>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Antal</label>
-                            <input type="number" id="materialQuantity" value="1" min="0.1" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label>Enhed</label>
-                            <select id="materialUnit">
-                                <option value="stk">Stk</option>
-                                <option value="m">Meter</option>
-                                <option value="m2">m²</option>
-                                <option value="kg">Kg</option>
-                                <option value="l">Liter</option>
-                                <option value="pk">Pakke</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="button-primary button-block" onclick="saveMaterial(${taskId})">
-                        Gem materiale
-                    </button>
-                </div>
             </div>
         </div>
     `;
