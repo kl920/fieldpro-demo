@@ -4299,9 +4299,120 @@ textarea::placeholder {
     color: var(--text-disabled);
 }
 
+
 /* ========================================
-   Survey Questions Styling
+   Checklist Styling
    ======================================== */
+
+.progress-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 42px;
+    text-align: center;
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    margin-bottom: var(--spacing-md);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+
+.checklist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.checklist-item:hover {
+    border-color: var(--primary);
+    background: var(--bg-primary);
+}
+
+.checklist-item.completed {
+    background: #F1F8E9;
+    border-color: #A5D6A7;
+    opacity: 0.85;
+}
+
+.checklist-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checklist-item label {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    flex: 1;
+    line-height: 1.4;
+}
+
+.checklist-item.completed label {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   Signature Canvas
+   ======================================== */
+
+.signature-pad-container {
+    position: relative;
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border);
+    overflow: hidden;
+    background: #fafafa;
+    touch-action: none;
+}
+
+.signature-canvas {
+    display: block;
+    width: 100%;
+    height: 160px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.signature-hint {
+    position: absolute;
+    bottom: var(--spacing-md);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: var(--text-disabled);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
 
 .survey-questions {
     display: flex;

@@ -82,35 +82,7 @@ function renderWorkNotePage(data) {
                     </div>
                 </div>
 
-                <!-- Summary Stats -->
-                ${materials.length > 0 ? `
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #E3F2FD;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#1976D2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 16v-4"></path>
-                                    <path d="M12 8h.01"></path>
-                                </svg>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-value">${materials.length}</div>
-                                <div class="stat-label">Materialer</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background: #E8F5E9;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-value">Klar</div>
-                                <div class="stat-label">Status</div>
-                            </div>
-                        </div>
-                    </div>
-                ` : ''}
+
 
                 <!-- Action Buttons -->
                 <div class="button-group">

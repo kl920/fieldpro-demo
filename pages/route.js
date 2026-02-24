@@ -7,8 +7,8 @@ function renderRoutePage() {
     
     return `
         <div class="page-header">
-            <h1>📍 Dagens rute</h1>
-            <p class="page-subtitle">${tasks.length} ordre i dag</p>
+            <h1>📍 Today's route</h1>
+            <p class="page-subtitle">${tasks.length} orders today</p>
         </div>
         
         <div class="route-container">
@@ -19,7 +19,7 @@ function renderRoutePage() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                     </svg>
-                    Optimer rute
+                    Optimise route
                 </button>
                 <button class="button-secondary" onclick="getCurrentLocation()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -132,7 +132,7 @@ function initRouteMap() {
         routeMap.fitBounds(bounds, { padding: [50, 50] });
     }
     
-    showToast('🗺️ Kort indlæst', 'success');
+    showToast('🗺️ Map loaded', 'success');
 }
 
 function getTaskColor(priority) {

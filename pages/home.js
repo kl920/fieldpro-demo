@@ -56,13 +56,13 @@ function renderHomePage() {
                                         </svg>
                                         <span>${task.scheduledStart} - ${task.scheduledEnd}</span>
                                     </div>
-                                    <div class="task-type-label">Opgavetype: ${task.type}</div>
+                                    <div class="task-type-label">Task type: ${task.type}</div>
                                 </div>
                                 <button class="button-start-route" onclick="event.stopPropagation(); navigateToLocation('${task.location.address}')">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
                                         <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                                     </svg>
-                                    Start rute
+                                    Start route
                                 </button>
                             </div>
                         `).join('')}
@@ -73,7 +73,7 @@ function renderHomePage() {
                 ${upcomingTasks.length > 0 ? `
                     <div class="section section-upcoming">
                         <div class="section-header">
-                            <h2>Kommende opgaver</h2>
+                            <h2>Upcoming tasks</h2>
                             <span class="task-count">${upcomingTasks.length}</span>
                         </div>
                         

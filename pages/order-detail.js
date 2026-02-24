@@ -382,6 +382,7 @@ function initializeTimeInputs(taskId, timeData) {
 
 // Helper functions for order detail
 function calculateTotalTime(taskId) {
+    if (!document.getElementById('startHour')) return;
     const startH = parseInt(document.getElementById('startHour').value) || 0;
     const startM = parseInt(document.getElementById('startMinute').value) || 0;
     const endH = parseInt(document.getElementById('endHour').value) || 0;
@@ -420,6 +421,7 @@ function calculateTotalTime(taskId) {
 }
 
 function updateTaskTime(taskId) {
+    if (!document.getElementById('startHour')) return;
     const startH = document.getElementById('startHour').value.padStart(2, '0');
     const startM = document.getElementById('startMinute').value.padStart(2, '0');
     const endH = document.getElementById('endHour').value.padStart(2, '0');
