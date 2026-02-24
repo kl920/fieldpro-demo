@@ -295,6 +295,7 @@ After work"></textarea>
                     <div class="form-group">
                         <label>Unit</label>
                         <select id="materialUnit">
+                            <option value="SDU">SDU</option>
                             <option value="stk">Pieces</option>
                             <option value="m">Meters</option>
                             <option value="m2">m²</option>
@@ -833,10 +834,36 @@ function getActiveJobType() {
 // ============================================================================
 
 // Load custom materials from storage on app start
+const DEFAULT_MATERIALS = [
+    { name: 'Blowing up to 24SM pr meter', category: 'Construction', unit: 'SDU' },
+    { name: 'Blowing 96SM pr meter', category: 'Construction', unit: 'SDU' },
+    { name: 'zusätzliche Fasern für MFH', category: 'Installation', unit: 'SDU' },
+    { name: 'Patch Only', category: 'Installation', unit: 'SDU' },
+    { name: 'Price per meter Unsealed', category: 'Construction', unit: 'SDU' },
+    { name: 'Hourly rate - Construction', category: 'Installation', unit: 'SDU' },
+    { name: 'House inspection - Status 102', category: 'Installation', unit: 'SDU' },
+    { name: 'House inspection - Status 108', category: 'Installation', unit: 'SDU' },
+    { name: 'Trees', category: 'Construction', unit: 'SDU' },
+    { name: 'Price per meter Paving', category: 'Construction', unit: 'SDU' },
+    { name: 'Hourly rate - Technichian', category: 'Installation', unit: 'SDU' },
+    { name: 'Activation - Status 100', category: 'Installation', unit: 'SDU' },
+    { name: 'Mosaik', category: 'Construction', unit: 'SDU' },
+    { name: 'Construction - Status 109 - Blowing only', category: 'Construction', unit: 'SDU' },
+    { name: 'Construction - Status 107', category: 'Construction', unit: 'SDU' },
+    { name: 'House installation - Status 101', category: 'Installation', unit: 'SDU' },
+    { name: 'Extra manhole secured/unsecured', category: 'Construction', unit: 'SDU' },
+    { name: 'Nachrüsten GF-TA', category: 'Installation', unit: 'SDU' },
+    { name: 'Extra manhole asphalt', category: 'Construction', unit: 'SDU' }
+];
+
 function initializeAdminData() {
     const savedMaterials = getFromStorage('admin_common_materials');
     if (savedMaterials && savedMaterials.length > 0) {
         AppData.commonMaterials = savedMaterials;
+    } else {
+        // First time - seed default materials
+        AppData.commonMaterials = DEFAULT_MATERIALS;
+        saveToStorage('admin_common_materials', DEFAULT_MATERIALS);
     }
 }
 

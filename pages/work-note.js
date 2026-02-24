@@ -161,19 +161,20 @@ function renderWorkNotePage(data) {
                             <input type="number" id="materialQuantity" value="1" min="0.1" step="0.1">
                         </div>
                         <div class="form-group">
-                            <label>Enhed</label>
+                            <label>Unit</label>
                             <select id="materialUnit">
-                                <option value="stk">Stk</option>
-                                <option value="m">Meter</option>
+                                <option value="SDU">SDU</option>
+                                <option value="stk">Pieces</option>
+                                <option value="m">Meters</option>
                                 <option value="m2">m²</option>
                                 <option value="kg">Kg</option>
-                                <option value="l">Liter</option>
-                                <option value="pk">Pakke</option>
+                                <option value="l">Liters</option>
+                                <option value="pk">Package</option>
                             </select>
                         </div>
                     </div>
                     <button class="button-primary button-block" onclick="saveMaterialFromWorkNote(${taskId})">
-                        Gem materiale
+                        Save material
                     </button>
                 </div>
             </div>
