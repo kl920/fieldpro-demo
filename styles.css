@@ -4293,3 +4293,103 @@ textarea:focus {
 textarea::placeholder {
     color: var(--text-disabled);
 }
+
+/* ========================================
+   Survey Questions Styling
+   ======================================== */
+
+.survey-questions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.survey-question {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.survey-label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+.required-mark {
+    color: var(--danger);
+    margin-left: 4px;
+}
+
+/* Yes/No buttons */
+.survey-yesno {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.survey-yesno-btn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.survey-yesno-btn:hover {
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+}
+
+.survey-yesno-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+}
+
+/* Select dropdown */
+.survey-select {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.survey-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+/* Text input */
+.survey-input {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.survey-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+.survey-input::placeholder {
+    color: var(--text-disabled);
+}

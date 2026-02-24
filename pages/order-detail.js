@@ -57,6 +57,93 @@ function renderOrderDetailPage(data) {
                     >${notes}</textarea>
                 </div>
 
+                <!-- Survey Questions -->
+                ${(() => {
+                    // Load survey questions from active job type
+                    const jobTypes = getFromStorage('admin_job_types', [
+                        {
+                            id: 1,
+                            name: 'Elarbejde',
+                            checklistItems: [],
+                            photoCategories: [],
+                            surveyQuestions: []
+                        }
+                    ]);
+                    const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
+                    const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+                    const surveyQuestions = activeJobType.surveyQuestions || [];
+                    
+                    if (surveyQuestions.length === 0) {
+                        return '';
+                    }
+                    
+                    const surveyAnswers = AppData.getTaskData(taskId, 'surveyAnswers', {});
+                    
+                    return `
+                        <div class="section-card">
+                            <h3>Survey</h3>
+                            <div class="survey-questions" id="surveyQuestions${taskId}">
+                                ${surveyQuestions.map((q, index) => {
+                                    const answer = surveyAnswers[q.id] || '';
+                                    
+                                    if (q.type === 'yesno') {
+                                        return `
+                                            <div class="survey-question">
+                                                <label class="survey-label">
+                                                    ${q.question}
+                                                    ${q.required ? '<span class="required-mark">*</span>' : ''}
+                                                </label>
+                                                <div class="survey-yesno">
+                                                    <button class="survey-yesno-btn ${answer === 'Yes' ? 'active' : ''}" 
+                                                            onclick="saveSurveyAnswer(${taskId}, ${q.id}, 'Yes')">
+                                                        Yes
+                                                    </button>
+                                                    <button class="survey-yesno-btn ${answer === 'No' ? 'active' : ''}" 
+                                                            onclick="saveSurveyAnswer(${taskId}, ${q.id}, 'No')">
+                                                        No
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `;
+                                    } else if (q.type === 'choice') {
+                                        return `
+                                            <div class="survey-question">
+                                                <label class="survey-label">
+                                                    ${q.question}
+                                                    ${q.required ? '<span class="required-mark">*</span>' : ''}
+                                                </label>
+                                                <select class="survey-select" 
+                                                        onchange="saveSurveyAnswer(${taskId}, ${q.id}, this.value)">
+                                                    <option value="">Vælg...</option>
+                                                    ${(q.choices || []).map(choice => `
+                                                        <option value="${choice}" ${answer === choice ? 'selected' : ''}>
+                                                            ${choice}
+                                                        </option>
+                                                    `).join('')}
+                                                </select>
+                                            </div>
+                                        `;
+                                    } else if (q.type === 'text') {
+                                        return `
+                                            <div class="survey-question">
+                                                <label class="survey-label">
+                                                    ${q.question}
+                                                    ${q.required ? '<span class="required-mark">*</span>' : ''}
+                                                </label>
+                                                <input type="text" 
+                                                       class="survey-input" 
+                                                       placeholder="Indtast svar..."
+                                                       value="${answer}"
+                                                       onchange="saveSurveyAnswer(${taskId}, ${q.id}, this.value)">
+                                            </div>
+                                        `;
+                                    }
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                })()}
+
                 <!-- Photos -->
                 <div class="section-card">
                     <div class="section-card-header">
@@ -399,6 +486,16 @@ function clearPause(taskId) {
     document.getElementById('pauseEndHour').value = '';
     document.getElementById('pauseEndMinute').value = '';
     updateTaskTime(taskId);
+}
+
+function saveSurveyAnswer(taskId, questionId, answer) {
+    const surveyAnswers = AppData.getTaskData(taskId, 'surveyAnswers', {});
+    surveyAnswers[questionId] = answer;
+    AppData.saveTaskData(taskId, 'surveyAnswers', surveyAnswers);
+    
+    // Update UI to show active state
+    router.navigate('/order-detail', { taskId });
+    vibrate(20);
 }
 
 function openMaterialModal(taskId) {

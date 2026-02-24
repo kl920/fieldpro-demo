@@ -17,6 +17,14 @@ function renderAdminPage() {
                 'Før arbejde',
                 'Under arbejde',
                 'Efter arbejde'
+            ],
+            surveyQuestions: [
+                {
+                    id: 1,
+                    question: 'Was the owner present?',
+                    type: 'yesno',
+                    required: true
+                }
             ]
         }
     ]);
@@ -76,7 +84,7 @@ function renderAdminPage() {
                                 </div>
                                 <div class="admin-item-content">
                                     <div class="admin-item-title">${jobType.name} ${jobType.id === activeJobTypeId ? '<span style="color: #2196F3; font-size: 11px; font-weight: 600;">(AKTIV)</span>' : ''}</div>
-                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} tjekliste punkter • ${jobType.photoCategories.length} foto kategorier</div>
+                                    <div class="admin-item-subtitle">${jobType.checklistItems.length} tjekliste • ${jobType.photoCategories.length} foto • ${(jobType.surveyQuestions || []).length} spørgsmål</div>
                                 </div>
                                 <div class="admin-item-actions">
                                     ${jobType.id !== activeJobTypeId ? `
@@ -229,6 +237,18 @@ Under arbejde
 Efter arbejde"></textarea>
                     </div>
                     
+                    <div class="form-group">
+                        <label>Survey spørgsmål</label>
+                        <button type="button" class="button-secondary" style="width: 100%;" onclick="openSurveyManager()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; margin-right: 8px;">
+                                <path d="M9 11l3 3L22 4"></path>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                            Administrer spørgsmål (<span id="surveyCount">0</span>)
+                        </button>
+                        <input type="hidden" id="jobTypeSurveyData" value="[]">
+                    </div>
+                    
                     <input type="hidden" id="jobTypeIndex" value="-1">
                     <div class="button-group">
                         <button class="button-secondary" onclick="closeJobTypeModal()">Annuller</button>
@@ -278,6 +298,92 @@ Efter arbejde"></textarea>
                 </div>
             </div>
         </div>
+
+        <!-- Survey Manager Modal -->
+        <div id="surveyManagerModal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3>Survey Spørgsmål</h3>
+                    <button class="modal-close" onclick="closeSurveyManager()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: var(--spacing-lg);">
+                        <button class="button-primary-sm" onclick="addSurveyQuestion()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Tilføj spørgsmål
+                        </button>
+                    </div>
+                    
+                    <div id="surveyQuestionsList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Survey questions will be rendered here -->
+                    </div>
+                    
+                    <div class="button-group" style="margin-top: var(--spacing-lg);">
+                        <button class="button-secondary" onclick="closeSurveyManager()">Luk</button>
+                        <button class="button-primary" onclick="saveSurveyQuestions()">Gem</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Survey Question Modal -->
+        <div id="editSurveyQuestionModal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3 id="editSurveyQuestionTitle">Rediger spørgsmål</h3>
+                    <button class="modal-close" onclick="closeEditSurveyQuestion()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Spørgsmål</label>
+                        <input type="text" id="surveyQuestionText" placeholder="F.eks. Was the owner present?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Svartype</label>
+                        <select id="surveyQuestionType" onchange="handleSurveyTypeChange()">
+                            <option value="yesno">Yes/No</option>
+                            <option value="choice">Multiple Choice</option>
+                            <option value="text">Text (fritekst)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="surveyChoicesGroup" style="display: none;">
+                        <label>Valgmuligheder (ét per linje)</label>
+                        <textarea id="surveyChoices" rows="4" placeholder="Option 1
+Option 2
+Option 3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="surveyQuestionRequired">
+                            <span>Påkrævet</span>
+                        </label>
+                    </div>
+                    
+                    <input type="hidden" id="surveyQuestionIndex" value="-1">
+                    
+                    <div class="button-group">
+                        <button class="button-secondary" onclick="closeEditSurveyQuestion()">Annuller</button>
+                        <button class="button-primary" onclick="saveSurveyQuestion()">Gem</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
     
     document.getElementById('app-content').innerHTML = content;
@@ -293,6 +399,8 @@ function openAddJobTypeDialog() {
     document.getElementById('jobTypeName').value = '';
     document.getElementById('jobTypeChecklist').value = '';
     document.getElementById('jobTypePhotos').value = '';
+    document.getElementById('jobTypeSurveyData').value = '[]';
+    document.getElementById('surveyCount').textContent = '0';
     document.getElementById('jobTypeIndex').value = '-1';
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
@@ -307,6 +415,8 @@ function editJobType(index) {
     document.getElementById('jobTypeName').value = jobType.name;
     document.getElementById('jobTypeChecklist').value = jobType.checklistItems.join('\n');
     document.getElementById('jobTypePhotos').value = jobType.photoCategories.join('\n');
+    document.getElementById('jobTypeSurveyData').value = JSON.stringify(jobType.surveyQuestions || []);
+    document.getElementById('surveyCount').textContent = (jobType.surveyQuestions || []).length;
     document.getElementById('jobTypeIndex').value = index;
     modal.style.display = 'flex';
     setTimeout(() => document.getElementById('jobTypeName').focus(), 100);
@@ -341,6 +451,9 @@ function saveJobType() {
     const checklistItems = checklistText.split('\n').map(item => item.trim()).filter(item => item);
     const photoCategories = photosText.split('\n').map(cat => cat.trim()).filter(cat => cat);
     
+    // Get survey questions from hidden field
+    const surveyQuestions = JSON.parse(document.getElementById('jobTypeSurveyData').value || '[]');
+    
     const jobTypes = getFromStorage('admin_job_types', []);
     
     if (index >= 0) {
@@ -348,6 +461,7 @@ function saveJobType() {
         jobTypes[index].name = name;
         jobTypes[index].checklistItems = checklistItems;
         jobTypes[index].photoCategories = photoCategories;
+        jobTypes[index].surveyQuestions = surveyQuestions;
         showToast('Opgavetype opdateret', 'success');
     } else {
         // Add new - generate new ID
@@ -356,7 +470,8 @@ function saveJobType() {
             id: newId,
             name: name,
             checklistItems: checklistItems,
-            photoCategories: photoCategories
+            photoCategories: photoCategories,
+            surveyQuestions: surveyQuestions
         });
         
         // If this is the first job type, make it active
@@ -404,6 +519,176 @@ function setActiveJobType(jobTypeId) {
     saveToStorage('admin_active_job_type', jobTypeId);
     showToast('Aktiv opgavetype ændret', 'success');
     renderAdminPage();
+}
+
+// ============================================================================
+// SURVEY MANAGEMENT
+// ============================================================================
+
+let tempSurveyQuestions = [];
+
+function openSurveyManager() {
+    // Load current survey questions from hidden field
+    const currentData = document.getElementById('jobTypeSurveyData').value;
+    tempSurveyQuestions = JSON.parse(currentData || '[]');
+    
+    // Show modal
+    document.getElementById('surveyManagerModal').style.display = 'flex';
+    renderSurveyQuestions();
+}
+
+function closeSurveyManager() {
+    document.getElementById('surveyManagerModal').style.display = 'none';
+}
+
+function renderSurveyQuestions() {
+    const container = document.getElementById('surveyQuestionsList');
+    
+    if (tempSurveyQuestions.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state-small">
+                <p>Ingen spørgsmål tilføjet endnu</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = tempSurveyQuestions.map((q, index) => {
+        let typeLabel = '';
+        if (q.type === 'yesno') typeLabel = 'Yes/No';
+        else if (q.type === 'choice') typeLabel = `Multiple Choice (${(q.choices || []).length} options)`;
+        else if (q.type === 'text') typeLabel = 'Text';
+        
+        return `
+            <div class="admin-list-item" style="margin-bottom: var(--spacing-sm);">
+                <div class="admin-item-icon" style="background: #FFF3E0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#FF9800">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                </div>
+                <div class="admin-item-content">
+                    <div class="admin-item-title">${q.question} ${q.required ? '<span style="color: #f44336;">*</span>' : ''}</div>
+                    <div class="admin-item-subtitle">${typeLabel}</div>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="button-icon-sm" onclick="editSurveyQuestion(${index})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <button class="button-icon-sm button-danger" onclick="deleteSurveyQuestion(${index})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function addSurveyQuestion() {
+    document.getElementById('editSurveyQuestionTitle').textContent = 'Tilføj spørgsmål';
+    document.getElementById('surveyQuestionText').value = '';
+    document.getElementById('surveyQuestionType').value = 'yesno';
+    document.getElementById('surveyChoices').value = '';
+    document.getElementById('surveyChoicesGroup').style.display = 'none';
+    document.getElementById('surveyQuestionRequired').checked = false;
+    document.getElementById('surveyQuestionIndex').value = '-1';
+    document.getElementById('editSurveyQuestionModal').style.display = 'flex';
+}
+
+function editSurveyQuestion(index) {
+    const q = tempSurveyQuestions[index];
+    document.getElementById('editSurveyQuestionTitle').textContent = 'Rediger spørgsmål';
+    document.getElementById('surveyQuestionText').value = q.question;
+    document.getElementById('surveyQuestionType').value = q.type;
+    document.getElementById('surveyQuestionRequired').checked = q.required;
+    document.getElementById('surveyQuestionIndex').value = index;
+    
+    if (q.type === 'choice') {
+        document.getElementById('surveyChoicesGroup').style.display = 'block';
+        document.getElementById('surveyChoices').value = (q.choices || []).join('\\n');
+    } else {
+        document.getElementById('surveyChoicesGroup').style.display = 'none';
+    }
+    
+    document.getElementById('editSurveyQuestionModal').style.display = 'flex';
+}
+
+function closeEditSurveyQuestion() {
+    document.getElementById('editSurveyQuestionModal').style.display = 'none';
+}
+
+function handleSurveyTypeChange() {
+    const type = document.getElementById('surveyQuestionType').value;
+    const choicesGroup = document.getElementById('surveyChoicesGroup');
+    
+    if (type === 'choice') {
+        choicesGroup.style.display = 'block';
+    } else {
+        choicesGroup.style.display = 'none';
+    }
+}
+
+function saveSurveyQuestion() {
+    const question = document.getElementById('surveyQuestionText').value.trim();
+    const type = document.getElementById('surveyQuestionType').value;
+    const required = document.getElementById('surveyQuestionRequired').checked;
+    const index = parseInt(document.getElementById('surveyQuestionIndex').value);
+    
+    if (!question) {
+        showToast('Indtast spørgsmål', 'error');
+        return;
+    }
+    
+    const questionData = {
+        id: index >= 0 ? tempSurveyQuestions[index].id : Date.now(),
+        question: question,
+        type: type,
+        required: required
+    };
+    
+    if (type === 'choice') {
+        const choicesText = document.getElementById('surveyChoices').value.trim();
+        if (!choicesText) {
+            showToast('Indtast mindst én valgmulighed', 'error');
+            return;
+        }
+        questionData.choices = choicesText.split('\\n').map(c => c.trim()).filter(c => c);
+    }
+    
+    if (index >= 0) {
+        tempSurveyQuestions[index] = questionData;
+        showToast('Spørgsmål opdateret', 'success');
+    } else {
+        tempSurveyQuestions.push(questionData);
+        showToast('Spørgsmål tilføjet', 'success');
+    }
+    
+    closeEditSurveyQuestion();
+    renderSurveyQuestions();
+}
+
+function deleteSurveyQuestion(index) {
+    if (!confirm('Vil du slette dette spørgsmål?')) {
+        return;
+    }
+    
+    tempSurveyQuestions.splice(index, 1);
+    showToast('Spørgsmål slettet', 'success');
+    renderSurveyQuestions();
+}
+
+function saveSurveyQuestions() {
+    // Save to hidden field
+    document.getElementById('jobTypeSurveyData').value = JSON.stringify(tempSurveyQuestions);
+    document.getElementById('surveyCount').textContent = tempSurveyQuestions.length;
+    closeSurveyManager();
+    showToast('Survey spørgsmål gemt', 'success');
 }
 
 // ============================================================================
