@@ -1,7 +1,8 @@
 // Profile Page
 function renderMorePage() {
-    const userName = 'Kenneth Larsen';
-    const userEmail = 'kenneth@fieldpro.dk';
+    const storedUsername = localStorage.getItem('fieldpro_username') || 'Demo User';
+    const userName = storedUsername;
+    const userEmail = 'demo@fieldpro.dk';
     
     const content = `
         <div class="page page-more">
@@ -22,6 +23,18 @@ function renderMorePage() {
                         <div class="profile-name">${userName}</div>
                         <div class="profile-email">${userEmail}</div>
                     </div>
+                </div>
+
+                <!-- Logout Button -->
+                <div class="menu-section">
+                    <button class="logout-button" onclick="handleLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Log ud
+                    </button>
                 </div>
 
                 <!-- App Info -->
@@ -49,6 +62,15 @@ function renderMorePage() {
     `;
     
     document.getElementById('app-content').innerHTML = content;
+}
+
+// Logout function
+function handleLogout() {
+    if (confirm('Er du sikker på, at du vil logge ud?')) {
+        localStorage.removeItem('fieldpro_logged_in');
+        localStorage.removeItem('fieldpro_username');
+        window.location.href = 'index.html';
+    }
 }
 
 router.register('/more', renderMorePage);
