@@ -60,18 +60,10 @@ function renderOrderDetailPage(data) {
                 <!-- Survey Questions -->
                 ${(() => {
                     // Load survey questions from active job type
-                    const jobTypes = getFromStorage('admin_job_types', [
-                        {
-                            id: 1,
-                            name: 'Elarbejde',
-                            checklistItems: [],
-                            photoCategories: [],
-                            surveyQuestions: []
-                        }
-                    ]);
+                    const jobTypes = getFromStorage('admin_job_types', []);
                     const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
                     const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
-                    const surveyQuestions = activeJobType.surveyQuestions || [];
+                    const surveyQuestions = activeJobType ? (activeJobType.surveyQuestions || []) : [];
                     
                     if (surveyQuestions.length === 0) {
                         return '';
@@ -163,27 +155,10 @@ function renderOrderDetailPage(data) {
                         }
                         
                         // Load photo categories from active job type
-                        const jobTypes = getFromStorage('admin_job_types', [
-                            {
-                                id: 1,
-                                name: 'Elarbejde',
-                                checklistItems: [
-                                    'Ankommet til adresse',
-                                    'Værktøj og materialer klar',
-                                    'Gennemgang med kunde',
-                                    'Arbejde udført',
-                                    'Oprydning',
-                                    'Aflevering til kunde'
-                                ],
-                                photoCategories: [
-                                    'Før arbejde',
-                                    'Under arbejde',
-                                    'Efter arbejde'
-                                ]
-                            }
-                        ]);
+                        const jobTypes = getFromStorage('admin_job_types', []);
                         const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
                         const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+                        if (!activeJobType || !activeJobType.photoCategories) return '<div class="empty-state-small"><p>No photos added yet</p></div>';
                         const categories = activeJobType.photoCategories;
                         
                         let html = '';
@@ -334,7 +309,7 @@ function renderOrderDetailPage(data) {
                 </div>
 
                 <!-- Work Note Button -->
-                <button class="complete-task-button" onclick="router.navigate('/work-note/${taskId}')">
+                <button class="complete-task-button" onclick="router.navigate('/work-note', { taskId: ${taskId} })">
                     <div class="complete-task-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -371,29 +346,37 @@ function initializeTimeInputs(taskId, timeData) {
     // Parse start time
     if (timeData.startTime) {
         const [sH, sM] = timeData.startTime.split(':');
-        document.getElementById('startHour').value = sH;
-        document.getElementById('startMinute').value = sM;
+        const sh = document.getElementById('startHour');
+        const sm = document.getElementById('startMinute');
+        if (sh) sh.value = sH;
+        if (sm) sm.value = sM;
     }
     
     // Parse end time
     if (timeData.endTime) {
         const [eH, eM] = timeData.endTime.split(':');
-        document.getElementById('endHour').value = eH;
-        document.getElementById('endMinute').value = eM;
+        const eh = document.getElementById('endHour');
+        const em = document.getElementById('endMinute');
+        if (eh) eh.value = eH;
+        if (em) em.value = eM;
     }
     
     // Parse pause start
     if (timeData.pauseStart) {
         const [psH, psM] = timeData.pauseStart.split(':');
-        document.getElementById('pauseStartHour').value = psH;
-        document.getElementById('pauseStartMinute').value = psM;
+        const psh = document.getElementById('pauseStartHour');
+        const psm = document.getElementById('pauseStartMinute');
+        if (psh) psh.value = psH;
+        if (psm) psm.value = psM;
     }
     
     // Parse pause end
     if (timeData.pauseEnd) {
         const [peH, peM] = timeData.pauseEnd.split(':');
-        document.getElementById('pauseEndHour').value = peH;
-        document.getElementById('pauseEndMinute').value = peM;
+        const peh = document.getElementById('pauseEndHour');
+        const pem = document.getElementById('pauseEndMinute');
+        if (peh) peh.value = peH;
+        if (pem) pem.value = peM;
     }
 }
 

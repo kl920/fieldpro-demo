@@ -702,7 +702,7 @@ class ChecklistManager {
         return {
             completed,
             total,
-            percentage: Math.round((completed / total) * 100)
+            percentage: total === 0 ? 0 : Math.round((completed / total) * 100)
         };
     }
 }

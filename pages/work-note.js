@@ -287,6 +287,4 @@ function completeWorkNote(taskId) {
 }
 
 // Register route
-router.register('/work-note/:taskId', (data) => {
-    renderWorkNotePage({ taskId: parseInt(data.taskId) });
-});
+router.register('/work-note', renderWorkNotePage);
