@@ -25,6 +25,23 @@ function renderMorePage() {
                     </div>
                 </div>
 
+                <!-- Admin Section -->
+                <div class="menu-section">
+                    <div class="menu-section-header">Administration</div>
+                    <button class="menu-item" onclick="router.navigate('/admin')">
+                        <div class="menu-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6m5.66-13.66l-4.24 4.24m0 6l-4.24 4.24M23 12h-6m-6 0H5m13.66 5.66l-4.24-4.24m0-6l-4.24-4.24"></path>
+                            </svg>
+                        </div>
+                        <span>Administrator</span>
+                        <svg class="menu-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Logout Button -->
                 <div class="menu-section">
                     <button class="logout-button" onclick="handleLogout()">

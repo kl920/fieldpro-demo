@@ -4034,3 +4034,230 @@ input[type="number"]:hover::-webkit-outer-spin-button {
 .logout-button:active {
     transform: translateY(0);
 }
+
+/* ========================================
+   ADMIN PAGE STYLES
+   ======================================== */
+
+.page-admin {
+    background: var(--bg-secondary);
+}
+
+.admin-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+}
+
+.admin-section-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.admin-section-header h3 svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+    color: var(--primary);
+}
+
+.button-primary-sm {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button-primary-sm svg {
+    width: 16px;
+    height: 16px;
+}
+
+.button-primary-sm:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.admin-list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.admin-list-item:hover {
+    background: var(--gray-100);
+    transform: translateX(4px);
+}
+
+.admin-item-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #E3F2FD;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.admin-item-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    color: #1976D2;
+}
+
+.admin-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-item-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.admin-item-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.admin-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.button-icon-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button-icon-sm svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+}
+
+.button-icon-sm:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.button-icon-sm:hover svg {
+    color: white;
+}
+
+.button-icon-sm.button-danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    width: 100%;
+    padding: var(--spacing-md);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.menu-item:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+.menu-item-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.menu-item-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    color: var(--primary);
+}
+
+.menu-item span {
+    flex: 1;
+    font-weight: 500;
+}
+
+.menu-item-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--text-secondary);
+    stroke-width: 2;
+}
+
+.menu-section-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
