@@ -34,8 +34,8 @@ function renderHomePage() {
                         ${todayTasks.length === 0 ? `
                             <div class="empty-state">
                                 <div class="empty-icon">📋</div>
-                                <h3>Ingen opgaver i dag</h3>
-                                <p>Du har ingen planlagte opgaver for i dag</p>
+                                <h3>No tasks today</h3>
+                                <p>You have no scheduled tasks for today</p>
                             </div>
                         ` : todayTasks.map(task => `
                             <div class="task-card-clean">

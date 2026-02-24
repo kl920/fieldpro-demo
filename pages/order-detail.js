@@ -690,7 +690,7 @@ function addPhotos(taskId, event, photoType = 'standard') {
             }
         }).catch(error => {
             console.error('Komprimeringsfejl for ' + file.name, error);
-            showToast('Fejl ved komprimering af billede', 'error', 5000);
+            showToast('Error compressing image', 'error', 5000);
             processed++;
         });
     });
@@ -741,7 +741,7 @@ function toggleWorkTimer(taskId) {
         `;
         btn.style.background = 'linear-gradient(135deg, #f44336 0%, #e91e63 100%)';
         
-        showToast('⏱️ Timer startet', 'success');
+        showToast('⏱️ Timer started', 'success');
         vibrate(50);
     } else {
         // Stop timer
@@ -843,10 +843,10 @@ async function exportToPDF(taskId) {
         
         const orderInfo = [
             `Type: ${task.title}`,
-            `Kunde: ${task.customer}`,
-            `Adresse: ${task.location.address}`,
-            `Dato: ${new Date(task.scheduledDate).toLocaleDateString('da-DK')}`,
-            `Status: ${task.status === 'completed' ? 'Afsluttet' : task.status === 'active' ? 'Aktiv' : 'Afventer'}`
+            `Customer: ${task.customer}`,
+            `Address: ${task.location.address}`,
+            `Date: ${new Date(task.scheduledDate).toLocaleDateString('en-GB')}`,
+            `Status: ${task.status === 'completed' ? 'Completed' : task.status === 'active' ? 'Active' : 'Pending'}`
         ];
         
         orderInfo.forEach(line => {
@@ -877,11 +877,11 @@ async function exportToPDF(taskId) {
                 yPos += 6;
             }
             if (endHour && endMinute) {
-                doc.text(`Slut: ${endHour}:${endMinute}`, margin, yPos);
+                doc.text(`End: ${endHour}:${endMinute}`, margin, yPos);
                 yPos += 6;
             }
             if (totalTimeEl) {
-                doc.text(`Total tid: ${totalTimeEl.textContent}`, margin, yPos);
+                doc.text(`Total time: ${totalTimeEl.textContent}`, margin, yPos);
                 yPos += 6;
             }
             
@@ -1051,12 +1051,12 @@ async function exportToPDF(taskId) {
         
     } catch (error) {
         console.error('PDF generation error:', error);
-        showToast('❌ Fejl ved PDF-generering', 'error');
+        showToast('❌ Error generating PDF', 'error');
     }
 }
 
 function callCustomer(phone) {
-    showToast(`Ringer til ${phone}`, 'info');
+    showToast(`Calling ${phone}`, 'info');
     window.location.href = `tel:${phone}`;
 }
 
@@ -1147,7 +1147,7 @@ async function startVoiceRecording(taskId) {
             </svg>
         `;
         
-        showToast('Optagelse startet...', 'info');
+        showToast('Recording started...', 'info');
         vibrate(50);
     }
 }
@@ -1168,10 +1168,10 @@ async function stopVoiceRecording(taskId) {
         });
         
         AppData.saveTaskData(taskId, 'voiceNotes', voiceNotes);
-        ActivityLogger.log('voice', `Tilføjede stemmebesked (${duration}s)`, taskId);
+        ActivityLogger.log('voice', `Added voice note (${duration}s)`, taskId);
         
         renderVoiceNotes(taskId);
-        showToast('Stemmebesked gemt!', 'success');
+        showToast('Voice note saved!', 'success');
         vibrate(50);
     }
     
@@ -1236,7 +1236,7 @@ function deleteVoiceNote(taskId, noteId) {
     voiceNotes = voiceNotes.filter(n => n.id !== noteId);
     AppData.saveTaskData(taskId, 'voiceNotes', voiceNotes);
     renderVoiceNotes(taskId);
-    showToast('Stemmebesked slettet', 'success');
+    showToast('Voice note deleted', 'success');
 }
 
 // QR Scanner functions
@@ -1343,7 +1343,7 @@ function renderScannedEquipment(taskId) {
     const scannedEquipment = AppData.getTaskData(taskId, 'scannedEquipment', []);
     
     if (scannedEquipment.length === 0) {
-        container.innerHTML = '<div class="empty-state-small"><p>Ingen udstyr scannet</p></div>';
+        container.innerHTML = '<div class="empty-state-small"><p>No equipment scanned</p></div>';
         return;
     }
     
@@ -1377,11 +1377,11 @@ function deleteScannedEquipment(taskId, equipmentId) {
     scannedEquipment = scannedEquipment.filter(e => e.id !== equipmentId);
     AppData.saveTaskData(taskId, 'scannedEquipment', scannedEquipment);
     renderScannedEquipment(taskId);
-    showToast('Udstyr fjernet', 'success');
+    showToast('Equipment removed', 'success');
 }
 
 function showManualEquipmentInput(taskId) {
-    const equipmentCode = prompt('Indtast udstyrskode manuelt:');
+    const equipmentCode = prompt('Enter equipment code manually:');
     if (equipmentCode) {
         handleQRScan(taskId, equipmentCode);
     }

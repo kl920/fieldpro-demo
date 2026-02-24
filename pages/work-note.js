@@ -4,7 +4,7 @@ function renderWorkNotePage(data) {
     const task = AppData.getTask(taskId);
     
     if (!task) {
-        showToast('Ordre ikke fundet', 'error');
+        showToast('Order not found', 'error');
         router.navigate('/orders');
         return;
     }
@@ -30,7 +30,7 @@ function renderWorkNotePage(data) {
                 <!-- Task Info Card -->
                 <div class="info-card">
                     <div class="info-row">
-                        <span class="info-label">Ordre nummer</span>
+                        <span class="info-label">Order number</span>
                         <span class="info-value">#${task.orderNumber}</span>
                     </div>
                     <div class="info-row">
@@ -38,7 +38,7 @@ function renderWorkNotePage(data) {
                         <span class="info-value">${task.type}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Kunde</span>
+                        <span class="info-label">Customer</span>
                         <span class="info-value">${task.customer.name}</span>
                     </div>
                 </div>
@@ -46,7 +46,7 @@ function renderWorkNotePage(data) {
                 <!-- Materials Used -->
                 <div class="section-card">
                     <div class="section-card-header">
-                        <h3>Materialer Brugt</h3>
+                        <h3>Materials used</h3>
                         <button class="button-icon" onclick="openMaterialModalFromWorkNote(${taskId})">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -63,8 +63,8 @@ function renderWorkNotePage(data) {
                                     <line x1="12" y1="16" x2="12" y2="12"></line>
                                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                 </svg>
-                                <p>Ingen materialer tilføjet endnu</p>
-                                <small>Klik på + for at tilføje materialer</small>
+                                <p>No materials added yet</p>
+                                <small>Tap + to add materials</small>
                             </div>
                         ` : `
                             <div class="materials-summary">
@@ -139,7 +139,7 @@ function renderWorkNotePage(data) {
         <div id="materialModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Tilføj materiale</h3>
+                    <h3>Add material</h3>
                     <button class="modal-close" onclick="closeMaterialModalFromWorkNote()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -149,15 +149,15 @@ function renderWorkNotePage(data) {
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Materiale</label>
-                        <input type="text" id="materialName" list="commonMaterials" placeholder="Vælg eller skriv...">
+                        <label>Material</label>
+                        <input type="text" id="materialName" list="commonMaterials" placeholder="Select or type...">
                         <datalist id="commonMaterials">
                             ${AppData.commonMaterials.map(m => `<option value="${m.name}">`).join('')}
                         </datalist>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Antal</label>
+                            <label>Quantity</label>
                             <input type="number" id="materialQuantity" value="1" min="0.1" step="0.1">
                         </div>
                         <div class="form-group">
@@ -212,12 +212,12 @@ function saveMaterialFromWorkNote(taskId) {
     const unit = document.getElementById('materialUnit').value;
     
     if (!name) {
-        showToast('Indtast materiale navn', 'error');
+        showToast('Please enter a material name', 'error');
         return;
     }
     
     if (!quantity || quantity <= 0) {
-        showToast('Indtast gyldig antal', 'error');
+        showToast('Please enter a valid quantity', 'error');
         return;
     }
     
@@ -240,7 +240,7 @@ function saveMaterialFromWorkNote(taskId) {
     
     // Close modal and refresh page
     closeMaterialModalFromWorkNote();
-    showToast('Materiale tilføjet', 'success');
+    showToast('Material added', 'success');
     
     // Refresh the page
     renderWorkNotePage({ taskId });
@@ -248,7 +248,7 @@ function saveMaterialFromWorkNote(taskId) {
 
 // Delete material from work note page
 function deleteMaterialFromWorkNote(taskId, materialId) {
-    if (!confirm('Vil du slette dette materiale?')) {
+    if (!confirm('Delete this material?')) {
         return;
     }
     
@@ -261,7 +261,7 @@ function deleteMaterialFromWorkNote(taskId, materialId) {
     // Save to storage
     AppData.saveTaskData(taskId, 'materials', updatedMaterials);
     
-    showToast('Materiale slettet', 'success');
+    showToast('Material deleted', 'success');
     
     // Refresh the page
     renderWorkNotePage({ taskId });
@@ -272,13 +272,13 @@ function completeWorkNote(taskId) {
     const materials = AppData.getTaskData(taskId, 'materials', []);
     
     if (materials.length === 0) {
-        if (!confirm('Ingen materialer er tilføjet. Vil du fortsætte?')) {
+        if (!confirm('No materials added. Continue anyway?')) {
             return;
         }
     }
     
     // Mark task as completed (optional)
-    showToast('Work note gemt!', 'success');
+    showToast('Work note saved!', 'success');
     
     // Navigate back to home or orders
     setTimeout(() => {

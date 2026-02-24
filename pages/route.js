@@ -31,10 +31,10 @@ function renderRoutePage() {
             </div>
             
             <div class="route-list">
-                <h3>Ordre oversigt</h3>
+                <h3>Order overview</h3>
                 ${tasks.length === 0 ? `
                     <div class="empty-state">
-                        <p>Ingen ordre planlagt i dag</p>
+                        <p>No orders planned today</p>
                     </div>
                 ` : tasks.map((task, index) => `
                     <div class="route-item" onclick="selectRouteStop(${task.id})">
@@ -184,7 +184,7 @@ function getCurrentLocation() {
 
 function optimizeRoute() {
     if (markers.length === 0) {
-        showToast('Ingen ordre at optimere', 'warning');
+        showToast('No orders to optimise', 'warning');
         return;
     }
     

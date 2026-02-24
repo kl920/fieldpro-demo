@@ -63,15 +63,15 @@ function renderCalendarPage() {
                 <div class="month-stats">
                     <div class="stat-item">
                         <div class="stat-value" id="monthTotalTasks">0</div>
-                        <div class="stat-label">Opgaver denne måned</div>
+                        <div class="stat-label">Tasks this month</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="monthCompletedTasks">0</div>
-                        <div class="stat-label">Afsluttede</div>
+                        <div class="stat-label">Completed</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="monthPendingTasks">0</div>
-                        <div class="stat-label">Afventende</div>
+                        <div class="stat-label">Pending</div>
                     </div>
                 </div>
 
@@ -79,15 +79,15 @@ function renderCalendarPage() {
                 <div class="calendar-legend">
                     <div class="legend-item">
                         <span class="legend-dot" style="background: var(--success);"></span>
-                        <span>Afsluttet</span>
+                        <span>Completed</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-dot" style="background: var(--info);"></span>
-                        <span>Aktiv</span>
+                        <span>Active</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-dot" style="background: var(--warning);"></span>
-                        <span>Afventende</span>
+                        <span>Pending</span>
                     </div>
                 </div>
             </div>
@@ -257,9 +257,9 @@ function selectDate(date) {
     if (tasksOnDay.length === 0) {
         selectedDayTasks.innerHTML = `
             <div class="empty-state-small">
-                <p>Ingen opgaver denne dag</p>
-                <button class="button-secondary" onclick="showToast('Funktion kommer snart', 'info')">
-                    + Tilføj opgave
+                <p>No tasks this day</p>
+                <button class="button-secondary" onclick="showToast('Feature coming soon', 'info')">
+                    + Add task
                 </button>
             </div>
         `;
