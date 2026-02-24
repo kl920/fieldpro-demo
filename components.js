@@ -664,7 +664,16 @@ class ChecklistManager {
      * @returns {Array} Checklist items
      */
     static getChecklist(taskId) {
-        return AppData.getTaskData(taskId, 'checklist', this.getDefaultChecklist());
+        const stored = AppData.getTaskData(taskId, 'checklist', null);
+        // If nothing saved yet, or saved as empty array (before defaults existed), use defaults
+        if (!stored || stored.length === 0) {
+            const defaults = this.getDefaultChecklist();
+            if (defaults.length > 0) {
+                AppData.saveTaskData(taskId, 'checklist', defaults);
+                return defaults;
+            }
+        }
+        return stored || [];
     }
     
     /**

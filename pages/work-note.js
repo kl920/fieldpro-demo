@@ -15,7 +15,7 @@ function renderWorkNotePage(data) {
     const content = `
         <div class="page page-work-note">
             <div class="page-header page-header-with-back">
-                <button class="back-button" onclick="router.navigate('/order/${taskId}')">
+                <button class="back-button" onclick="router.navigate('/order-detail', { taskId: ${taskId} })">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
@@ -57,12 +57,7 @@ function renderWorkNotePage(data) {
                     </div>
                     <div class="materials-list" id="workNoteMaterialsList">
                         ${materials.length === 0 ? `
-                            <div class="empty-state">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                </svg>
+                    <div class="empty-state-small">
                                 <p>No materials added yet</p>
                                 <small>Tap + to add materials</small>
                             </div>
@@ -119,17 +114,17 @@ function renderWorkNotePage(data) {
 
                 <!-- Action Buttons -->
                 <div class="button-group">
-                    <button class="button-secondary button-block" onclick="router.navigate('/order/${taskId}')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <button class="button-secondary" onclick="router.navigate('/order-detail', { taskId: ${taskId} })">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                         </svg>
-                        Tilbage til opgave
+                        Back to task
                     </button>
-                    <button class="button-success button-block" onclick="completeWorkNote(${taskId})">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <button class="button-primary" onclick="completeWorkNote(${taskId})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        Gem og afslut
+                        Save &amp; close
                     </button>
                 </div>
             </div>
