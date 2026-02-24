@@ -3,7 +3,7 @@
 const DEFAULT_JOB_TYPES = [
     {
         id: 1,
-        name: 'Electrical Work',
+        name: 'Service',
         checklistItems: [
             'Arrived at address',
             'Tools and materials ready',
@@ -13,9 +13,24 @@ const DEFAULT_JOB_TYPES = [
             'Handover to customer'
         ],
         photoCategories: [
-            'Before work',
-            'During work',
-            'After work'
+            'Pre-existing damages in the work area image 1',
+            'Pre-existing damages in the work area image 2',
+            'Pre-existing damages in the work area image 3',
+            'Pre-existing damages in the work area image 4',
+            'Planned route from street to house wall image 1',
+            'Planned route from street to house wall image 2',
+            'Planned route from street to house wall image 3',
+            'Planned route from street to house wall image 4',
+            'Building entry point image 1',
+            'Building entry point image 2',
+            'Internal cable routing image 1',
+            'Internal cable routing image 2',
+            'Internal cable routing image 3',
+            'Internal cable routing image 4',
+            'Customer device placement image 1',
+            'Customer device placement image 2',
+            'Hidden objects - if any image 1',
+            'Hidden objects - if any image 2'
         ],
         surveyQuestions: [
             {
@@ -31,11 +46,28 @@ const DEFAULT_JOB_TYPES = [
 function getJobTypes() {
     const stored = getFromStorage('admin_job_types', null);
     if (!stored || stored.length === 0) {
-        // First time - persist defaults to localStorage
         saveToStorage('admin_job_types', DEFAULT_JOB_TYPES);
         return DEFAULT_JOB_TYPES;
     }
     return stored;
+}
+
+// Force-update if still has old placeholder defaults
+function migrateJobTypes() {
+    const stored = getFromStorage('admin_job_types', null);
+    if (!stored || stored.length === 0) return;
+    const first = stored[0];
+    // Detect old/wrong default by checking for placeholder photo categories
+    const oldDefaults = ['Before work', 'Før arbejde', 'Before work\nDuring work'];
+    const hasOldDefault = first && first.photoCategories &&
+        (first.photoCategories.includes('Before work') || first.photoCategories.includes('Før arbejde'));
+    if (hasOldDefault) {
+        // Restore correct photo categories but keep survey questions user may have added
+        first.photoCategories = DEFAULT_JOB_TYPES[0].photoCategories;
+        first.name = DEFAULT_JOB_TYPES[0].name;
+        first.checklistItems = DEFAULT_JOB_TYPES[0].checklistItems;
+        saveToStorage('admin_job_types', stored);
+    }
 }
 
 function renderAdminPage() {
@@ -869,6 +901,7 @@ function initializeAdminData() {
 
 // Call this when app initializes
 if (typeof window !== 'undefined') {
+    migrateJobTypes();
     initializeAdminData();
 }
 
