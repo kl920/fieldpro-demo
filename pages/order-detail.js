@@ -546,27 +546,13 @@ function deleteMaterial(taskId, materialId) {
 
 function showPhotoTypeDialog(taskId) {
     // Load photo categories from active job type
-    const jobTypes = getFromStorage('admin_job_types', [
-        {
-            id: 1,
-            name: 'Elarbejde',
-            checklistItems: [
-                'Ankommet til adresse',
-                'Værktøj og materialer klar',
-                'Gennemgang med kunde',
-                'Arbejde udført',
-                'Oprydning',
-                'Aflevering til kunde'
-            ],
-            photoCategories: [
-                'Før arbejde',
-                'Under arbejde',
-                'Efter arbejde'
-            ]
-        }
-    ]);
+    const jobTypes = getFromStorage('admin_job_types', []);
     const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
     const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+    if (!activeJobType || !activeJobType.photoCategories || activeJobType.photoCategories.length === 0) {
+        showToast('No photo categories configured in Admin', 'warning', 3000);
+        return;
+    }
     const categories = activeJobType.photoCategories;
     
     const dialog = document.createElement('div');
