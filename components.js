@@ -638,21 +638,29 @@ class SwipeHandler {
  */
 class ChecklistManager {
     /**
-     * Returns the default checklist template
+     * Returns the default checklist template from admin settings
      * @returns {Array<{id: number, text: string, completed: boolean}>} Default checklist items
      */
     static getDefaultChecklist() {
-        return [
-            { id: 1, text: 'Ankommet til lokation', completed: false },
-            { id: 2, text: 'Kontakt med kunde', completed: false },
-            { id: 3, text: 'Arbejdsområde afmærket', completed: false },
-            { id: 4, text: 'Værktøj og materialer klar', completed: false },
-            { id: 5, text: 'Arbejde udført', completed: false },
-            { id: 6, text: 'Kvalitetskontrol', completed: false },
-            { id: 7, text: 'Oprydning', completed: false },
-            { id: 8, text: 'Kundegennemgang', completed: false },
-            { id: 9, text: 'Signatur', completed: false }
-        ];
+        // Get checklist items from admin settings
+        const adminItems = getFromStorage('admin_checklist_items', [
+            'Ankommet til lokation',
+            'Kontakt med kunde',
+            'Arbejdsområde afmærket',
+            'Værktøj og materialer klar',
+            'Arbejde udført',
+            'Kvalitetskontrol',
+            'Oprydning',
+            'Kundegennemgang',
+            'Signatur'
+        ]);
+        
+        // Convert to checklist format
+        return adminItems.map((text, index) => ({
+            id: index + 1,
+            text: text,
+            completed: false
+        }));
     }
     
     /**
