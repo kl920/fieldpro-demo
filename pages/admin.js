@@ -1,33 +1,46 @@
 // Admin Page - Manage job types with checklists and photo categories
+
+const DEFAULT_JOB_TYPES = [
+    {
+        id: 1,
+        name: 'Electrical Work',
+        checklistItems: [
+            'Arrived at address',
+            'Tools and materials ready',
+            'Customer briefing',
+            'Work completed',
+            'Cleanup',
+            'Handover to customer'
+        ],
+        photoCategories: [
+            'Before work',
+            'During work',
+            'After work'
+        ],
+        surveyQuestions: [
+            {
+                id: 1,
+                question: 'Was the owner present?',
+                type: 'yesno',
+                required: true
+            }
+        ]
+    }
+];
+
+function getJobTypes() {
+    const stored = getFromStorage('admin_job_types', null);
+    if (!stored || stored.length === 0) {
+        // First time - persist defaults to localStorage
+        saveToStorage('admin_job_types', DEFAULT_JOB_TYPES);
+        return DEFAULT_JOB_TYPES;
+    }
+    return stored;
+}
+
 function renderAdminPage() {
-    // Load job types from localStorage
-    const jobTypes = getFromStorage('admin_job_types', [
-        {
-            id: 1,
-            name: 'Elarbejde',
-            checklistItems: [
-                'Ankommet til adresse',
-                'Værktøj og materialer klar',
-                'Gennemgang med kunde',
-                'Arbejde udført',
-                'Oprydning',
-                'Aflevering til kunde'
-            ],
-            photoCategories: [
-                'Før arbejde',
-                'Under arbejde',
-                'Efter arbejde'
-            ],
-            surveyQuestions: [
-                {
-                    id: 1,
-                    question: 'Was the owner present?',
-                    type: 'yesno',
-                    required: true
-                }
-            ]
-        }
-    ]);
+    // Load job types from localStorage (with defaults saved on first run)
+    const jobTypes = getJobTypes();
     
     const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
     const materials = AppData.commonMaterials;
@@ -408,7 +421,7 @@ function openAddJobTypeDialog() {
 
 function editJobType(index) {
     console.log('editJobType called with index:', index, 'type:', typeof index);
-    const jobTypes = getFromStorage('admin_job_types', []);
+    const jobTypes = getJobTypes();
     console.log('jobTypes loaded:', jobTypes.length, 'items');
     console.log('jobTypes:', JSON.stringify(jobTypes));
     
@@ -465,7 +478,7 @@ function saveJobType() {
     // Get survey questions from hidden field
     const surveyQuestions = JSON.parse(document.getElementById('jobTypeSurveyData').value || '[]');
     
-    const jobTypes = getFromStorage('admin_job_types', []);
+    const jobTypes = getJobTypes();
     
     if (index >= 0) {
         // Edit existing - keep the same ID
@@ -501,7 +514,7 @@ function saveJobType() {
 
 function deleteJobType(index) {
     console.log('deleteJobType called with index:', index);
-    const jobTypes = getFromStorage('admin_job_types', []);
+    const jobTypes = getJobTypes();
     const jobType = jobTypes[index];
     
     if (!jobType) {
@@ -810,26 +823,7 @@ function deleteMaterial(index) {
 
 // Get the active job type
 function getActiveJobType() {
-    const jobTypes = getFromStorage('admin_job_types', [
-        {
-            id: 1,
-            name: 'Elarbejde',
-            checklistItems: [
-                'Ankommet til adresse',
-                'Værktøj og materialer klar',
-                'Gennemgang med kunde',
-                'Arbejde udført',
-                'Oprydning',
-                'Aflevering til kunde'
-            ],
-            photoCategories: [
-                'Før arbejde',
-                'Under arbejde',
-                'Efter arbejde'
-            ]
-        }
-    ]);
-    
+    const jobTypes = getJobTypes();
     const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
     return jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
 }
