@@ -4194,9 +4194,22 @@ input[type="number"]:hover::-webkit-outer-spin-button {
     color: white;
 }
 
+.button-icon-sm.button-danger {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.button-icon-sm.button-danger svg {
+    color: var(--danger);
+}
+
 .button-icon-sm.button-danger:hover {
     background: var(--danger);
     border-color: var(--danger);
+}
+
+.button-icon-sm.button-danger:hover svg {
+    color: white;
 }
 
 .admin-stats {
