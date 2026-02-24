@@ -170,24 +170,6 @@ function renderAdminPage() {
                         `).join('')}
                     </div>
                 </div>
-
-                <!-- Stats -->
-                <div class="admin-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #E3F2FD;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#1976D2">
-                                <path d="M20 7h-9"></path>
-                                <path d="M14 17H5"></path>
-                                <circle cx="17" cy="17" r="3"></circle>
-                                <circle cx="7" cy="7" r="3"></circle>
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value">${jobTypes.length}</div>
-                            <div class="stat-label">Job Types</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 

@@ -1393,8 +1393,26 @@ function showManualEquipmentInput(taskId) {
 let signaturePad = null;
 
 function initSignaturePad(taskId) {
-    // Use double-RAF to guarantee browser has completed layout and paint before measuring canvas
+    // Pre-set canvas pixel dimensions BEFORE constructing SignaturePad so setupCanvas always
+    // gets real numbers even if the canvas hasn't painted yet.
+    const preSetCanvas = () => {
+        const canvas = document.getElementById(`signatureCanvas${taskId}`);
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        // Walk up to find the first ancestor with a real clientWidth
+        let w = 0;
+        let el = canvas.parentElement;
+        while (el && w === 0) { w = el.clientWidth; el = el.parentElement; }
+        if (w === 0) w = document.getElementById('app-content')?.clientWidth || 320;
+        const h = 160; // matches CSS height
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width  = w + 'px';
+        canvas.style.height = h + 'px';
+    };
+
     requestAnimationFrame(() => requestAnimationFrame(() => {
+        preSetCanvas();
         signaturePad = new SignaturePad(`signatureCanvas${taskId}`);
 
         // Load saved signature

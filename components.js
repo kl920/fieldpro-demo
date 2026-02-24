@@ -38,20 +38,23 @@ class SignaturePad {
      * @private
      */
     setupCanvas() {
-        // Use parent container dimensions as the source of truth — more reliable than
-        // getBoundingClientRect on the canvas itself which can return 0 if not painted
-        const parent = this.canvas.parentElement;
         const dpr = window.devicePixelRatio || 1;
         this.dpr = dpr;
 
-        // Read CSS-computed height (falls back to offsetHeight → 200)
-        const cssH = parseFloat(getComputedStyle(this.canvas).height) || this.canvas.offsetHeight || 200;
-        const cssW = (parent ? parent.clientWidth : 0) || this.canvas.offsetWidth || 300;
+        // If dimensions were pre-set externally (by initSignaturePad), trust them
+        if (this.canvas.width > 0 && this.canvas.height > 0) {
+            // Re-apply scale transform since getContext resets it
+            this.ctx.scale(dpr, dpr);
+        } else {
+            // Fallback: measure from parent
+            const parent = this.canvas.parentElement;
+            const cssH = parseFloat(getComputedStyle(this.canvas).height) || this.canvas.offsetHeight || 160;
+            const cssW = (parent ? parent.clientWidth : 0) || this.canvas.offsetWidth || 300;
+            this.canvas.width  = Math.round(cssW * dpr);
+            this.canvas.height = Math.round(cssH * dpr);
+            this.ctx.scale(dpr, dpr);
+        }
 
-        this.canvas.width  = Math.round(cssW * dpr);
-        this.canvas.height = Math.round(cssH * dpr);
-        this.ctx.scale(dpr, dpr);
-        
         // Configure drawing style
         this.ctx.strokeStyle = '#212121';
         this.ctx.lineWidth = 2;
