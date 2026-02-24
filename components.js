@@ -643,28 +643,12 @@ class ChecklistManager {
      */
     static getDefaultChecklist() {
         // Get checklist items from active job type in admin settings
-        const jobTypes = getFromStorage('admin_job_types', [
-            {
-                id: 1,
-                name: 'Elarbejde',
-                checklistItems: [
-                    'Ankommet til adresse',
-                    'Værktøj og materialer klar',
-                    'Gennemgang med kunde',
-                    'Arbejde udført',
-                    'Oprydning',
-                    'Aflevering til kunde'
-                ],
-                photoCategories: [
-                    'Før arbejde',
-                    'Under arbejde',
-                    'Efter arbejde'
-                ]
-            }
-        ]);
+        const jobTypes = getFromStorage('admin_job_types', []);
         
         const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
         const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
+        
+        if (!activeJobType || !activeJobType.checklistItems) return [];
         
         // Convert to checklist format
         return activeJobType.checklistItems.map((text, index) => ({

@@ -698,8 +698,8 @@ function addPhotos(taskId, event, photoType = 'standard') {
                 try {
                     AppData.saveTaskData(taskId, 'photos', photos);
                     console.log('Billeder gemt i AppData');
-                    ActivityLogger.log('photo', `Tilføjede ${fileArray.length} billede(r)`, taskId);
-                    showToast(`${fileArray.length} billede(r) tilføjet`, 'success', 3000);
+                    ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
+                    showToast(`${fileArray.length} photo(s) added`, 'success', 3000);
                     vibrate(50);
                     
                     // Reset input
@@ -713,9 +713,9 @@ function addPhotos(taskId, event, photoType = 'standard') {
                 } catch (error) {
                     console.error('Fejl ved gemning:', error);
                     if (error.name === 'QuotaExceededError') {
-                        showToast('📦 Lagerplads fuld! Slet gamle billeder eller ryd data', 'error', 6000);
+                        showToast('📦 Storage full! Delete old photos or clear data', 'error', 6000);
                     } else {
-                        showToast('Fejl ved gemning af billeder', 'error', 5000);
+                        showToast('Error saving photos', 'error', 5000);
                     }
                 }
             }
@@ -812,7 +812,7 @@ function completeTask(taskId) {
     // Check checklist progress
     const progress = ChecklistManager.getProgress(taskId);
     if (progress.percentage < 80) {
-        if (!window.confirm(`Tjeklisten er kun ${progress.percentage}% færdig. Vil du fortsætte?`)) {
+        if (!window.confirm(`Checklist is only ${progress.percentage}% complete. Continue anyway?`)) {
             return;
         }
     }
@@ -979,7 +979,7 @@ async function exportToPDF(taskId) {
             
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.text('Tjekliste', margin, yPos);
+            doc.text('Checklist', margin, yPos);
             
             yPos += 8;
             doc.setFontSize(10);
@@ -1004,14 +1004,14 @@ async function exportToPDF(taskId) {
             
             doc.setFontSize(16);
             doc.setFont(undefined, 'bold');
-            doc.text('Før/Efter Billeder', margin, yPos);
+            doc.text('Before/After Photos', margin, yPos);
             yPos += 10;
             
             // Before photos
             if (beforePhotos.length > 0) {
                 doc.setFontSize(12);
                 doc.setFont(undefined, 'bold');
-                doc.text('FØR', margin, yPos);
+                doc.text('BEFORE', margin, yPos);
                 yPos += 5;
                 
                 for (let i = 0; i < Math.min(2, beforePhotos.length); i++) {
@@ -1036,7 +1036,7 @@ async function exportToPDF(taskId) {
                 
                 doc.setFontSize(12);
                 doc.setFont(undefined, 'bold');
-                doc.text('EFTER', margin, yPos);
+                doc.text('AFTER', margin, yPos);
                 yPos += 5;
                 
                 for (let i = 0; i < Math.min(2, afterPhotos.length); i++) {
@@ -1062,7 +1062,7 @@ async function exportToPDF(taskId) {
             
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.text('Kundens Signatur', margin, yPos);
+            doc.text('Customer Signature', margin, yPos);
             yPos += 5;
             
             try {
@@ -1230,7 +1230,7 @@ function renderVoiceNotes(taskId) {
     if (voiceNotes.length === 0) {
         container.innerHTML = `
             <div class="empty-state-small">
-                <p>Ingen stemmebeskeder endnu</p>
+                <p>No voice notes yet</p>
             </div>
         `;
         return;
@@ -1442,7 +1442,7 @@ function clearSignature(taskId) {
     if (signaturePad) {
         signaturePad.clear();
         AppData.saveTaskData(taskId, 'signature', null);
-        showToast('Signatur ryddet', 'info');
+        showToast('Signature cleared', 'info');
     }
 }
 
@@ -1450,7 +1450,7 @@ function saveSignature(taskId) {
     if (signaturePad && !signaturePad.isEmpty()) {
         const signatureData = signaturePad.getDataURL();
         AppData.saveTaskData(taskId, 'signature', signatureData);
-        ActivityLogger.log('signature', 'Kundens signatur modtaget', taskId);
+        ActivityLogger.log('signature', 'Customer signature received', taskId);t', taskId);
         return true;
     }
     return false;
