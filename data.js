@@ -556,13 +556,10 @@ const AppData = {
      */
     loadFromLocalStorage() {
         const saved = getFromStorage(CONFIG.STORAGE_KEYS.TASKS);
-        if (saved && Object.keys(saved).length > 0) {
-            this.tasks = saved;
-        } else {
-            // Use demo data if no saved data exists
-            this.tasks = { ...DEMO_TASKS };
-            this.saveToLocalStorage();
-        }
+        // Always start with DEMO_TASKS as the base so new tasks are never lost.
+        // Saved data overrides individual tasks (preserves status changes etc.)
+        this.tasks = { ...DEMO_TASKS, ...(saved || {}) };
+        this.saveToLocalStorage();
     },
 
     /**
