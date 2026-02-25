@@ -62,6 +62,8 @@ class SignaturePad {
         // {passive: false} lets us call preventDefault() to block page scroll while drawing.
         this.canvas.addEventListener('pointerdown', (e) => {
             this.canvas.setPointerCapture(e.pointerId);
+            const dbg = document.getElementById('sig-debug');
+            if (dbg) dbg.textContent += ` | POINTERDOWN x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`;
             this.startDrawing(e);
         }, { passive: false });
 

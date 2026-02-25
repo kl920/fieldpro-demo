@@ -306,6 +306,7 @@ function renderOrderDetailPage(data) {
                         <canvas id="signatureCanvas${taskId}" class="signature-canvas"></canvas>
                         <div class="signature-hint">Draw signature here</div>
                     </div>
+                    <div id="sig-debug" style="font-size:11px;color:#c00;padding:4px;word-break:break-all;"></div>
                 </div>
 
                 <!-- Work Note Button -->
@@ -1393,9 +1394,23 @@ function showManualEquipmentInput(taskId) {
 let signaturePad = null;
 
 function initSignaturePad(taskId) {
-    // Already inside setTimeout(100) so layout is complete;
-    // getBoundingClientRect() in setupCanvas() will return real dimensions.
+    const canvas = document.getElementById(`signatureCanvas${taskId}`);
+    const dbg = document.getElementById('sig-debug');
+
+    const w = canvas ? canvas.offsetWidth : 'NO CANVAS';
+    const h = canvas ? canvas.offsetHeight : 'NO CANVAS';
+    if (dbg) dbg.textContent = `init: offsetW=${w} offsetH=${h}`;
+
     signaturePad = new SignaturePad(`signatureCanvas${taskId}`);
+
+    if (dbg) dbg.textContent += ` | bufW=${canvas.width} bufH=${canvas.height}`;
+
+    // Colour canvas red briefly to confirm it exists and is sized
+    if (canvas) {
+        const ctx2 = canvas.getContext('2d');
+        ctx2.fillStyle = 'rgba(255,0,0,0.15)';
+        ctx2.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     // Load saved signature
     const savedSignature = AppData.getTaskData(taskId, 'signature');
