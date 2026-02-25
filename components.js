@@ -38,25 +38,19 @@ class SignaturePad {
      * @private
      */
     setupCanvas() {
-        const dpr = window.devicePixelRatio || 1;
-        this.dpr = dpr;
+        this.dpr = 1; // no DPR scaling — keeps coordinate maths trivial
 
-        // Read actual CSS-rendered size (caller must ensure layout is done)
-        const rect = this.canvas.getBoundingClientRect();
-        const cssW = rect.width  || this.canvas.offsetWidth  || 300;
-        const cssH = rect.height || this.canvas.offsetHeight || 160;
+        // Set canvas buffer dimensions to match its CSS-rendered size.
+        // offsetWidth/offsetHeight are reliable after the DOM has painted.
+        const w = this.canvas.offsetWidth  || 300;
+        const h = this.canvas.offsetHeight || 160;
+        this.canvas.width  = w;
+        this.canvas.height = h;
 
-        // Set buffer to physical pixels, then scale context so drawing
-        // coordinates are in CSS pixels
-        this.canvas.width  = Math.round(cssW * dpr);
-        this.canvas.height = Math.round(cssH * dpr);
-        this.ctx.scale(dpr, dpr);
-
-        // Configure drawing style
         this.ctx.strokeStyle = '#212121';
-        this.ctx.lineWidth = 2;
-        this.ctx.lineCap = 'round';
-        this.ctx.lineJoin = 'round';
+        this.ctx.lineWidth   = 2;
+        this.ctx.lineCap     = 'round';
+        this.ctx.lineJoin    = 'round';
     }
     
     /**
@@ -64,22 +58,21 @@ class SignaturePad {
      * @private
      */
     bindEvents() {
-        // Mouse events
-        this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
-        this.canvas.addEventListener('mousemove', (e) => this.draw(e));
-        this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-        this.canvas.addEventListener('mouseout', () => this.stopDrawing());
-        
-        // Touch events
-        this.canvas.addEventListener('touchstart', (e) => {
+        // Use Pointer Events API — works for mouse, touch and stylus uniformly.
+        // {passive: false} lets us call preventDefault() to block page scroll while drawing.
+        this.canvas.addEventListener('pointerdown', (e) => {
+            this.canvas.setPointerCapture(e.pointerId);
+            this.startDrawing(e);
+        }, { passive: false });
+
+        this.canvas.addEventListener('pointermove', (e) => {
             e.preventDefault();
-            this.startDrawing(e.touches[0]);
-        });
-        this.canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            this.draw(e.touches[0]);
-        });
-        this.canvas.addEventListener('touchend', () => this.stopDrawing());
+            this.draw(e);
+        }, { passive: false });
+
+        this.canvas.addEventListener('pointerup',     () => this.stopDrawing());
+        this.canvas.addEventListener('pointercancel', () => this.stopDrawing());
+        this.canvas.addEventListener('pointerleave',  () => this.stopDrawing());
     }
     
     /**
@@ -123,8 +116,6 @@ class SignaturePad {
      */
     getPosition(e) {
         const rect = this.canvas.getBoundingClientRect();
-        // After ctx.scale(dpr, dpr), drawing coordinates are CSS pixels,
-        // so just return the pointer position relative to the canvas in CSS pixels.
         return {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
@@ -135,8 +126,7 @@ class SignaturePad {
      * Clears the signature pad
      */
     clear() {
-        // clearRect must use CSS pixel dimensions (ctx is scaled by dpr)
-        this.ctx.clearRect(0, 0, this.canvas.width / this.dpr, this.canvas.height / this.dpr);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.hasSignature = false;
     }
     

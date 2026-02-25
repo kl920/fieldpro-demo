@@ -338,7 +338,7 @@ function renderOrderDetailPage(data) {
         renderVoiceNotes(taskId);
         renderScannedEquipment(taskId);
         initSignaturePad(taskId);
-    }, 100);
+    }, 300);
 }
 
 // Initialize time inputs with saved data
