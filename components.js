@@ -43,8 +43,9 @@ class SignaturePad {
 
         // If dimensions were pre-set externally (by initSignaturePad), trust them
         if (this.canvas.width > 0 && this.canvas.height > 0) {
-            // Re-apply scale transform since getContext resets it
-            this.ctx.scale(dpr, dpr);
+            // Dimensions already set — do NOT call ctx.scale again (it stacks)
+            // Just reset the transform to identity then apply scale once
+            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         } else {
             // Fallback: measure from parent
             const parent = this.canvas.parentElement;
@@ -52,7 +53,7 @@ class SignaturePad {
             const cssW = (parent ? parent.clientWidth : 0) || this.canvas.offsetWidth || 300;
             this.canvas.width  = Math.round(cssW * dpr);
             this.canvas.height = Math.round(cssH * dpr);
-            this.ctx.scale(dpr, dpr);
+            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
         // Configure drawing style
@@ -126,9 +127,13 @@ class SignaturePad {
      */
     getPosition(e) {
         const rect = this.canvas.getBoundingClientRect();
+        // getBoundingClientRect gives CSS pixels; we need to map into the
+        // logical (unscaled) coordinate space used by ctx after setTransform.
+        const scaleX = this.canvas.width  / (rect.width  * this.dpr);
+        const scaleY = this.canvas.height / (rect.height * this.dpr);
         return {
-            x: (e.clientX - rect.left),
-            y: (e.clientY - rect.top)
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top)  * scaleY
         };
     }
     
