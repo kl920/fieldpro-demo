@@ -5,7 +5,7 @@ function renderOrderDetailPage(data) {
     
     if (!task) {
         showToast('Order not found', 'error');
-        router.navigate('/orders');
+        router.navigate('/');
         return;
     }
     
@@ -22,7 +22,7 @@ function renderOrderDetailPage(data) {
     const content = `
         <div class="page page-order-detail">
             <div class="page-header page-header-with-back">
-                <button class="back-button" onclick="router.navigate('/orders')">
+                <button class="back-button" onclick="router.navigate('/')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
@@ -798,7 +798,7 @@ function completeTask(taskId) {
         ActivityLogger.log('complete', 'Order completed', taskId);
         showToast('Task completed! 🎉', 'success');
         vibrate([50, 100, 50]);
-        setTimeout(() => router.navigate('/orders'), 1000);
+        setTimeout(() => router.navigate('/'), 1000);
     }
 }
 
