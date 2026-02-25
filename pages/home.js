@@ -7,6 +7,11 @@ function renderHomePage() {
     // Get upcoming tasks (not today)
     const upcomingTasks = allTasks.filter(task => task.date > todayDate)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Get last 5 past tasks (before today), newest first
+    const pastTasks = allTasks.filter(task => task.date < todayDate)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
     
     // Get today's date in dd-mm-yyyy format
     const today = new Date();
@@ -68,6 +73,45 @@ function renderHomePage() {
                         `).join('')}
                     </div>
                 </div>
+
+                <!-- Past Tasks -->
+                ${pastTasks.length > 0 ? `
+                    <div class="section section-past">
+                        <div class="section-header">
+                            <h2>Seneste opgaver</h2>
+                            <span class="task-count task-count-past">${pastTasks.length}</span>
+                        </div>
+                        <div class="upcoming-task-list">
+                            ${pastTasks.map(task => `
+                                <div class="upcoming-task-card past-task-card" onclick="router.navigate('/order-detail', { taskId: ${task.id} })">
+                                    <div class="upcoming-task-left">
+                                        <div class="upcoming-task-date past-task-date">
+                                            <div class="date-day">${new Date(task.date).getDate()}</div>
+                                            <div class="date-month">${new Date(task.date).toLocaleDateString('da-DK', { month: 'short' })}</div>
+                                        </div>
+                                    </div>
+                                    <div class="upcoming-task-content">
+                                        <div class="upcoming-task-header">
+                                            <span class="upcoming-task-id">ID: ${task.orderNumber}</span>
+                                            <span class="upcoming-task-type">${task.type}</span>
+                                        </div>
+                                        <h4 class="upcoming-task-title">${task.title}</h4>
+                                        <div class="upcoming-task-meta">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                <circle cx="12" cy="10" r="3"></circle>
+                                            </svg>
+                                            <span>${task.location.address}</span>
+                                        </div>
+                                    </div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" style="flex-shrink:0;opacity:0.4">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
 
                 <!-- Upcoming Tasks -->
                 ${upcomingTasks.length > 0 ? `

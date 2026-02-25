@@ -247,6 +247,198 @@ const DEMO_TASKS = {
         description: 'Reparation af automatisk garageport mekanisme.',
         estimatedHours: 2,
         billable: true
+    },
+    11: {
+        id: 11,
+        orderNumber: '431',
+        title: 'Kloakrensning',
+        type: 'Service',
+        customer: {
+            name: 'Dorthe Madsen',
+            phone: '+45 29 33 44 55',
+            email: 'dorthe@example.com'
+        },
+        location: {
+            address: 'Elmevej 6, 4200 Slagelse',
+            lat: 55.4022,
+            lng: 11.3547
+        },
+        date: '2026-03-03',
+        scheduledStart: '07:30',
+        scheduledEnd: '10:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'Rensning af tilstoppet kloakledning.',
+        estimatedHours: 2.5,
+        billable: true
+    },
+    12: {
+        id: 12,
+        orderNumber: '436',
+        title: 'Isolering af loft',
+        type: 'Ny',
+        customer: {
+            name: 'Henrik Lund',
+            phone: '+45 51 66 77 88',
+            email: 'henrik@example.com'
+        },
+        location: {
+            address: 'Fyrrevej 18, 7400 Herning',
+            lat: 56.1396,
+            lng: 8.9766
+        },
+        date: '2026-03-05',
+        scheduledStart: '08:00',
+        scheduledEnd: '15:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Efterisolering af loft med 200mm mineraluld.',
+        estimatedHours: 7,
+        billable: true
+    },
+    13: {
+        id: 13,
+        orderNumber: '440',
+        title: 'Varmeanlæg service',
+        type: 'Service',
+        customer: {
+            name: 'Susanne Holm',
+            phone: '+45 33 55 66 77',
+            email: 'susanne@example.com'
+        },
+        location: {
+            address: 'Dahliasvej 3, 9000 Aalborg',
+            lat: 57.0488,
+            lng: 9.9217
+        },
+        date: '2026-03-09',
+        scheduledStart: '09:00',
+        scheduledEnd: '12:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Årligt serviceeftersyn af oliefyr og varmeanlæg.',
+        estimatedHours: 3,
+        billable: true
+    },
+    14: {
+        id: 14,
+        orderNumber: '445',
+        title: 'Betonreparation',
+        type: 'Ny',
+        customer: {
+            name: 'NordBeton A/S',
+            phone: '+45 44 88 99 11',
+            email: 'info@nordbeton.dk'
+        },
+        location: {
+            address: 'Industriparken 22, 2600 Glostrup',
+            lat: 55.6681,
+            lng: 12.4003
+        },
+        date: '2026-03-12',
+        scheduledStart: '07:00',
+        scheduledEnd: '15:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'Reparation af revner i betondæk på parkeringsanlæg.',
+        estimatedHours: 8,
+        billable: true
+    },
+    15: {
+        id: 15,
+        orderNumber: '449',
+        title: 'Facaderenovering',
+        type: 'Ny',
+        customer: {
+            name: 'Boligfonden Vest',
+            phone: '+45 76 22 33 44',
+            email: 'kontakt@bfvest.dk'
+        },
+        location: {
+            address: 'Havnegade 12, 6700 Esbjerg',
+            lat: 55.4675,
+            lng: 8.4530
+        },
+        date: '2026-03-16',
+        scheduledStart: '08:00',
+        scheduledEnd: '16:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'Pudsning og maling af facade på boligblok.',
+        estimatedHours: 8,
+        billable: true
+    },
+    16: {
+        id: 16,
+        orderNumber: '453',
+        title: 'Solcelleinstallation',
+        type: 'Ny',
+        customer: {
+            name: 'Rasmus Kjær',
+            phone: '+45 21 44 55 66',
+            email: 'rasmus@example.com'
+        },
+        location: {
+            address: 'Skovstien 9, 8600 Silkeborg',
+            lat: 56.1775,
+            lng: 9.5494
+        },
+        date: '2026-03-19',
+        scheduledStart: '08:30',
+        scheduledEnd: '16:30',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Montering af 16 solceller og inverter.',
+        estimatedHours: 8,
+        billable: true
+    },
+    17: {
+        id: 17,
+        orderNumber: '458',
+        title: 'Tagteglskifte',
+        type: 'Service',
+        customer: {
+            name: 'Birte Olesen',
+            phone: '+45 40 22 33 44',
+            email: 'birte@example.com'
+        },
+        location: {
+            address: 'Møllebanken 5, 5210 Odense NV',
+            lat: 55.4141,
+            lng: 10.3577
+        },
+        date: '2026-03-24',
+        scheduledStart: '07:30',
+        scheduledEnd: '13:30',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Udskiftning af revnede tagtegl efter storm.',
+        estimatedHours: 6,
+        billable: true
+    },
+    18: {
+        id: 18,
+        orderNumber: '462',
+        title: 'Køleanlæg installation',
+        type: 'Ny',
+        customer: {
+            name: 'Friskhuset ApS',
+            phone: '+45 88 44 55 66',
+            email: 'info@friskhuset.dk'
+        },
+        location: {
+            address: 'Englandsgade 30, 5000 Odense C',
+            lat: 55.3928,
+            lng: 10.3783
+        },
+        date: '2026-03-27',
+        scheduledStart: '09:00',
+        scheduledEnd: '17:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'Installation af nyt køle- og frysekompleks til butik.',
+        estimatedHours: 8,
+        billable: true
     }
 };
 

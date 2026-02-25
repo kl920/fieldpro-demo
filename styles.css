@@ -738,6 +738,34 @@ a:hover {
     stroke-width: 2;
 }
 
+/* Past tasks */
+.section-past {
+    margin-top: var(--spacing-lg);
+}
+
+.task-count-past {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+.past-task-card {
+    opacity: 0.72;
+}
+
+.past-task-card:hover {
+    opacity: 1;
+}
+
+.past-task-date {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+.past-task-date .date-day,
+.past-task-date .date-month {
+    color: var(--text-secondary) !important;
+}
+
 /* Quick Actions Grid */
 .quick-actions-grid {
     display: grid;
