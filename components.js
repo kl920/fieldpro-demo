@@ -41,20 +41,16 @@ class SignaturePad {
         const dpr = window.devicePixelRatio || 1;
         this.dpr = dpr;
 
-        // If dimensions were pre-set externally (by initSignaturePad), trust them
-        if (this.canvas.width > 0 && this.canvas.height > 0) {
-            // Dimensions already set — do NOT call ctx.scale again (it stacks)
-            // Just reset the transform to identity then apply scale once
-            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        } else {
-            // Fallback: measure from parent
-            const parent = this.canvas.parentElement;
-            const cssH = parseFloat(getComputedStyle(this.canvas).height) || this.canvas.offsetHeight || 160;
-            const cssW = (parent ? parent.clientWidth : 0) || this.canvas.offsetWidth || 300;
-            this.canvas.width  = Math.round(cssW * dpr);
-            this.canvas.height = Math.round(cssH * dpr);
-            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
+        // Read actual CSS-rendered size (caller must ensure layout is done)
+        const rect = this.canvas.getBoundingClientRect();
+        const cssW = rect.width  || this.canvas.offsetWidth  || 300;
+        const cssH = rect.height || this.canvas.offsetHeight || 160;
+
+        // Set buffer to physical pixels, then scale context so drawing
+        // coordinates are in CSS pixels
+        this.canvas.width  = Math.round(cssW * dpr);
+        this.canvas.height = Math.round(cssH * dpr);
+        this.ctx.scale(dpr, dpr);
 
         // Configure drawing style
         this.ctx.strokeStyle = '#212121';
@@ -127,13 +123,11 @@ class SignaturePad {
      */
     getPosition(e) {
         const rect = this.canvas.getBoundingClientRect();
-        // getBoundingClientRect gives CSS pixels; we need to map into the
-        // logical (unscaled) coordinate space used by ctx after setTransform.
-        const scaleX = this.canvas.width  / (rect.width  * this.dpr);
-        const scaleY = this.canvas.height / (rect.height * this.dpr);
+        // After ctx.scale(dpr, dpr), drawing coordinates are CSS pixels,
+        // so just return the pointer position relative to the canvas in CSS pixels.
         return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top)  * scaleY
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
         };
     }
     
@@ -141,7 +135,8 @@ class SignaturePad {
      * Clears the signature pad
      */
     clear() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // clearRect must use CSS pixel dimensions (ctx is scaled by dpr)
+        this.ctx.clearRect(0, 0, this.canvas.width / this.dpr, this.canvas.height / this.dpr);
         this.hasSignature = false;
     }
     
