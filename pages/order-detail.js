@@ -530,57 +530,64 @@ async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    showToast('📍 Getting location...', 'info', 3000);
-
-    // Wait for GPS with 8-second hard timeout (maximumAge:0 forces fresh fix)
-    let locationInfo = null;
-    const loc = await getLocationWithTimeout(8000);
-    if (loc) {
-        locationInfo = { lat: loc.lat, lng: loc.lng, accuracy: loc.accuracy };
-        try {
-            const address = await Promise.race([
-                LocationService.reverseGeocode(loc.lat, loc.lng),
-                new Promise(r => setTimeout(() => r(null), 4000))
-            ]);
-            if (address) locationInfo.address = address;
-        } catch (_) {}
-    }
-
-    const stampText = locationInfo
-        ? (locationInfo.address || `${locationInfo.lat.toFixed(5)}, ${locationInfo.lng.toFixed(5)}`)
-        : null;
-
+    // Step 1: compress and save immediately — no GPS wait, no blocking
     const photos = AppData.getTaskData(taskId, 'photos', []);
     const fileArray = Array.from(files);
+    const newPhotoIds = [];
     let processed = 0;
 
-    fileArray.forEach((file, index) => {
-        compressImage(file, 1200, 0.7).then(async compressedData => {
-            const finalData = stampText ? await stampLocationOnImage(compressedData, stampText) : compressedData;
-
+    fileArray.forEach(file => {
+        compressImage(file, 1200, 0.7).then(compressedData => {
             const photoData = {
                 id: generateId(),
-                data: finalData,
+                data: compressedData,
                 timestamp: new Date().toISOString(),
-                type: photoType,
-                ...(locationInfo || {})
+                type: photoType
             };
-
             photos.push(photoData);
+            newPhotoIds.push(photoData.id);
             processed++;
 
             if (processed === fileArray.length) {
                 try {
                     AppData.saveTaskData(taskId, 'photos', photos);
                     ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
-                    if (stampText) {
-                        showToast('📍 ' + stampText, 'success', 3000);
-                    } else {
-                        showToast(`${fileArray.length} photo(s) added (no location)`, 'success', 3000);
-                    }
                     vibrate(50);
                     event.target.value = '';
+                    showToast('📍 Stamping location...', 'info', 6000);
                     router.navigate('/order-detail', { taskId });
+
+                    // Step 2: get GPS in background, then re-stamp saved photos
+                    getLocationWithTimeout(15000).then(async loc => {
+                        if (!loc) { showToast('No location available', 'warning', 3000); return; }
+
+                        let stampText = `${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
+                        try {
+                            const address = await Promise.race([
+                                LocationService.reverseGeocode(loc.lat, loc.lng),
+                                new Promise(r => setTimeout(() => r(null), 5000))
+                            ]);
+                            if (address) stampText = address;
+                        } catch (_) {}
+
+                        // Re-load photos, stamp the ones we just added
+                        const allPhotos = AppData.getTaskData(taskId, 'photos', []);
+                        let stamped = 0;
+                        for (const p of allPhotos) {
+                            if (newPhotoIds.includes(p.id)) {
+                                p.lat = loc.lat; p.lng = loc.lng;
+                                p.address = stampText;
+                                p.data = await stampLocationOnImage(p.data, stampText);
+                                stamped++;
+                            }
+                        }
+                        if (stamped > 0) {
+                            AppData.saveTaskData(taskId, 'photos', allPhotos);
+                            showToast('📍 ' + stampText, 'success', 4000);
+                            // Refresh if still on order-detail for this task
+                            router.navigate('/order-detail', { taskId });
+                        }
+                    });
                 } catch (error) {
                     if (error.name === 'QuotaExceededError') {
                         showToast('📦 Storage full! Delete old photos or clear data', 'error', 6000);
