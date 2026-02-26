@@ -535,35 +535,43 @@ async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    showToast('📍 Getting location...', 'info', 5000);
+    showToast('Step 1: Getting location...', 'info', 8000);
 
-    // Use the pre-fetched GPS promise (started when slot was tapped)
     let stampText = null;
     try {
         const loc = await (_pendingLocationPromise || getLocationWithTimeout(10000));
         _pendingLocationPromise = null;
         if (loc && loc.lat) {
-            // Try reverse geocode for city name
+            showToast('Step 2: GPS OK ' + loc.lat.toFixed(3) + ', ' + loc.lng.toFixed(3), 'success', 5000);
             try {
                 const address = await Promise.race([
                     LocationService.reverseGeocode(loc.lat, loc.lng),
                     new Promise(r => setTimeout(() => r(null), 4000))
                 ]);
                 stampText = address || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+                showToast('Step 3: Address = ' + stampText, 'success', 5000);
             } catch (_) {
                 stampText = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+                showToast('Step 3: No address, using coords', 'warning', 4000);
             }
+        } else {
+            showToast('Step 2: No GPS fix returned', 'error', 5000);
         }
-    } catch (_) { _pendingLocationPromise = null; }
+    } catch (err) {
+        _pendingLocationPromise = null;
+        showToast('Step 2: GPS error - ' + err.message, 'error', 5000);
+    }
 
     const photos = AppData.getTaskData(taskId, 'photos', []);
     const fileArray = Array.from(files);
-    let processed = 0;
 
     for (const file of fileArray) {
         try {
+            showToast('Step 4: Compressing...', 'info', 4000);
             const compressed = await compressImage(file, 1200, 0.7);
+            showToast('Step 5: Stamping... stampText=' + (stampText || 'NULL'), 'info', 5000);
             const finalData = stampText ? await stampLocationOnImage(compressed, stampText) : compressed;
+            showToast('Step 6: Stamp done, saving...', 'info', 4000);
             photos.push({
                 id: generateId(),
                 data: finalData,
@@ -571,8 +579,9 @@ async function addPhotos(taskId, event, photoType = 'standard') {
                 type: photoType,
                 address: stampText || null
             });
-        } catch (_) {}
-        processed++;
+        } catch (e) {
+            showToast('Step ERROR: ' + e.message, 'error', 6000);
+        }
     }
 
     try {
@@ -580,17 +589,13 @@ async function addPhotos(taskId, event, photoType = 'standard') {
         ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
         vibrate(50);
         event.target.value = '';
-        if (stampText) {
-            showToast('📍 ' + stampText, 'success', 4000);
-        } else {
-            showToast(`${fileArray.length} photo(s) added`, 'success', 3000);
-        }
+        showToast(stampText ? '📍 ' + stampText : `${fileArray.length} photo(s) added`, 'success', 4000);
         router.navigate('/order-detail', { taskId });
     } catch (error) {
         if (error.name === 'QuotaExceededError') {
-            showToast('📦 Storage full! Delete old photos or clear data', 'error', 6000);
+            showToast('📦 Storage full!', 'error', 6000);
         } else {
-            showToast('Error saving photos', 'error', 5000);
+            showToast('Save error: ' + error.message, 'error', 5000);
         }
     }
 }
