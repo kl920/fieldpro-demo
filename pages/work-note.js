@@ -80,18 +80,23 @@ function renderWorkNotePage(data) {
                     </div>
 
                     <!-- Time inputs -->
-                    <div class="form-row" style="gap: 10px; margin-bottom: 12px;">
+                    <div class="form-row" style="gap: 10px; margin-bottom: 10px;">
                         <div class="form-group" style="flex:1;">
                             <label>Start</label>
-                            <input type="time" id="workerStart" value="08:00">
+                            <input type="time" id="workerStart" value="08:00" style="font-size:1.05rem; padding: 12px 10px;">
                         </div>
                         <div class="form-group" style="flex:1;">
                             <label>End</label>
-                            <input type="time" id="workerEnd" value="16:00">
+                            <input type="time" id="workerEnd" value="16:00" style="font-size:1.05rem; padding: 12px 10px;">
                         </div>
-                        <div class="form-group" style="flex: 0 0 80px;">
+                    </div>
+                    <div class="form-row" style="gap: 10px; margin-bottom: 12px; align-items: center;">
+                        <div class="form-group" style="flex: 0 0 130px;">
                             <label>Pause (min)</label>
-                            <input type="number" id="workerPause" value="0" min="0" step="5" style="text-align:center;">
+                            <input type="number" id="workerPause" value="0" min="0" step="5" style="text-align:center; font-size:1.05rem; padding: 12px 10px;">
+                        </div>
+                        <div style="flex:1; color: var(--text-secondary); font-size:0.82rem; padding-top: 22px;">
+                            Deducted from total hours
                         </div>
                     </div>
 
@@ -188,7 +193,7 @@ function renderWorkNotePage(data) {
                         </datalist>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group" style="flex: 0 0 140px;">
                             <label>Quantity</label>
                             <input type="number" id="materialQuantity" value="1" min="0.1" step="0.1">
                         </div>
