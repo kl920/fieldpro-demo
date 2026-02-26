@@ -511,26 +511,40 @@ function stampLocationOnImage(dataUrl, stampText) {
     });
 }
 
+function getLocationWithTimeout(ms) {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) { resolve(null); return; }
+        const timer = setTimeout(() => resolve(null), ms);
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                clearTimeout(timer);
+                resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy });
+            },
+            () => { clearTimeout(timer); resolve(null); },
+            { enableHighAccuracy: true, timeout: ms, maximumAge: 0 }
+        );
+    });
+}
+
 async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
     showToast('📍 Getting location...', 'info', 3000);
 
-    // Try to get GPS with a 5-second timeout
+    // Wait for GPS with 8-second hard timeout (maximumAge:0 forces fresh fix)
     let locationInfo = null;
-    try {
-        const locPromise = LocationService.getCurrentPosition();
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-        const location = await Promise.race([locPromise, timeoutPromise]);
-        if (location && location.lat) {
-            locationInfo = { lat: location.lat, lng: location.lng, accuracy: location.accuracy };
-            try {
-                const address = await LocationService.reverseGeocode(location.lat, location.lng);
-                if (address) locationInfo.address = address;
-            } catch (_) {}
-        }
-    } catch (_) {}
+    const loc = await getLocationWithTimeout(8000);
+    if (loc) {
+        locationInfo = { lat: loc.lat, lng: loc.lng, accuracy: loc.accuracy };
+        try {
+            const address = await Promise.race([
+                LocationService.reverseGeocode(loc.lat, loc.lng),
+                new Promise(r => setTimeout(() => r(null), 4000))
+            ]);
+            if (address) locationInfo.address = address;
+        } catch (_) {}
+    }
 
     const stampText = locationInfo
         ? (locationInfo.address || `${locationInfo.lat.toFixed(5)}, ${locationInfo.lng.toFixed(5)}`)
