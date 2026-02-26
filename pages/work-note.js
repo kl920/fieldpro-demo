@@ -80,23 +80,22 @@ function renderWorkNotePage(data) {
                     </div>
 
                     <!-- Time inputs -->
-                    <div class="form-row" style="gap: 10px; margin-bottom: 10px;">
-                        <div class="form-group" style="flex:1;">
-                            <label>Start</label>
-                            <input type="time" id="workerStart" value="08:00" style="font-size:1.05rem; padding: 12px 10px;">
+                    <div class="time-reg-row">
+                        <div class="time-reg-field">
+                            <span class="time-reg-label">Start</span>
+                            <input type="time" id="workerStart" value="08:00" class="time-reg-input">
                         </div>
-                        <div class="form-group" style="flex:1;">
-                            <label>End</label>
-                            <input type="time" id="workerEnd" value="16:00" style="font-size:1.05rem; padding: 12px 10px;">
+                        <div class="time-reg-sep">→</div>
+                        <div class="time-reg-field">
+                            <span class="time-reg-label">End</span>
+                            <input type="time" id="workerEnd" value="16:00" class="time-reg-input">
                         </div>
-                    </div>
-                    <div class="form-row" style="gap: 10px; margin-bottom: 12px; align-items: center;">
-                        <div class="form-group" style="flex: 0 0 130px;">
-                            <label>Pause (min)</label>
-                            <input type="number" id="workerPause" value="0" min="0" step="5" style="text-align:center; font-size:1.05rem; padding: 12px 10px;">
-                        </div>
-                        <div style="flex:1; color: var(--text-secondary); font-size:0.82rem; padding-top: 22px;">
-                            Deducted from total hours
+                        <div class="time-reg-field time-reg-field--pause">
+                            <span class="time-reg-label">Pause</span>
+                            <div class="time-reg-pause-wrap">
+                                <input type="number" id="workerPause" value="0" min="0" step="5" class="time-reg-input time-reg-input--pause">
+                                <span class="time-reg-unit">min</span>
+                            </div>
                         </div>
                     </div>
 

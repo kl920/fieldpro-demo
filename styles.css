@@ -4870,6 +4870,84 @@ textarea::placeholder {
     appearance: auto;
 }
 
+/* Time registration single-row layout */
+.time-reg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.time-reg-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.time-reg-field--pause {
+    flex: 0 0 82px;
+}
+
+.time-reg-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.time-reg-input {
+    width: 100%;
+    padding: 10px 4px;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    text-align: center;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.time-reg-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+.time-reg-input--pause {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    width: 48px;
+    flex-shrink: 0;
+    padding: 10px 4px;
+}
+
+.time-reg-sep {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    padding-bottom: 10px;
+    flex: 0 0 auto;
+}
+
+.time-reg-pause-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.time-reg-unit {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 10px 5px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1;
+    white-space: nowrap;
+}
+
 .worker-time-entry {
     display: flex;
     align-items: center;
