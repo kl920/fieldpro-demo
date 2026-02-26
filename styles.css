@@ -4857,3 +4857,76 @@ textarea::placeholder {
     color: var(--text-disabled);
     flex-shrink: 0;
 }
+
+/* ── Worker Time Registration ─────────────────────────── */
+.worker-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    appearance: auto;
+}
+
+.worker-time-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.worker-time-entry-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.worker-time-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.worker-time-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.worker-time-badge {
+    display: inline-block;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 20px;
+}
+
+.worker-time-pause {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.worker-time-entry-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.worker-time-total {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    min-width: 48px;
+    text-align: right;
+}
