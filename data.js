@@ -439,6 +439,198 @@ const DEMO_TASKS = {
         description: 'Installation af nyt køle- og frysekompleks til butik.',
         estimatedHours: 8,
         billable: true
+    },
+    19: {
+        id: 19,
+        orderNumber: '470',
+        title: 'Fiber cable installation',
+        type: 'Service',
+        customer: {
+            name: 'Michael Berg',
+            phone: '+45 20 55 66 77',
+            email: 'michael.berg@example.com'
+        },
+        location: {
+            address: 'Kastanievej 12, 2800 Kongens Lyngby',
+            lat: 55.7700,
+            lng: 12.5030
+        },
+        date: '2026-02-26',
+        scheduledStart: '08:00',
+        scheduledEnd: '11:00',
+        status: 'pending',
+        priority: 'high',
+        description: 'New fiber connection from street to house. Customer present at 08:00.',
+        estimatedHours: 3,
+        billable: true
+    },
+    20: {
+        id: 20,
+        orderNumber: '471',
+        title: 'Network termination inspection',
+        type: 'Service',
+        customer: {
+            name: 'Sandra Møller',
+            phone: '+45 31 77 88 99',
+            email: 'sandra@example.com'
+        },
+        location: {
+            address: 'Rolighedsvej 5, 1958 Frederiksberg C',
+            lat: 55.6780,
+            lng: 12.5260
+        },
+        date: '2026-02-26',
+        scheduledStart: '13:00',
+        scheduledEnd: '15:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Inspection and testing of existing fiber termination point.',
+        estimatedHours: 2,
+        billable: true
+    },
+    21: {
+        id: 21,
+        orderNumber: '472',
+        title: 'House entry point installation',
+        type: 'Service',
+        customer: {
+            name: 'Klaus Henriksen',
+            phone: '+45 40 33 44 55',
+            email: 'klaus.h@example.com'
+        },
+        location: {
+            address: 'Bregnevej 9, 3460 Birkerød',
+            lat: 55.8460,
+            lng: 12.4270
+        },
+        date: '2026-02-27',
+        scheduledStart: '08:30',
+        scheduledEnd: '12:30',
+        status: 'pending',
+        priority: 'high',
+        description: 'Install new house entry point and route internal cable to living room.',
+        estimatedHours: 4,
+        billable: true
+    },
+    22: {
+        id: 22,
+        orderNumber: '473',
+        title: 'Cable blowing - 45m',
+        type: 'Service',
+        customer: {
+            name: 'Trine Vestergaard',
+            phone: '+45 22 11 33 44',
+            email: 'trine.v@example.com'
+        },
+        location: {
+            address: 'Solbakken 3, 4300 Holbæk',
+            lat: 55.7153,
+            lng: 11.7145
+        },
+        date: '2026-02-28',
+        scheduledStart: '09:00',
+        scheduledEnd: '13:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Blow fiber cable through existing conduit, approx. 45 meters. No house entry required.',
+        estimatedHours: 4,
+        billable: true
+    },
+    23: {
+        id: 23,
+        orderNumber: '474',
+        title: 'GF-TA upgrade',
+        type: 'Service',
+        customer: {
+            name: 'Ole Dalgaard',
+            phone: '+45 51 22 33 66',
+            email: 'ole.d@example.com'
+        },
+        location: {
+            address: 'Hybenvej 17, 8700 Horsens',
+            lat: 55.8606,
+            lng: 9.8470
+        },
+        date: '2026-03-01',
+        scheduledStart: '10:00',
+        scheduledEnd: '12:00',
+        status: 'pending',
+        priority: 'medium',
+        description: 'Upgrade existing termination box to GF-TA. Customer must be home.',
+        estimatedHours: 2,
+        billable: true
+    },
+    24: {
+        id: 24,
+        orderNumber: '475',
+        title: 'Fiber splice repair',
+        type: 'Service',
+        customer: {
+            name: 'Hanne Christoffersen',
+            phone: '+45 29 44 55 88',
+            email: 'hanne.c@example.com'
+        },
+        location: {
+            address: 'Lindegårdsvej 22, 2920 Charlottenlund',
+            lat: 55.7570,
+            lng: 12.5820
+        },
+        date: '2026-03-02',
+        scheduledStart: '08:00',
+        scheduledEnd: '10:30',
+        status: 'pending',
+        priority: 'high',
+        description: 'Repair broken splice in outdoor splice box. No internet since yesterday.',
+        estimatedHours: 2.5,
+        billable: true
+    },
+    25: {
+        id: 25,
+        orderNumber: '476',
+        title: 'New connection - apartment block',
+        type: 'Service',
+        customer: {
+            name: 'Boligselskabet Nord',
+            phone: '+45 70 22 44 66',
+            email: 'drift@bsnord.dk'
+        },
+        location: {
+            address: 'Nørrebrogade 81, 2200 København N',
+            lat: 55.6960,
+            lng: 12.5510
+        },
+        date: '2026-03-03',
+        scheduledStart: '07:30',
+        scheduledEnd: '15:30',
+        status: 'pending',
+        priority: 'high',
+        description: 'Install fiber connections for 4 apartments. Conduit already available.',
+        estimatedHours: 8,
+        billable: true
+    },
+    26: {
+        id: 26,
+        orderNumber: '477',
+        title: 'Activation check - Status 100',
+        type: 'Service',
+        customer: {
+            name: 'Finn Overgaard',
+            phone: '+45 42 88 11 22',
+            email: 'finn.o@example.com'
+        },
+        location: {
+            address: 'Åbrinken 6, 8800 Viborg',
+            lat: 56.4530,
+            lng: 9.3970
+        },
+        date: '2026-03-04',
+        scheduledStart: '09:00',
+        scheduledEnd: '11:00',
+        status: 'pending',
+        priority: 'low',
+        description: 'Verify fiber activation and signal levels after recent installation.',
+        estimatedHours: 2,
+        billable: true
     }
 };
 
