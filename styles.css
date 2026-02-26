@@ -4881,7 +4881,7 @@ textarea::placeholder {
 .time-reg-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     flex: 1;
     min-width: 0;
 }
@@ -4897,6 +4897,7 @@ textarea::placeholder {
     text-transform: uppercase;
     letter-spacing: 0.04em;
     white-space: nowrap;
+    display: block;
 }
 
 .time-reg-input {
@@ -4962,7 +4963,7 @@ textarea::placeholder {
 .worker-time-entry-left {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     flex: 1;
 }
 
@@ -5005,7 +5006,7 @@ textarea::placeholder {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 3px;
+    gap: 2px;
 }
 
 .worker-time-total {

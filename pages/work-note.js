@@ -31,12 +31,12 @@ function renderWorkNotePage(data) {
             <div class="worker-time-entry">
                 <div class="worker-time-entry-left">
                     <div class="worker-time-name">${e.worker}</div>
+                    <span class="worker-time-badge">${e.start} – ${e.end}</span>
                 </div>
                 <div class="worker-time-entry-right">
                     <div class="worker-time-meta">
-                        <span class="worker-time-badge">${e.start} – ${e.end}</span>
-                        <span class="worker-time-pause">Pause: ${parseInt(e.pause) || 0} min</span>
                         <span class="worker-time-total">${totalStr}</span>
+                        <span class="worker-time-pause">Pause: ${parseInt(e.pause) || 0} min</span>
                     </div>
                     <button class="button-delete" onclick="deleteWorkerTimeEntry(${taskId}, '${e.id}')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
