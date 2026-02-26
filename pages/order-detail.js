@@ -594,7 +594,6 @@ async function addPhotos(taskId, event, photoType = 'standard') {
         showToast(error.name === 'QuotaExceededError' ? '📦 Storage full!' : 'Save error: ' + error.message, 'error', 6000);
     }
 }
-}
 
 function deletePhoto(taskId, photoId) {
     let photos = AppData.getTaskData(taskId, 'photos', []);
