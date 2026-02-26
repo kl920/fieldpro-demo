@@ -503,11 +503,11 @@ function stampLocationOnImage(dataUrl, stampText) {
             const barH = Math.max(36, img.height * 0.07);
             const fontSize = Math.max(13, barH * 0.42);
             ctx.fillStyle = 'rgba(0,0,0,0.55)';
-            ctx.fillRect(0, img.height - barH, img.width, barH);
+            ctx.fillRect(0, 0, img.width, barH);
             ctx.fillStyle = '#ffffff';
             ctx.font = `bold ${fontSize}px sans-serif`;
             ctx.textBaseline = 'middle';
-            ctx.fillText('📍 ' + stampText, 10, img.height - barH / 2);
+            ctx.fillText('📍 ' + stampText, 10, barH / 2);
 
             resolve(canvas.toDataURL('image/jpeg', 0.85));
         };
@@ -535,38 +535,24 @@ async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const dbg = ['--- ' + new Date().toTimeString().slice(0,8) + ' ---'];
-    const log = msg => { dbg.push(msg); localStorage.setItem('_photoDebug', dbg.join('\n')); };
-
-    log('files=' + files.length + ' type=' + photoType);
-    showToast('📍 Getting location...', 'info', 6000);
-
     let stampText = null;
     try {
         const loc = await (_pendingLocationPromise || getLocationWithTimeout(10000));
         _pendingLocationPromise = null;
         if (loc && loc.lat) {
-            log('GPS OK ' + loc.lat.toFixed(5) + ',' + loc.lng.toFixed(5));
             try {
                 const address = await Promise.race([
                     LocationService.reverseGeocode(loc.lat, loc.lng),
                     new Promise(r => setTimeout(() => r(null), 4000))
                 ]);
                 stampText = address || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
-                log('address=' + stampText);
             } catch (e) {
                 stampText = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
-                log('geocode error=' + e.message);
             }
-        } else {
-            log('GPS null - no location');
         }
     } catch (e) {
         _pendingLocationPromise = null;
-        log('GPS exception=' + e.message);
     }
-
-    log('stampText=' + (stampText || 'NULL'));
 
     const photos = AppData.getTaskData(taskId, 'photos', []);
     const fileArray = Array.from(files);
@@ -574,23 +560,19 @@ async function addPhotos(taskId, event, photoType = 'standard') {
     for (const file of fileArray) {
         try {
             const compressed = await compressImage(file, 1200, 0.7);
-            log('compressed len=' + compressed.length);
             const finalData = stampText ? await stampLocationOnImage(compressed, stampText) : compressed;
-            log('finalData len=' + finalData.length + ' stamped=' + !!stampText);
             photos.push({ id: generateId(), data: finalData, timestamp: new Date().toISOString(), type: photoType, address: stampText || null });
-        } catch (e) { log('compress/stamp error=' + e.message); }
+        } catch (e) { /* skip failed file */ }
     }
 
     try {
         AppData.saveTaskData(taskId, 'photos', photos);
-        log('SAVED ok total=' + photos.length);
         ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
         vibrate(50);
         event.target.value = '';
         showToast(stampText ? '📍 ' + stampText : `${fileArray.length} photo(s) added`, 'success', 4000);
         router.navigate('/order-detail', { taskId });
     } catch (error) {
-        log('save error=' + error.name + ' ' + error.message);
         showToast(error.name === 'QuotaExceededError' ? '📦 Storage full!' : 'Save error: ' + error.message, 'error', 6000);
     }
 }
