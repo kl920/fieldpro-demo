@@ -138,129 +138,52 @@ function renderOrderDetailPage(data) {
 
                 <!-- Photos -->
                 <div class="section-card">
-                    <div class="section-card-header">
-                        <h3>Photos</h3>
-                        <button class="button-icon" onclick="showPhotoTypeDialog(${taskId})">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                        </button>
-                        <input type="file" id="photoInput${taskId}" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif" capture="environment" multiple style="display: none;" data-photo-type="standard">
-                    </div>
                     ${(() => {
-                        if (photos.length === 0) {
-                            return `<div class="empty-state-small"><p>No photos added yet</p></div>`;
-                        }
-                        
-                        // Load photo categories from active job type
                         const jobTypes = getFromStorage('admin_job_types', []);
                         const activeJobTypeId = getFromStorage('admin_active_job_type', 1);
                         const activeJobType = jobTypes.find(jt => jt.id === activeJobTypeId) || jobTypes[0];
-                        if (!activeJobType || !activeJobType.photoCategories) return '<div class="empty-state-small"><p>No photos added yet</p></div>';
-                        const categories = activeJobType.photoCategories;
-                        
-                        let html = '';
-                        
-                        // Group photos by category
-                        categories.forEach((category, index) => {
-                            const categoryPhotos = photos.filter(p => p.type === category);
-                            
-                            if (categoryPhotos.length > 0) {
-                                html += `
-                                    <div class="photo-section">
-                                        <div class="photo-section-label" style="background: hsl(${index * (360 / categories.length)}, 70%, 95%); color: hsl(${index * (360 / categories.length)}, 70%, 40%);">
-                                            ${category.toUpperCase()} (${categoryPhotos.length})
+                        const categories = (activeJobType && activeJobType.photoCategories) || [];
+                        const total = categories.length;
+                        const taken = categories.filter(cat => photos.some(p => p.type === cat)).length;
+                        const pct = total > 0 ? Math.round((taken / total) * 100) : 0;
+
+                        return `
+                        <div class="section-card-header">
+                            <h3>Photos</h3>
+                            <div class="progress-badge" style="background: ${pct === 100 ? 'var(--color-success, #22c55e)' : 'var(--color-primary)'};">${taken} / ${total}</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <input type="file" id="photoInput${taskId}" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif" capture="environment" multiple style="display: none;" data-photo-type="standard">
+                        <div class="photo-slots-grid">
+                            ${categories.map(category => {
+                                const catPhotos = photos.filter(p => p.type === category);
+                                const hasTaken = catPhotos.length > 0;
+                                const latestPhoto = catPhotos[catPhotos.length - 1];
+                                if (hasTaken) {
+                                    return `
+                                    <div class="photo-slot photo-slot--taken" onclick="openPhotoSlot(${taskId}, '${category.replace(/'/g, "\\'")}')">
+                                        <img src="${latestPhoto.data}" alt="${category}" class="photo-slot-img">
+                                        <div class="photo-slot-check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                         </div>
-                                        <div class="photos-grid">
-                                            ${categoryPhotos.map(photo => `
-                                                <div class="photo-item">
-                                                    <div class="photo-type-badge" style="background: hsl(${index * (360 / categories.length)}, 70%, 60%);">
-                                                        ${category}
-                                                    </div>
-                                                    <img src="${photo.data}" alt="${category} foto" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
-                                                    <div class="photo-info">
-                                                        ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                                                        ${photo.address ? `
-                                                            <div class="photo-location">
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                    <circle cx="12" cy="10" r="3"></circle>
-                                                                </svg>
-                                                                ${photo.address}
-                                                            </div>
-                                                        ` : photo.lat && photo.lng ? `
-                                                            <div class="photo-location">
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                    <circle cx="12" cy="10" r="3"></circle>
-                                                                </svg>
-                                                                ${formatGPSCoordinates(photo.lat, photo.lng)}
-                                                            </div>
-                                                        ` : ''}
-                                                    </div>
-                                                    <button class="photo-delete" onclick="event.stopPropagation(); deletePhoto(${taskId}, '${photo.id}')">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        });
-                        
-                        // Show uncategorized photos (those with types not in current categories)
-                        const uncategorizedPhotos = photos.filter(p => !categories.includes(p.type) && p.type);
-                        if (uncategorizedPhotos.length > 0) {
-                            html += `
-                                <div class="photo-section">
-                                    <div class="photo-section-label" style="background: #f5f5f5; color: #666;">
-                                        OTHER PHOTOS (${uncategorizedPhotos.length})
-                                    </div>
-                                    <div class="photos-grid">
-                                        ${uncategorizedPhotos.map(photo => `
-                                            <div class="photo-item">
-                                                <div class="photo-type-badge" style="background: #999;">${photo.type || 'Standard'}</div>
-                                                <img src="${photo.data}" alt="Task photo" onclick="${photo.lat && photo.lng ? `window.open('${getGoogleMapsLink(photo.lat, photo.lng)}', '_blank')` : 'void(0)'}">
-                                                <div class="photo-info">
-                                                    ${photo.timestamp ? `<div class="photo-timestamp">${formatPhotoTimestamp(photo.timestamp)}</div>` : ''}
-                                                    ${photo.address ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${photo.address}
-                                                        </div>
-                                                    ` : photo.lat && photo.lng ? `
-                                                        <div class="photo-location">
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 12px; height: 12px;">
-                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                                <circle cx="12" cy="10" r="3"></circle>
-                                                            </svg>
-                                                            ${formatGPSCoordinates(photo.lat, photo.lng)}
-                                                        </div>
-                                                    ` : ''}
-                                                </div>
-                                                <button class="photo-delete" onclick="event.stopPropagation(); deletePhoto(${taskId}, '${photo.id}')">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `;
-                        }
-                        
-                        return html;
+                                        ${catPhotos.length > 1 ? `<div class="photo-slot-count">+${catPhotos.length - 1}</div>` : ''}
+                                        <div class="photo-slot-label">${category}</div>
+                                    </div>`;
+                                } else {
+                                    return `
+                                    <div class="photo-slot photo-slot--empty" onclick="openPhotoSlot(${taskId}, '${category.replace(/'/g, "\\'")}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="24" height="24" class="photo-slot-icon">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                        <div class="photo-slot-label">${category}</div>
+                                    </div>`;
+                                }
+                            }).join('')}
+                        </div>`;
                     })()}
                 </div>
 
@@ -551,7 +474,15 @@ function selectPhotoType(taskId, type) {
     input.dataset.photoType = type;
     input.onchange = (e) => addPhotos(taskId, e, type);
     input.click();
-    document.querySelector('.photo-type-dialog-overlay').remove();
+    const overlay = document.querySelector('.photo-type-dialog-overlay');
+    if (overlay) overlay.remove();
+}
+
+function openPhotoSlot(taskId, category) {
+    const input = document.getElementById(`photoInput${taskId}`);
+    input.dataset.photoType = category;
+    input.onchange = (e) => addPhotos(taskId, e, category);
+    input.click();
 }
 
 function addPhotos(taskId, event, photoType = 'standard') {
