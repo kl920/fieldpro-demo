@@ -10,8 +10,11 @@
 ## Quick Start
 
 ```powershell
-cd C:\fieldpro-demo
+# Open workspace in VS Code
+code C:\fieldpro-demo
+
 # Deploy after changes:
+cd C:\fieldpro-demo
 git add -A
 git commit -m "description"
 git push

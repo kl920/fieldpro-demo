@@ -132,18 +132,6 @@ function renderWorkNotePage(data) {
                             <label>Quantity</label>
                             <input type="number" id="materialQuantity" value="1" min="0.1" step="0.1">
                         </div>
-                        <div class="form-group">
-                            <label>Unit</label>
-                            <select id="materialUnit">
-                                <option value="SDU">SDU</option>
-                                <option value="stk">Pieces</option>
-                                <option value="m">Meters</option>
-                                <option value="m2">m²</option>
-                                <option value="kg">Kg</option>
-                                <option value="l">Liters</option>
-                                <option value="pk">Package</option>
-                            </select>
-                        </div>
                     </div>
                     <button class="button-primary button-block" onclick="saveMaterialFromWorkNote(${taskId})">
                         Save material
@@ -165,7 +153,6 @@ function openMaterialModalFromWorkNote(taskId) {
     // Clear form
     document.getElementById('materialName').value = '';
     document.getElementById('materialQuantity').value = '1';
-    document.getElementById('materialUnit').value = 'stk';
     
     // Focus on name input
     setTimeout(() => document.getElementById('materialName').focus(), 100);
@@ -181,7 +168,7 @@ function closeMaterialModalFromWorkNote() {
 function saveMaterialFromWorkNote(taskId) {
     const name = document.getElementById('materialName').value.trim();
     const quantity = parseFloat(document.getElementById('materialQuantity').value);
-    const unit = document.getElementById('materialUnit').value;
+    const unit = 'stk';
     
     if (!name) {
         showToast('Please enter a material name', 'error');
