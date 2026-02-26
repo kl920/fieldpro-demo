@@ -4873,7 +4873,7 @@ textarea::placeholder {
 /* Time registration single-row layout */
 .time-reg-row {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: 8px;
     margin-bottom: 14px;
 }
@@ -4928,8 +4928,9 @@ textarea::placeholder {
 .time-reg-sep {
     font-size: 1rem;
     color: var(--text-secondary);
-    padding-bottom: 10px;
     flex: 0 0 auto;
+    align-self: flex-end;
+    padding-bottom: 11px;
 }
 
 .time-reg-pause-wrap {
