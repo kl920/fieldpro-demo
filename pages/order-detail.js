@@ -485,116 +485,89 @@ function openPhotoSlot(taskId, category) {
     input.click();
 }
 
-function addPhotos(taskId, event, photoType = 'standard') {
-    console.log('addPhotos kaldt for taskId:', taskId, 'type:', photoType);
+function stampLocationOnImage(dataUrl, stampText) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const barH = Math.max(36, img.height * 0.07);
+            const fontSize = Math.max(13, barH * 0.42);
+            ctx.fillStyle = 'rgba(0,0,0,0.55)';
+            ctx.fillRect(0, img.height - barH, img.width, barH);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.textBaseline = 'middle';
+            ctx.fillText('📍 ' + stampText, 10, img.height - barH / 2);
+
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => resolve(dataUrl); // fallback: return original
+        img.src = dataUrl;
+    });
+}
+
+async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
-    console.log('Antal filer:', files ? files.length : 0);
-    
-    if (!files || files.length === 0) {
-        console.log('Ingen filer valgt');
-        return;
-    }
-    
-    // START GPS REQUEST IMMEDIATELY
-    console.log('Starter GPS request...');
-    let locationPromise = null;
+    if (!files || files.length === 0) return;
+
+    showToast('📍 Getting location...', 'info', 3000);
+
+    // Try to get GPS with a 5-second timeout
+    let locationInfo = null;
     try {
-        locationPromise = LocationService.getCurrentPosition();
-        console.log('GPS request startet');
-    } catch (err) {
-        console.error('GPS ikke tilgængelig:', err);
-        showToast('GPS not available - images uploaded without location', 'warning', 4000);
-    }
-    
+        const locPromise = LocationService.getCurrentPosition();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+        const location = await Promise.race([locPromise, timeoutPromise]);
+        if (location && location.lat) {
+            locationInfo = { lat: location.lat, lng: location.lng, accuracy: location.accuracy };
+            try {
+                const address = await LocationService.reverseGeocode(location.lat, location.lng);
+                if (address) locationInfo.address = address;
+            } catch (_) {}
+        }
+    } catch (_) {}
+
+    const stampText = locationInfo
+        ? (locationInfo.address || `${locationInfo.lat.toFixed(5)}, ${locationInfo.lng.toFixed(5)}`)
+        : null;
+
     const photos = AppData.getTaskData(taskId, 'photos', []);
-    console.log('Eksisterende billeder:', photos.length);
-    
     const fileArray = Array.from(files);
     let processed = 0;
-    
-    // Process each file
+
     fileArray.forEach((file, index) => {
-        console.log(`Læser fil ${index + 1}/${fileArray.length}:`, file.name, file.type, file.size);
-        
-        // Compress image first
-        compressImage(file, 1200, 0.7).then(compressedData => {
-            console.log(`Fil ${index + 1} komprimeret, original: ${file.size} bytes`);
-            
+        compressImage(file, 1200, 0.7).then(async compressedData => {
+            const finalData = stampText ? await stampLocationOnImage(compressedData, stampText) : compressedData;
+
             const photoData = {
                 id: generateId(),
-                data: compressedData,
+                data: finalData,
                 timestamp: new Date().toISOString(),
-                type: photoType
+                type: photoType,
+                ...(locationInfo || {})
             };
-            
+
             photos.push(photoData);
-            console.log('Billede tilføjet, total nu:', photos.length);
-            
-            // Add GPS if available (will resolve when ready)
-            if (locationPromise) {
-                console.log('Forsøger at hente GPS...');
-                locationPromise.then(async location => {
-                    console.log('GPS location modtaget:', location);
-                    if (location && location.lat && location.lng) {
-                        photoData.lat = location.lat;
-                        photoData.lng = location.lng;
-                        photoData.accuracy = location.accuracy;
-                        console.log('GPS tilføjet til billede:', photoData.lat, photoData.lng);
-                        
-                        // Get address in background
-                        console.log('Henter adresse...');
-                        try {
-                            const address = await LocationService.reverseGeocode(location.lat, location.lng);
-                            console.log('Adresse resultat:', address);
-                            if (address) {
-                                photoData.address = address;
-                                console.log('Adresse tilføjet:', address);
-                                showToast('📍 Location saved: ' + address, 'success', 3000);
-                            }
-                        } catch (err) {
-                            console.error('Adresse fejl:', err);
-                        }
-                        
-                        // Re-save with GPS and address
-                        try {
-                            AppData.saveTaskData(taskId, 'photos', photos);
-                            console.log('Data gemt med GPS/adresse');
-                            // Refresh display to show GPS/address
-                            setTimeout(() => {
-                                router.navigate('/order-detail', { taskId });
-                            }, 500);
-                        } catch (err) {
-                            console.error('Kunne ikke gemme GPS/adresse:', err);
-                        }
-                    }
-                }).catch(err => {
-                    console.error('GPS fejl:', err);
-                    showToast('GPS was denied or is not available', 'warning', 3000);
-                });
-            } else {
-                console.log('Ingen GPS location promise');
-            }
-            
             processed++;
+
             if (processed === fileArray.length) {
-                console.log('Alle billeder indlæst, gemmer...');
                 try {
                     AppData.saveTaskData(taskId, 'photos', photos);
-                    console.log('Billeder gemt i AppData');
                     ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
-                    showToast(`${fileArray.length} photo(s) added`, 'success', 3000);
+                    if (stampText) {
+                        showToast('📍 ' + stampText, 'success', 3000);
+                    } else {
+                        showToast(`${fileArray.length} photo(s) added (no location)`, 'success', 3000);
+                    }
                     vibrate(50);
-                    
-                    // Reset input
                     event.target.value = '';
-                    
-                    // Delay navigation to allow GPS/address to be captured
-                    setTimeout(() => {
-                        console.log('Navigerer til order-detail');
-                        router.navigate('/order-detail', { taskId });
-                    }, 2000);  // Increased to 2 seconds to allow GPS/address to complete
+                    router.navigate('/order-detail', { taskId });
                 } catch (error) {
-                    console.error('Fejl ved gemning:', error);
                     if (error.name === 'QuotaExceededError') {
                         showToast('📦 Storage full! Delete old photos or clear data', 'error', 6000);
                     } else {
@@ -602,8 +575,7 @@ function addPhotos(taskId, event, photoType = 'standard') {
                     }
                 }
             }
-        }).catch(error => {
-            console.error('Komprimeringsfejl for ' + file.name, error);
+        }).catch(() => {
             showToast('Error compressing image', 'error', 5000);
             processed++;
         });
