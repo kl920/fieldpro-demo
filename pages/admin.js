@@ -35,6 +35,22 @@ const DEFAULT_JOB_TYPES = [
             'Handover to customer'
         ],
         photoCategories: [
+            'Before Picture 1',
+            'Before Picture 2',
+            'Before Picture 3',
+            'After Picture 1',
+            'After Picture 2',
+            'After Picture 3',
+            'Picture 1',
+            'Picture 2',
+            'Picture 3',
+            'Picture 4',
+            'Picture 5',
+            'Picture 6',
+            'Picture 7',
+            'Picture 8',
+            'Picture 9',
+            'Picture 10',
             'Pre-existing damages in the work area image 1',
             'Pre-existing damages in the work area image 2',
             'Pre-existing damages in the work area image 3',
@@ -55,12 +71,18 @@ const DEFAULT_JOB_TYPES = [
             'Hidden objects - if any image 2'
         ],
         surveyQuestions: [
-            {
-                id: 1,
-                question: 'Was the owner present?',
-                type: 'yesno',
-                required: true
-            }
+            { id: 1, question: 'Was the owner present?', type: 'yesno', required: true },
+            { id: 1772087123793, question: 'Are there any private lines or objects along the planned cable route? (e.g., garden lights, oil or gas tanks)', type: 'yesno', required: false },
+            { id: 1772087129831, question: 'Is an empty conduit available from sidewalk to house wall?', type: 'yesno', required: false },
+            { id: 1772087136297, question: 'Is an empty conduit available for the house entry?', type: 'yesno', required: false },
+            { id: 1772087143061, question: 'Are there trees/plants where roots should be considered?', type: 'yesno', required: false },
+            { id: 1772087170965, question: 'Distance from property boundary to house entry', type: 'text', required: false },
+            { id: 1772087179234, question: 'Cable length (outside)', type: 'text', required: false },
+            { id: 1772087185972, question: 'Cable length (inside)', type: 'text', required: false },
+            { id: 1772087192744, question: 'Spare cable', type: 'text', required: false },
+            { id: 1772087200077, question: 'Total length', type: 'text', required: false },
+            { id: 1772087221593, question: 'Type of connection', type: 'choice', required: false, choices: ['HÜP with GF-TA and NT', 'HÜP + NT', 'only HÜP'] },
+            { id: 1772087238288, question: 'House Entry Point', type: 'choice', required: false, choices: ['Existing entry point', 'No existing entry point'] }
         ],
         materials: DEFAULT_MATERIALS
     }
