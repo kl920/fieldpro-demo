@@ -149,8 +149,8 @@ function renderOrderDetailPage(data) {
 
                         return `
                         <div class="section-card-header">
-                            <h3>Photos</h3>
-                            <div class="progress-badge" style="background: ${pct === 100 ? 'var(--color-success, #22c55e)' : 'var(--color-primary)'};">${taken} / ${total}</div>
+                            <h3>Photos (${taken}/${total})</h3>
+                            <div class="progress-badge" style="background: ${pct === 100 ? 'var(--color-success, #22c55e)' : 'var(--color-primary)'};">${pct}%</div>
                         </div>
                         <div class="progress-bar">
                             <div class="progress-bar-fill" style="width: ${pct}%"></div>
