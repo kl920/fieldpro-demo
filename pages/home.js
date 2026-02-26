@@ -59,10 +59,6 @@ function renderHomePage() {
                     ` : todayTasks.map(task => `
                         <div class="today-card" onclick="router.navigate('/order-detail', { taskId: ${task.id} })">
                             <div class="today-card-top">
-                                <div class="today-card-meta">
-                                    <span class="today-order-id">#${task.orderNumber}</span>
-                                    <span class="today-type-tag">${task.type}</span>
-                                </div>
                                 <span class="today-time">${task.scheduledStart}–${task.scheduledEnd}</span>
                             </div>
                             <h3 class="today-title">${task.title}</h3>
