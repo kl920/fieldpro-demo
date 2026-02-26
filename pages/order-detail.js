@@ -535,69 +535,65 @@ async function addPhotos(taskId, event, photoType = 'standard') {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    showToast('Step 1: Getting location...', 'info', 8000);
+    const dbg = ['--- ' + new Date().toTimeString().slice(0,8) + ' ---'];
+    const log = msg => { dbg.push(msg); localStorage.setItem('_photoDebug', dbg.join('\n')); };
+
+    log('files=' + files.length + ' type=' + photoType);
+    showToast('📍 Getting location...', 'info', 6000);
 
     let stampText = null;
     try {
         const loc = await (_pendingLocationPromise || getLocationWithTimeout(10000));
         _pendingLocationPromise = null;
         if (loc && loc.lat) {
-            showToast('Step 2: GPS OK ' + loc.lat.toFixed(3) + ', ' + loc.lng.toFixed(3), 'success', 5000);
+            log('GPS OK ' + loc.lat.toFixed(5) + ',' + loc.lng.toFixed(5));
             try {
                 const address = await Promise.race([
                     LocationService.reverseGeocode(loc.lat, loc.lng),
                     new Promise(r => setTimeout(() => r(null), 4000))
                 ]);
                 stampText = address || `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
-                showToast('Step 3: Address = ' + stampText, 'success', 5000);
-            } catch (_) {
+                log('address=' + stampText);
+            } catch (e) {
                 stampText = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
-                showToast('Step 3: No address, using coords', 'warning', 4000);
+                log('geocode error=' + e.message);
             }
         } else {
-            showToast('Step 2: No GPS fix returned', 'error', 5000);
+            log('GPS null - no location');
         }
-    } catch (err) {
+    } catch (e) {
         _pendingLocationPromise = null;
-        showToast('Step 2: GPS error - ' + err.message, 'error', 5000);
+        log('GPS exception=' + e.message);
     }
+
+    log('stampText=' + (stampText || 'NULL'));
 
     const photos = AppData.getTaskData(taskId, 'photos', []);
     const fileArray = Array.from(files);
 
     for (const file of fileArray) {
         try {
-            showToast('Step 4: Compressing...', 'info', 4000);
             const compressed = await compressImage(file, 1200, 0.7);
-            showToast('Step 5: Stamping... stampText=' + (stampText || 'NULL'), 'info', 5000);
+            log('compressed len=' + compressed.length);
             const finalData = stampText ? await stampLocationOnImage(compressed, stampText) : compressed;
-            showToast('Step 6: Stamp done, saving...', 'info', 4000);
-            photos.push({
-                id: generateId(),
-                data: finalData,
-                timestamp: new Date().toISOString(),
-                type: photoType,
-                address: stampText || null
-            });
-        } catch (e) {
-            showToast('Step ERROR: ' + e.message, 'error', 6000);
-        }
+            log('finalData len=' + finalData.length + ' stamped=' + !!stampText);
+            photos.push({ id: generateId(), data: finalData, timestamp: new Date().toISOString(), type: photoType, address: stampText || null });
+        } catch (e) { log('compress/stamp error=' + e.message); }
     }
 
     try {
         AppData.saveTaskData(taskId, 'photos', photos);
+        log('SAVED ok total=' + photos.length);
         ActivityLogger.log('photo', `Added ${fileArray.length} photo(s)`, taskId);
         vibrate(50);
         event.target.value = '';
         showToast(stampText ? '📍 ' + stampText : `${fileArray.length} photo(s) added`, 'success', 4000);
         router.navigate('/order-detail', { taskId });
     } catch (error) {
-        if (error.name === 'QuotaExceededError') {
-            showToast('📦 Storage full!', 'error', 6000);
-        } else {
-            showToast('Save error: ' + error.message, 'error', 5000);
-        }
+        log('save error=' + error.name + ' ' + error.message);
+        showToast(error.name === 'QuotaExceededError' ? '📦 Storage full!' : 'Save error: ' + error.message, 'error', 6000);
     }
+}
 }
 
 function deletePhoto(taskId, photoId) {
