@@ -181,15 +181,20 @@ function renderWorkNotePage(data) {
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Material</label>
-                        <input type="text" id="materialName" list="commonMaterials" placeholder="Select or type...">
-                        <datalist id="commonMaterials">
-                            ${(() => {
-                                const jobTypes = getFromStorage('admin_job_types', []);
-                                const activeId = getFromStorage('admin_active_job_type', 1);
-                                const jt = jobTypes.find(j => j.id === activeId) || jobTypes[0];
-                                return ((jt && jt.materials) || []).map(m => `<option value="${m.name}">`).join('');
-                            })()}
-                        </datalist>
+                        ${(() => {
+                            const jobTypes = getFromStorage('admin_job_types', []);
+                            const activeId = getFromStorage('admin_active_job_type', 1);
+                            const jt = jobTypes.find(j => j.id === activeId) || jobTypes[0];
+                            const mats = (jt && jt.materials) || [];
+                            if (mats.length > 0) {
+                                return `<select id="materialName" class="worker-select">
+                                    <option value="">Select material...</option>
+                                    ${mats.map(m => `<option value="${m.name}">${m.name}</option>`).join('')}
+                                </select>`;
+                            } else {
+                                return `<input type="text" id="materialName" placeholder="Type material name...">`;
+                            }
+                        })()}
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 0 0 140px;">
@@ -254,7 +259,6 @@ function openMaterialModalFromWorkNote(taskId) {
     modal.dataset.taskId = taskId;
     document.getElementById('materialName').value = '';
     document.getElementById('materialQuantity').value = '1';
-    setTimeout(() => document.getElementById('materialName').focus(), 100);
 }
 
 // Close material modal from work note page
